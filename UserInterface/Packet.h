@@ -957,17 +957,19 @@ typedef struct command_move
 	uint8_t bFunc;
 	uint8_t bArg;
 	uint8_t bRot;
-	LONG lX;
-	LONG lY;
+	int32_t lX;
+	int32_t lY;
 	uint32_t dwTime;
 } TPacketCGMove;
+static_assert(sizeof(TPacketCGMove) == 16, "TPacketCGMove wire size changed");
 
 typedef struct command_sync_position_element
 {
 	uint32_t dwVID;
-	long lX;
-	long lY;
+	int32_t lX;
+	int32_t lY;
 } TPacketCGSyncPositionElement;
+static_assert(sizeof(TPacketCGSyncPositionElement) == 12, "TPacketCGSyncPositionElement wire size changed");
 
 typedef struct command_sync_position
 {
@@ -979,18 +981,20 @@ typedef struct command_fly_targeting
 {
 	uint8_t bHeader;
 	uint32_t dwTargetVID;
-	long lX;
-	long lY;
+	int32_t lX;
+	int32_t lY;
 } TPacketCGFlyTargeting;
+static_assert(sizeof(TPacketCGFlyTargeting) == 13, "TPacketCGFlyTargeting wire size changed");
 
 typedef struct packet_fly_targeting
 {
 	uint8_t bHeader;
 	uint32_t dwShooterVID;
 	uint32_t dwTargetVID;
-	long lX;
-	long lY;
+	int32_t lX;
+	int32_t lY;
 } TPacketGCFlyTargeting;
+static_assert(sizeof(TPacketGCFlyTargeting) == 17, "TPacketGCFlyTargeting wire size changed");
 
 typedef struct packet_shoot
 {
@@ -2206,7 +2210,7 @@ enum EPointTypes
 	POINT_FISHING_RARE,
 #endif
 
-	//POINT_MAX_NUM = 255,=>stdafx.h ·Î/
+	//POINT_MAX_NUM = 255,=>stdafx.h ë¡œ/
 };
 
 typedef struct packet_points
@@ -2734,9 +2738,10 @@ typedef struct packet_sync_position
 typedef struct packetd_sync_position_element
 {
 	uint32_t dwVID;
-	long lX;
-	long lY;
+	int32_t lX;
+	int32_t lY;
 } TPacketGCSyncPositionElement;
+static_assert(sizeof(TPacketGCSyncPositionElement) == 12, "TPacketGCSyncPositionElement wire size changed");
 
 typedef struct packet_ownership
 {
@@ -2967,7 +2972,7 @@ enum
 
 typedef struct packet_guild_sub_grade
 {
-	char grade_name[GUILD_GRADE_NAME_MAX_LEN + 1]; // 8+1 ±æµåÀå, ±æµå¿ø µîÀÇ ÀÌ¸§
+	char grade_name[GUILD_GRADE_NAME_MAX_LEN + 1]; // 8+1 ê¸¸ë“œì¥, ê¸¸ë“œì› ë“±ì˜ ì´ë¦„
 	uint8_t auth_flag;
 } TPacketGCGuildSubGrade;
 
