@@ -54,7 +54,7 @@ constexpr uint32_t c_Equipment_Shield = c_Equipment_Start + CItemData::WEAR_SHIE
 
 // New rings & belts added
 // Locations that can be assigned to mounted items are cut off due to existing equipment, quest rewards, and costume systems.
-// This is all upset because of the implementation of the buff compensation buff like an equipped item... ¤¶¤²
+// This is all upset because of the implementation of the buff compensation buff like an equipped item... Â¤Â¶Â¤Â²
 //
 // In summary, the existing equipment windows have an item position of 90 to 102 in the server DB,
 // New slots added in early 2013 start from 111. The maximum value that can be used in wearing equipment is up to 121, and from 122 it is used in Dragon Spirit Stone.
@@ -654,9 +654,9 @@ typedef struct SGrowthPetInfo
 	float pet_hp;
 	float pet_def;
 	float pet_sp;
-	time_t pet_birthday;
-	time_t pet_end_time;
-	time_t pet_max_time;
+	int32_t pet_birthday;
+	int32_t pet_end_time;
+	int32_t pet_max_time;
 	uint32_t exp_monster;
 	uint32_t exp_item;
 	uint32_t next_exp_monster;
@@ -665,7 +665,7 @@ typedef struct SGrowthPetInfo
 	uint8_t skill_vnum[3];
 	uint8_t skill_level[3];
 	float skill_spec[3];
-	time_t skill_cool[3];
+	int32_t skill_cool[3];
 	float skill_formula1[3];
 	float next_skill_formula1[3];
 	float skill_formula2[3];
