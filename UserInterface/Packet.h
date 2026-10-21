@@ -2756,7 +2756,7 @@ typedef struct SPlayerSkill
 {
 	uint8_t bMasterType;
 	uint8_t bLevel;
-	time_t tNextRead;
+	int32_t tNextRead;
 } TPlayerSkill;
 
 typedef struct packet_skill_level
@@ -3071,7 +3071,7 @@ typedef struct SPacketGCShopSign
 typedef struct SPacketGCTime
 {
 	uint8_t bHeader;
-	time_t time;
+	int32_t time;
 } TPacketGCTime;
 
 enum
@@ -4330,8 +4330,8 @@ typedef struct packet_mailbox_add_data
 
 typedef struct packet_mailbox_message
 {
-	__time32_t SendTime;
-	__time32_t DeleteTime;
+	int32_t SendTime;
+	int32_t DeleteTime;
 	char szTitle[25 + 1];
 	bool bIsGMPost;
 	bool bIsItemExist;
@@ -4797,8 +4797,8 @@ typedef struct SPacketGCBiologManagerInfo
 	uint32_t iRequiredItem;
 	uint16_t wGivenItems;
 	uint16_t wRequiredItemCount;
-	time_t iGlobalCooldown;
-	time_t iCooldown;
+	int32_t iGlobalCooldown;
+	int32_t iCooldown;
 	bool iCooldownReminder;
 	uint8_t bChance;
 	uint16_t wApplyType[MAX_BONUSES_LENGTH]; //@fixme436
