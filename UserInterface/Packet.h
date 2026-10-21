@@ -2758,6 +2758,7 @@ typedef struct SPlayerSkill
 	uint8_t bLevel;
 	int32_t tNextRead;
 } TPlayerSkill;
+static_assert(sizeof(TPlayerSkill) == 6, "TPlayerSkill wire size changed");
 
 typedef struct packet_skill_level
 {
@@ -3073,6 +3074,7 @@ typedef struct SPacketGCTime
 	uint8_t bHeader;
 	int32_t time;
 } TPacketGCTime;
+static_assert(sizeof(TPacketGCTime) == 5, "TPacketGCTime wire size changed");
 
 enum
 {
@@ -4337,6 +4339,7 @@ typedef struct packet_mailbox_message
 	bool bIsItemExist;
 	bool bIsConfirm;
 } TPacketGCMailBoxMessage;
+static_assert(sizeof(TPacketGCMailBoxMessage) == 37, "TPacketGCMailBoxMessage wire size changed");
 
 typedef struct packet_mailbox
 {
