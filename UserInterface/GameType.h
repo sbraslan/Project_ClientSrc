@@ -671,6 +671,7 @@ typedef struct SGrowthPetInfo
 	float skill_formula2[3];
 	float next_skill_formula2[3];
 } TGrowthPetInfo;
+static_assert(sizeof(TGrowthPetInfo) == 157, "TGrowthPetInfo wire size changed");
 #endif
 
 #ifdef ENABLE_BATTLE_PASS_SYSTEM
