@@ -187,7 +187,7 @@ public:
 	bool SendQuickSlotDelPacket(uint8_t pos);
 	bool SendQuickSlotMovePacket(uint8_t pos, uint8_t change_pos);
 
-	// PointReset °³ ÀÓ½Ã
+	// PointReset ê°œ ì„ì‹œ
 	bool SendPointResetPacket();
 
 	// Shop
@@ -420,7 +420,7 @@ public:
 	// CRC Report
 	bool __SendCRCReportPacket() const;
 
-	// ¿ëÈ«¼® °­È­
+	// ìš©í™ì„ ê°•í™”
 	bool SendDragonSoulRefinePacket(uint8_t bRefineType, const TItemPos * pos);
 
 	// Handshake
@@ -527,7 +527,7 @@ public:
 #endif
 
 	//////////////////////////////////////////////////////////////////////////
-	// Phase °ü·Ã
+	// Phase ê´€ë ¨
 	//////////////////////////////////////////////////////////////////////////
 public:
 	void SetOffLinePhase();
@@ -600,7 +600,7 @@ public:
 #endif
 
 protected:
-	bool OnProcess() override; // StateµéÀ» ½ÇÁ¦·Î ½ÇÇàÇÑ´Ù.
+	bool OnProcess() override; // Stateë“¤ì„ ì‹¤ì œë¡œ ì‹¤í–‰í•œë‹¤.
 	void OffLinePhase();
 	void HandShakePhase();
 	void LoginPhase();
@@ -838,10 +838,10 @@ protected:
 	bool RecvSpecialZodiacEffect();
 #endif
 
-	// ¼­¹ö¿¡¼­ ÁöÁ¤ÇÑ ÀÌÆÑÆ® ¹ßµ¿ ÆĞÅ¶.
+	// ì„œë²„ì—ì„œ ì§€ì •í•œ ì´íŒ©íŠ¸ ë°œë™ íŒ¨í‚·.
 	bool RecvSpecificEffect();
 
-	// ¿ëÈ¥¼® °ü·Ã
+	// ìš©í˜¼ì„ ê´€ë ¨
 	bool RecvDragonSoulRefine();
 
 #ifdef ENABLE_INGAME_WIKI
@@ -923,10 +923,10 @@ protected:
 #endif
 
 protected:
-	// ÀÌ¸ğÆ¼ÄÜ
+	// ì´ëª¨í‹°ì½˜
 	bool ParseEmoticon(const char * pChatMsg, uint32_t * pdwEmoticon);
 
-	// ÆÄÀÌ½ãÀ¸·Î º¸³»´Â Äİµé
+	// íŒŒì´ì¬ìœ¼ë¡œ ë³´ë‚´ëŠ” ì½œë“¤
 	void OnConnectFailure() override;
 	void OnScriptEventStart(int iSkin, int iIndex);
 	void HideQuestWindows();	//@fixme419
@@ -945,6 +945,8 @@ protected:
 	void __InitializeMarkAuth();
 	void __GlobalPositionToLocalPosition(LONG & rGlobalX, LONG & rGlobalY) const;
 	void __LocalPositionToGlobalPosition(LONG & rLocalX, LONG & rLocalY) const;
+	void __GlobalPositionToLocalPosition(int32_t & rGlobalX, int32_t & rGlobalY) const;
+	void __LocalPositionToGlobalPosition(int32_t & rLocalX, int32_t & rLocalY) const;
 
 	bool __IsPlayerAttacking() const;
 	bool __IsEquipItemInSlot(TItemPos uSlotPos) const;
