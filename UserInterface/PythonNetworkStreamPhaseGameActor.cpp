@@ -19,6 +19,24 @@ void CPythonNetworkStream::__LocalPositionToGlobalPosition(LONG & rLocalX, LONG 
 	rkBgMgr.LocalPositionToGlobalPosition(rLocalX, rLocalY);
 }
 
+void CPythonNetworkStream::__GlobalPositionToLocalPosition(int32_t & rGlobalX, int32_t & rGlobalY) const
+{
+	LONG lGlobalX = static_cast<LONG>(rGlobalX);
+	LONG lGlobalY = static_cast<LONG>(rGlobalY);
+	__GlobalPositionToLocalPosition(lGlobalX, lGlobalY);
+	rGlobalX = static_cast<int32_t>(lGlobalX);
+	rGlobalY = static_cast<int32_t>(lGlobalY);
+}
+
+void CPythonNetworkStream::__LocalPositionToGlobalPosition(int32_t & rLocalX, int32_t & rLocalY) const
+{
+	LONG lLocalX = static_cast<LONG>(rLocalX);
+	LONG lLocalY = static_cast<LONG>(rLocalY);
+	__LocalPositionToGlobalPosition(lLocalX, lLocalY);
+	rLocalX = static_cast<int32_t>(lLocalX);
+	rLocalY = static_cast<int32_t>(lLocalY);
+}
+
 bool CPythonNetworkStream::__CanActMainInstance() const
 {
 	CPythonCharacterManager & rkChrMgr = CPythonCharacterManager::Instance();
@@ -72,8 +90,8 @@ void __SetWeaponPower(IAbstractPlayer & rkPlayer, uint32_t dwWeaponID)
 	rkPlayer.SetWeaponPower(minPower, maxPower, minMagicPower, maxMagicPower, addPower);
 }
 
-//Å×ÀÌºí¿¡¼­ ÀÌ¸§ÀÌ "." ÀÎ °Íµé
-//Â÷ÈÄ¿¡ ¼­¹ö¿¡¼­ º¸³»ÁÖÁö ¾Ê°Ô µÇ¸é ¾ø¾îÁú ÇÔ¼ö..(¼­¹ö´Ô²² ²À!!Çù¹Ú; )
+//í…Œì´ë¸”ì—ì„œ ì´ë¦„ì´ "." ì¸ ê²ƒë“¤
+//ì°¨í›„ì— ì„œë²„ì—ì„œ ë³´ë‚´ì£¼ì§€ ì•Šê²Œ ë˜ë©´ ì—†ì–´ì§ˆ í•¨ìˆ˜..(ì„œë²„ë‹˜ê»˜ ê¼­!!í˜‘ë°•; )
 bool IsInvisibleRace(uint16_t raceNum)
 {
 	switch (raceNum)
@@ -149,7 +167,7 @@ bool CPythonNetworkStream::RecvCharacterAppendPacket()
 	kNetActorData.m_dwLevel = chrAddPacket.dwLevel;
 	kNetActorData.m_dwAIFlag = chrAddPacket.dwAIFlag;
 #else
-	kNetActorData.m_dwLevel = 0; // ¸ó½ºÅÍ ·¹º§ Ç¥½Ã ¾ÈÇÔ
+	kNetActorData.m_dwLevel = 0; // ëª¬ìŠ¤í„° ë ˆë²¨ í‘œì‹œ ì•ˆí•¨
 #endif
 #ifdef ENABLE_YOHARA_SYSTEM
 	kNetActorData.m_dwcLevel = 0;
@@ -341,10 +359,10 @@ bool CPythonNetworkStream::RecvCharacterUpdatePacket()
 
 void CPythonNetworkStream::__RecvCharacterAppendPacket(const SNetworkActorData * pkNetActorData)
 {
-	// NOTE : Ä«¸Ş¶ó°¡ ¶¥¿¡ ¹¯È÷´Â ¹®Á¦ÀÇ ÇØ°áÀ» À§ÇØ ¸ŞÀÎ Ä³¸¯ÅÍ°¡ ÁöÇü¿¡ ¿Ã·ÁÁö±â
-	//        Àü¿¡ ¸ÊÀ» ¾÷µ¥ÀÌÆ® ÇØ ³ôÀÌ¸¦ ±¸ÇÒ ¼ö ÀÖµµ·Ï ÇØ³õ¾Æ¾ß ÇÕ´Ï´Ù.
-	//        ´Ü, °ÔÀÓÀÌ µé¾î°¥¶§°¡ ¾Æ´Ñ ÀÌ¹Ì Ä³¸¯ÅÍ°¡ Ãß°¡ µÈ ÀÌÈÄ¿¡¸¸ ÇÕ´Ï´Ù.
-	//        Çåµ¥ ÀÌµ¿ÀÎµ¥ ¿Ö Move·Î ¾ÈÇÏ°í Append·Î ÇÏ´ÂÁö..? - [levites]
+	// NOTE : ì¹´ë©”ë¼ê°€ ë•…ì— ë¬»íˆëŠ” ë¬¸ì œì˜ í•´ê²°ì„ ìœ„í•´ ë©”ì¸ ìºë¦­í„°ê°€ ì§€í˜•ì— ì˜¬ë ¤ì§€ê¸°
+	//        ì „ì— ë§µì„ ì—…ë°ì´íŠ¸ í•´ ë†’ì´ë¥¼ êµ¬í•  ìˆ˜ ìˆë„ë¡ í•´ë†“ì•„ì•¼ í•©ë‹ˆë‹¤.
+	//        ë‹¨, ê²Œì„ì´ ë“¤ì–´ê°ˆë•Œê°€ ì•„ë‹Œ ì´ë¯¸ ìºë¦­í„°ê°€ ì¶”ê°€ ëœ ì´í›„ì—ë§Œ í•©ë‹ˆë‹¤.
+	//        í—Œë° ì´ë™ì¸ë° ì™œ Moveë¡œ ì•ˆí•˜ê³  Appendë¡œ í•˜ëŠ”ì§€..? - [levites]
 	IAbstractPlayer & rkPlayer = IAbstractPlayer::GetSingleton();
 	if (rkPlayer.IsMainCharacterIndex(pkNetActorData->m_dwVID))
 	{
@@ -357,7 +375,7 @@ void CPythonNetworkStream::__RecvCharacterAppendPacket(const SNetworkActorData *
 			CPythonBackground::Instance().Update(pkNetActorData->m_lCurX, pkNetActorData->m_lCurY, 0.0f);
 			CPythonCharacterManager::Instance().Update();
 
-			// NOTE : »ç±Í Å¸¿öÀÏ °æ¿ì GOTO ·Î ÀÌµ¿½Ã¿¡µµ ¸Ê ÀÌ¸§À» Ãâ·ÂÇÏµµ·Ï Ã³¸®
+			// NOTE : ì‚¬ê·€ íƒ€ì›Œì¼ ê²½ìš° GOTO ë¡œ ì´ë™ì‹œì—ë„ ë§µ ì´ë¦„ì„ ì¶œë ¥í•˜ë„ë¡ ì²˜ë¦¬
 			{
 				std::string strMapName = CPythonBackground::Instance().GetWarpMapName();
 				if (strMapName == "metin2_map_deviltower1")
@@ -412,8 +430,8 @@ bool CPythonNetworkStream::RecvCharacterDeletePacket()
 
 	m_rokNetActorMgr->RemoveActor(chrDelPacket.dwVID);
 
-	// Ä³¸¯ÅÍ°¡ »ç¶óÁú¶§ °³ÀÎ »óÁ¡µµ ¾ø¾ÖÁİ´Ï´Ù.
-	// Key Check ¸¦ ÇÏ±â¶§¹®¿¡ ¾ø¾îµµ »ó°üÀº ¾ø½À´Ï´Ù.
+	// ìºë¦­í„°ê°€ ì‚¬ë¼ì§ˆë•Œ ê°œì¸ ìƒì ë„ ì—†ì• ì¤ë‹ˆë‹¤.
+	// Key Check ë¥¼ í•˜ê¸°ë•Œë¬¸ì— ì—†ì–´ë„ ìƒê´€ì€ ì—†ìŠµë‹ˆë‹¤.
 	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "BINARY_PrivateShop_Disappear", Py_BuildValue("(i)", chrDelPacket.dwVID));
 
 	return true;
