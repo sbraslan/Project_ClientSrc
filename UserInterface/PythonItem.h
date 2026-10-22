@@ -1,8 +1,8 @@
 #pragma once
 
-// Note : È­¸é»ó¿¡ ¶³¾îÁø ItemÀÇ Update¿Í RenderingÀ» Ã¥ÀÓÁö´Â ÇÑÆí
-//        °¢ ¾ÆÀÌÅÛÀÇ µ¥ÀÌÅ¸¿Í Icon Image InstanceÀÇ ¸Å´ÏÁ® ¿ªÇÒ±îÁö ÁÖ°ü
-//        Á¶±İ ³­ÀâÇØÁø°Å °°±âµµ ÇÏ´Ù - 2003. 01. 13. [levites]
+// Note : í™”ë©´ìƒì— ë–¨ì–´ì§„ Itemì˜ Updateì™€ Renderingì„ ì±…ì„ì§€ëŠ” í•œí¸
+//        ê° ì•„ì´í…œì˜ ë°ì´íƒ€ì™€ Icon Image Instanceì˜ ë§¤ë‹ˆì ¸ ì—­í• ê¹Œì§€ ì£¼ê´€
+//        ì¡°ê¸ˆ ë‚œì¡í•´ì§„ê±° ê°™ê¸°ë„ í•˜ë‹¤ - 2003. 01. 13. [levites]
 
 #include "../EterGrnLib/ThingInstance.h"
 
@@ -99,7 +99,7 @@ public:
 	void Update(const POINT & c_rkPtMouse);
 
 #ifdef ENABLE_EXTENDED_ITEMNAME_ON_GROUND
-	void CreateItem(uint32_t dwVirtualID, uint32_t dwVirtualNumber, float x, float y, float z, bool bDrop = true, long alSockets[ITEM_SOCKET_SLOT_MAX_NUM] = {}, TPlayerItemAttribute aAttrs[ITEM_ATTRIBUTE_SLOT_MAX_NUM] = {});
+	void CreateItem(uint32_t dwVirtualID, uint32_t dwVirtualNumber, float x, float y, float z, bool bDrop = true, const int32_t alSockets[ITEM_SOCKET_SLOT_MAX_NUM] = {}, TPlayerItemAttribute aAttrs[ITEM_ATTRIBUTE_SLOT_MAX_NUM] = {});
 #else
 	void CreateItem(uint32_t dwVirtualID, uint32_t dwVirtualNumber, float x, float y, float z, bool bDrop = true);
 #endif
