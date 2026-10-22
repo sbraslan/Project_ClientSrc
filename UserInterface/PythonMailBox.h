@@ -11,7 +11,7 @@ public:
 	struct SMailBoxAddData
 	{
 		SMailBoxAddData(const char* _From, const char* _Message, const int _Yang, const int _Won,
-			const uint32_t _ItemVnum, const uint32_t _ItemCount, const long* _Sockets, const TPlayerItemAttribute* _Attrs
+			const uint32_t _ItemVnum, const uint32_t _ItemCount, const int32_t* _Sockets, const TPlayerItemAttribute* _Attrs
 #ifdef ENABLE_YOHARA_SYSTEM
 			, const TPlayerItemApplyRandom * _aApplyRandom
 			, const uint16_t * _RandomValues
@@ -36,7 +36,7 @@ public:
 		int									iWon;
 		uint32_t								ItemVnum;
 		uint32_t								ItemCount;
-		long								alSockets[ITEM_SOCKET_SLOT_MAX_NUM];
+		int32_t								alSockets[ITEM_SOCKET_SLOT_MAX_NUM];
 		TPlayerItemAttribute				aAttr[ITEM_ATTRIBUTE_SLOT_MAX_NUM];
 #ifdef ENABLE_YOHARA_SYSTEM
 		TPlayerItemApplyRandom				aApplyRandom[APPLY_RANDOM_SLOT_MAX_NUM];
