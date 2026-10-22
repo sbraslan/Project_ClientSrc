@@ -31,6 +31,15 @@
 //#include <d3d8/qedit.h>
 #include <d3d9/qedit.h>
 
+// windowsx.h defines these as Win32 macros, but CEF uses the same names as
+// C++ virtual methods in cef_dom.h. Undefine the macros before including CEF.
+#ifdef GetNextSibling
+#	undef GetNextSibling
+#endif
+#ifdef GetFirstChild
+#	undef GetFirstChild
+#endif
+
 #include "Locale.h"
 
 #include "GameType.h"
