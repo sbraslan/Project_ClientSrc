@@ -36,7 +36,7 @@ void CPythonSystem::GetDisplaySettings()
 	lpD3D->GetAdapterIdentifier(D3DADAPTER_DEFAULT, D3DENUM_WHQL_LEVEL, &d3dAdapterIdentifier);
 	lpD3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddmDesktop);
 
-	// ¿Ã æÓµ™≈Õ∞° ∞°¡ˆ∞Ì ¿÷¥¬ µΩ∫«√∑°¿Ã ∏µÂ∞πºˆ∏¶ ≥™ø≠«—¥Ÿ..
+	// Ïù¥ Ïñ¥ÎéÅÌÑ∞Í∞Ä Í∞ÄÏßÄÍ≥† ÏûàÎäî ÎîîÏä§ÌîåÎûòÏù¥ Î™®ÎìúÍ∞ØÏàòÎ•º ÎÇòÏó¥ÌïúÎã§..
 	const uint32_t dwNumAdapterModes = lpD3D->GetAdapterModeCount(D3DADAPTER_DEFAULT, D3DFMT_UNKNOWN);
 	for (uint32_t iMode = 0; iMode < dwNumAdapterModes; iMode++)
 	{
@@ -44,12 +44,12 @@ void CPythonSystem::GetDisplaySettings()
 		lpD3D->EnumAdapterModes(D3DADAPTER_DEFAULT, D3DFMT_UNKNOWN, iMode, &DisplayMode);
 		uint32_t bpp = 0;
 
-		// 800 600 ¿ÃªÛ∏∏ ∞…∑Ø≥Ω¥Ÿ.
+		// 800 600 Ïù¥ÏÉÅÎßå Í±∏Îü¨ÎÇ∏Îã§.
 		if (DisplayMode.Width < 800 || DisplayMode.Height < 600)
 			continue;
 
-		// ¿œ¥‹ 16bbp øÕ 32bbp∏∏ √Î±ﬁ«œ¿⁄.
-		// 16bbp∏∏ √≥∏Æ«œ∞‘≤˚ «ﬂ¿Ω - [levites]
+		// ÏùºÎã® 16bbp ÏôÄ 32bbpÎßå Ï∑®Í∏âÌïòÏûê.
+		// 16bbpÎßå Ï≤òÎ¶¨ÌïòÍ≤åÎÅî ÌñàÏùå - [levites]
 		if (DisplayMode.Format == D3DFMT_R5G6B5)
 			bpp = 16;
 		else if (DisplayMode.Format == D3DFMT_X8R8G8B8)
@@ -67,7 +67,7 @@ void CPythonSystem::GetDisplaySettings()
 
 			int check_fre = false;
 
-			// «¡∏ÆƒˆΩ√∏∏ ¥Ÿ∏£π«∑Œ «¡∏ÆƒˆΩ√∏∏ º¬∆√«ÿ¡ÿ¥Ÿ.
+			// ÌîÑÎ¶¨ÌÄÄÏãúÎßå Îã§Î•¥ÎØÄÎ°ú ÌîÑÎ¶¨ÌÄÄÏãúÎßå ÏÖãÌåÖÌï¥Ï§ÄÎã§.
 			for (int j = 0; j < m_ResolutionList[i].frequency_count; ++j)
 			{
 				if (m_ResolutionList[i].frequency[j] == DisplayMode.RefreshRate)
@@ -86,7 +86,7 @@ void CPythonSystem::GetDisplaySettings()
 
 		if (!check_res)
 		{
-			// ªı∑ŒøÓ ∞≈¥œ±Ó √ﬂ∞°«ÿ¡÷¿⁄.
+			// ÏÉàÎ°úÏö¥ Í±∞ÎãàÍπå Ï∂îÍ∞ÄÌï¥Ï£ºÏûê.
 			if (m_ResolutionCount < RESOLUTION_MAX_NUM)
 			{
 				m_ResolutionList[m_ResolutionCount].width = DisplayMode.Width;
@@ -918,7 +918,7 @@ const CPythonSystem::TWindowStatus & CPythonSystem::GetWindowStatusReference(int
 	return m_WindowStatus[iIndex];
 }
 
-void CPythonSystem::ApplyConfig() // ¿Ã¿¸ º≥¡§∞˙ «ˆ¿Á º≥¡§¿ª ∫Ò±≥«ÿº≠ πŸ≤Ô º≥¡§¿ª ¿˚øÎ «—¥Ÿ.
+void CPythonSystem::ApplyConfig() // Ïù¥Ï†Ñ ÏÑ§Ï†ïÍ≥º ÌòÑÏû¨ ÏÑ§Ï†ïÏùÑ ÎπÑÍµêÌï¥ÏÑú Î∞îÎÄê ÏÑ§Ï†ïÏùÑ Ï†ÅÏö© ÌïúÎã§.
 {
 	if (m_OldConfig.gamma != m_Config.gamma)
 	{
@@ -1003,7 +1003,6 @@ CPythonSystem::~CPythonSystem()
 #ifdef ENABLE_HWID_BAN
 #include <iomanip>
 #include "picosha2.h"
-#include "smbios.cpp"
 TCHAR* registry_read(LPCTSTR subkey, LPCTSTR name, unsigned long type)
 {
 	HKEY key;
