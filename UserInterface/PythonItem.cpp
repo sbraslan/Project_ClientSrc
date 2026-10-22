@@ -282,7 +282,7 @@ uint32_t CPythonItem::__GetUseSoundType(const CItemData & c_rkItemData) const
 #ifdef ENABLE_EXTENDED_ITEMNAME_ON_GROUND
 #include "PythonNonPlayer.h"
 #include "PythonSkill.h"
-void CPythonItem::CreateItem(uint32_t dwVirtualID, uint32_t dwVirtualNumber, float x, float y, float z, bool bDrop, long alSockets[ITEM_SOCKET_SLOT_MAX_NUM], TPlayerItemAttribute aAttrs[ITEM_ATTRIBUTE_SLOT_MAX_NUM])
+void CPythonItem::CreateItem(uint32_t dwVirtualID, uint32_t dwVirtualNumber, float x, float y, float z, bool bDrop, const int32_t alSockets[ITEM_SOCKET_SLOT_MAX_NUM], TPlayerItemAttribute aAttrs[ITEM_ATTRIBUTE_SLOT_MAX_NUM])
 #else
 void CPythonItem::CreateItem(uint32_t dwVirtualID, uint32_t dwVirtualNumber, float x, float y, float z, bool bDrop)
 #endif
@@ -360,7 +360,7 @@ void CPythonItem::CreateItem(uint32_t dwVirtualID, uint32_t dwVirtualNumber, flo
 
 		if (bStabGround)
 		{
-			// ªœ¡∑
+			// Îæ∞Ï°±
 			if (f[2].second == 0) // axis x
 			{
 				rEnd.y = 90.0f + frandom(-15.0f, 15.0f);
@@ -382,8 +382,8 @@ void CPythonItem::CreateItem(uint32_t dwVirtualID, uint32_t dwVirtualNumber, flo
 		}
 		else
 		{
-			// ≥–¿˚
-			// ∂•¿« ≥Î∏ª¿« øµ«‚¿ª πﬁ¿ª ∞Õ
+			// ÎÑìÏ†Å
+			// ÎïÖÏùò ÎÖ∏ÎßêÏùò ÏòÅÌñ•ÏùÑ Î∞õÏùÑ Í≤É
 			if (f[0].second == 0)
 			{
 				// y,z = by normal
