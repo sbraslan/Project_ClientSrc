@@ -12,7 +12,12 @@
     <GrannyLibraryName>granny2.11.10.0.lib</GrannyLibraryName>
   </PropertyGroup>
 
-  <ItemDefinitionGroup Condition="'$(Platform)'=='x64' and '$(ProjectName)'=='UserInterface'">
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <GrannySdkAvailable Condition="Exists('$(GrannySdkRoot)\include\granny2\granny.h') and Exists('$(GrannySdkRoot)\lib\$(GrannyLibraryName)')">true</GrannySdkAvailable>
+    <GrannySdkAvailable Condition="'$(GrannySdkAvailable)'==''">false</GrannySdkAvailable>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64' and '$(ProjectName)'=='UserInterface' and '$(GrannySdkAvailable)'=='true'">
     <Link>
       <AdditionalLibraryDirectories>$(GrannySdkRoot)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GrannyLibraryName);%(AdditionalDependencies)</AdditionalDependencies>

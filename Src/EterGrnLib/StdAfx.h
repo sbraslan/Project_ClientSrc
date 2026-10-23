@@ -2,9 +2,13 @@
 
 #pragma warning(disable : 4786) // character 255 ³Ñ¾î°¡´Â°Å ²ô±â
 
-#if defined(_WIN64)
+#if defined(_WIN64) && __has_include("../../Extern/Granny/2.11.10.0/x64/include/granny2/granny.h")
+#	define METIN2_GRANNY_X64_SDK 1
 #	include "../../Extern/Granny/2.11.10.0/x64/include/granny2/granny.h"
 #else
+// Migration fallback: keep compiling against the proven legacy headers until
+// the licensed x64 Granny SDK is installed. Final Win64 linking still requires
+// a real x64 Granny runtime/import library.
 #	include <granny2/granny.h>
 #endif
 
