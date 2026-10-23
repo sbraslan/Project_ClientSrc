@@ -101,9 +101,9 @@ extern void GetExceptionPathName(const char * sz_Name, std::string & OnlyFileNam
 extern void GetWorkingFolder(std::string & strFileName);
 extern void StringLowers(char * String);
 extern void StringPath(std::string & rString);
-extern void StringPath(char * pString); // ¸ðµÎ ¼Ò¹®ÀÚ·Î ¸¸µé°í, \´Â /·Î ¹Ù²Û´Ù.
-extern void StringPath(const char * c_szSrc, char * szDest); // ¸ðµÎ ¼Ò¹®ÀÚ·Î ¸¸µé°í, \´Â /·Î ¹Ù²Û´Ù.
-extern void StringPath(const char * c_szSrc, std::string & rString); // ¸ðµÎ ¼Ò¹®ÀÚ·Î ¸¸µé°í, \´Â /·Î ¹Ù²Û´Ù.
+extern void StringPath(char * pString); // ï¿½ï¿½ï¿½ ï¿½Ò¹ï¿½ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½, \ï¿½ï¿½ /ï¿½ï¿½ ï¿½Ù²Û´ï¿½.
+extern void StringPath(const char * c_szSrc, char * szDest); // ï¿½ï¿½ï¿½ ï¿½Ò¹ï¿½ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½, \ï¿½ï¿½ /ï¿½ï¿½ ï¿½Ù²Û´ï¿½.
+extern void StringPath(const char * c_szSrc, std::string & rString); // ï¿½ï¿½ï¿½ ï¿½Ò¹ï¿½ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½, \ï¿½ï¿½ /ï¿½ï¿½ ï¿½Ù²Û´ï¿½.
 extern void PrintAsciiData(const void * void_data, int bytes);
 bool IsFile(const char * filename);
 bool IsGlobalFileName(const char * c_szFileName);
@@ -147,7 +147,10 @@ template <typename T> T ELRightCoord_ConvertToPlainCoordDegree(T srcDegree)
 
 template <typename C> void string_join(const std::string & sep, const C & container, std::string * ret)
 {
-	unsigned int capacity = sep.length() * container.size() - 1;
+	std::size_t capacity = 0;
+
+	if (container.size() > 1)
+		capacity = sep.length() * (container.size() - 1);
 
 	// calculate string sequence
 	{

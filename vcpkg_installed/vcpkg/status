@@ -1,0 +1,91 @@
+Package: vcpkg-cmake-config
+Version: 2026-07-21
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 5ec285f9207ce07390c22b53883a83e61e502ba896e6463bf0bc2d5d8fb750ef
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2025-08-07
+Architecture: x64-windows
+Multi-Arch: same
+Abi: f428af3960f2ea145544afeb9d418b2de033be3a9ba1be38159cbd6fc2523258
+Status: install ok installed
+
+Package: cryptopp
+Version: 8.9.0
+Port-Version: 2
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: cbd6fdb442b7deb42350095ccb04f85f19cc0ad722c5b82ce63d7045f8410a06
+Description: Crypto++ is a free C++ class library of cryptographic schemes.
+Status: install ok installed
+
+Package: zlib
+Version: 1.3.2
+Port-Version: 2
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: 8706e9b3bc6f9b71df0c29ce1830f2dd620de1acb01498826d58fcf7066c37d3
+Description: A compression library
+Status: install ok installed
+
+Package: libspng
+Version: 0.7.4
+Port-Version: 1
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows, zlib
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: f4bc3cd93034e54c73d373e1b20bd7e90752701b1744efe5640f2ea6dff145a3
+Description: Simple, modern libpng alternative
+Status: install ok installed
+
+Package: libjpeg-turbo
+Version: 3.2.0
+Port-Version: 1
+Depends: libspng, vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows, zlib
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: 004f48299b9cbbce22ed113c9f2302932af018b879152a67ba8aebc4da5b163c
+Description: libjpeg-turbo is a JPEG image codec that uses SIMD instructions (MMX, SSE2, NEON, AltiVec) to accelerate baseline JPEG compression and decompression on x86, x86-64, ARM, and PowerPC systems.
+Status: install ok installed
+
+Package: lz4
+Version: 1.10.0
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: 409fb917c467ac06ee1429e2e2198b374e5e11b3b10b87b087dc37af541b76fb
+Description: Lossless compression algorithm, providing compression speed at 400 MB/s per core.
+Status: install ok installed
+
+Package: lzo
+Version: 2.10
+Port-Version: 9
+Depends: vcpkg-cmake:x64-windows
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: 454a4494d5dd0aab61ab6a3989aa5992fa2359a8f6efb97298438266c8490573
+Description: Lossless data compression library
+Status: install ok installed
+
+Package: snappy
+Version: 1.2.2
+Port-Version: 2
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: da75bba29b87057c8f858327807d05f2f81f2634f91bab5365ecb9278252a756
+Description: A fast compressor/decompressor.
+Status: install ok installed
+
+Package: stb
+Version: 2026-08-02
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: af50435dcd9815b4fd8e784c89b058f8a254c996d8849427f1e260b52267b6bb
+Description: public domain header-only libraries
+Status: install ok installed
+

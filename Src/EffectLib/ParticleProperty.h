@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/X64Compat.h"
+
 #include <vector>
 #include "../EterLib/GrpImageInstance.h"
 
@@ -40,7 +42,7 @@ public:
 
 	__forceinline uint8_t GetTextureAnimationType() const { return m_byTexAniType; }
 
-	__forceinline uint32_t GetTextureAnimationFrameCount() const { return m_ImageVector.size(); }
+	__forceinline uint32_t GetTextureAnimationFrameCount() const { return m2::narrow<uint32_t>(m_ImageVector.size()); }
 
 	__forceinline float GetTextureAnimationFrameDelay() const { return m_fTexAniDelay; }
 

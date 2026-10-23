@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/X64Compat.h"
+
 #include <cstdint>
 
 #include "../eterLib/SkyBox.h"
@@ -363,7 +365,7 @@ public:
 
 		bool operator()(const TPatchDrawStruct & lhs, const TPatchDrawStruct & rhs)
 		{
-			uint32_t lhsTerrainNumOrder = 0, rhsTerrainNumOrder = 0;
+			std::size_t lhsTerrainNumOrder = 0, rhsTerrainNumOrder = 0;
 			bool blhsOrderFound = false;
 			bool brhsOrderFound = false;
 
@@ -721,7 +723,7 @@ public:
 	CMonsterAreaInfo * AddMonsterAreaInfo(long lOriginX, long lOriginY, long lSizeX, long lSizeY);
 	void RemoveAllMonsterAreaInfo();
 
-	uint32_t GetMonsterAreaInfoCount() { return m_MonsterAreaInfoPtrVector.size(); }
+	uint32_t GetMonsterAreaInfoCount() { return m2::narrow<uint32_t>(m_MonsterAreaInfoPtrVector.size()); }
 	bool GetMonsterAreaInfoFromVectorIndex(uint32_t dwMonsterAreaInfoVectorIndex, CMonsterAreaInfo ** ppMonsterAreaInfo);
 
 	CMonsterAreaInfo * AddNewMonsterAreaInfo(long lOriginX, long lOriginY, long lSizeX, long lSizeY,

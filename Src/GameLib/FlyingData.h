@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/X64Compat.h"
+
 class CFlyingData //: public CPooledObject<CFlyingData>
 {
 public:
@@ -60,7 +62,7 @@ public:
 	uint32_t AttachFlyEffect(int iType, const std::string & strFilename, float fRoll, float fArg1, float fArg2);
 
 	TFlyingAttachData & GetAttachDataReference(int iIndex);
-	int GetAttachDataCount() { return m_AttachDataVector.size(); }
+	int GetAttachDataCount() { return m2::narrow<int>(m_AttachDataVector.size()); }
 
 	void DuplicateAttach(int iIndex);
 	void RemoveAttach(int iIndex);

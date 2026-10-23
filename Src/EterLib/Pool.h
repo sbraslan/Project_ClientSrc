@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/X64Compat.h"
+
 #include <cstddef>
 
 #include "../eterBase/Debug.h"
@@ -58,7 +60,7 @@ public:
 	}
 	void FreeAll() { m_kVct_pkFree = m_kVct_pkData; }
 
-	uint32_t GetCapacity() { return m_kVct_pkData.size(); }
+	uint32_t GetCapacity() { return m2::narrow<uint32_t>(m_kVct_pkData.size()); }
 
 protected:
 	bool __IsValidData(T * pkData)
@@ -157,7 +159,7 @@ public:
 	}
 	void FreeAll() { m_kVct_pkFree = m_kVct_pkData; }
 
-	uint32_t GetCapacity() { return m_kVct_pkData.size(); }
+	uint32_t GetCapacity() { return m2::narrow<uint32_t>(m_kVct_pkData.size()); }
 
 protected:
 	bool __IsValidData(T * pkData)

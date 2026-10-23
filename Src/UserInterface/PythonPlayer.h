@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/X64Compat.h"
+
 #include "AbstractPlayer.h"
 #include "Packet.h"
 #include "PythonSkill.h"
@@ -7,13 +9,13 @@
 class CInstanceBase;
 
 /*
- *	¸ÞÀÎ Ä³¸¯ÅÍ (ÀÚ½ÅÀÌ Á¶Á¤ÇÏ´Â Ä³¸¯ÅÍ) °¡ °¡Áø Á¤º¸µéÀ» °ü¸®ÇÑ´Ù.
+ *	ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ (ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
  *
- * 2003-01-12 Levites	º»·¡´Â CPythonCharacter°¡ °¡Áö°í ÀÖ¾úÁö¸¸ ±Ô¸ð°¡ ³Ê¹« Ä¿Á® ¹ö¸°µ¥´Ù
- *						À§Ä¡µµ ¾Ö¸ÅÇØ¼­ µû·Î ºÐ¸®
- * 2003-07-19 Levites	¸ÞÀÎ Ä³¸¯ÅÍÀÇ ÀÌµ¿ Ã³¸® CharacterInstance¿¡¼­ ¶¼¾î´Ù ºÙÀÓ
- *						±âÁ¸ÀÇ µ¥ÀÌÅ¸ º¸Á¸ÀÇ ¿ªÇÒ¿¡¼­ ¿Ïº®ÇÑ ¸ÞÀÎ ÇÃ·¹ÀÌ¾î Á¦¾î Å¬·¡½º·Î
- *						Å»¹Ù²Þ ÇÔ.
+ * 2003-01-12 Levites	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ CPythonCharacterï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¸ï¿½ ï¿½Ê¹ï¿½ Ä¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ *						ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ö¸ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½
+ * 2003-07-19 Levites	ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ Ã³ï¿½ï¿½ CharacterInstanceï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+ *						ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å¸ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò¿ï¿½ï¿½ï¿½ ï¿½Ïºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ *						Å»ï¿½Ù²ï¿½ ï¿½ï¿½.
  */
 
 enum
@@ -289,7 +291,7 @@ public:
 
 
 	// Reserved
-	bool NEW_IsEmptyReservedDelayTime(float fElapsedTime); // ³×ÀÌ¹Ö ±³Á¤ ³íÀÇ ÇÊ¿ä - [levites]
+	bool NEW_IsEmptyReservedDelayTime(float fElapsedTime); // ï¿½ï¿½ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ - [levites]
 
 
 	// Dungeon
@@ -302,7 +304,7 @@ public:
 
 	// flying target set
 	void Clear();
-	void ClearSkillDict(); // ¾ø¾îÁö°Å³ª ClearGame ÂÊÀ¸·Î Æ÷ÇÔµÉ ÇÔ¼ö
+	void ClearSkillDict(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å³ï¿½ ClearGame ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ôµï¿½ ï¿½Ô¼ï¿½
 	void NEW_ClearSkillData(bool bAll = false);
 
 	void Update();
@@ -1036,8 +1038,8 @@ public:
 
 	void ShopSearchChangePage(int iPage);
 	int GetShopSearchPage() const noexcept { return iShopSearchPage; }
-	uint32_t GetShopSearchResultCount() noexcept { return m_ItemInstanceVector.size(); }
-	uint32_t GetShopSearchResultMaxCount() noexcept { return m_ItemInstanceVector.size(); }
+	uint32_t GetShopSearchResultCount() noexcept { return m2::narrow<uint32_t>(m_ItemInstanceVector.size()); }
+	uint32_t GetShopSearchResultMaxCount() noexcept { return m2::narrow<uint32_t>(m_ItemInstanceVector.size()); }
 protected:
 	std::unordered_map<uint32_t, TSearchItemData> m_ItemInstanceVector;
 	int iShopSearchPage;

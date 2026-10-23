@@ -1,0 +1,48 @@
+
+========================================
+PATTERN: \(uint32_t\)\s*[A-Za-z_][A-Za-z0-9_]*
+========================================
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EffectLib\EffectInstance.cpp:247: it->m_Value.m_dwColor = (uint32_t)c;
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterImageLib\DXTCImage.cpp:400: // pImPos = (uint32_t*) ((uint32_t) pBase + i * 16 + (y + j * 4) * m_nWidth * 4);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterImageLib\DXTCImage.cpp:626: //	pImPos = (uint32_t*) ((uint32_t) pBase + i * 4 + j * m_nWidth * 4);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterImageLib\DXTCImage.cpp:630: //	pImPos = (uint32_t *) ((uint32_t) pBase + i * 8 + j * m_nWidth * 8);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:748: const auto uLanguage = (uint32_t) GETLANG();
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:1016: const uint32_t uLen = lstrlenW((LPWSTR)((uint32_t) lpCandidateList + lpCandidateList->dwOffset[i])) + (3 - sizeof(WCHAR));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:1040: for (uint32_t i = iStartOfPage, j = 0; (uint32_t) i < lpCandidateList->dwCount && j < ms_dwCandidatePageSize; i++, j++)
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:1041: wcscpy(ms_wszCandidate[j], (LPWSTR)((uint32_t) lpCandidateList + lpCandidateList->dwOffset[i]));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:1237: const uint32_t dwLang = ((uint32_t) hkl & 0xffff);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:1505: ((0xF0000000 & (uint32_t) ms_hklCurrent) ==
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:1843: CIME::ms_dwCandidateSelection = (uint32_t) uIndex;
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:1844: CIME::ms_dwCandidateCount = (uint32_t) uCount;
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterLib\IME.cpp:1860: for (uint32_t i = dwPageStart, j = 0; (uint32_t) i < CIME::ms_dwCandidateCount && j < CIME::ms_dwCandidatePageSize; i++, j++)
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterPythonLib\PythonWindowManagerModule.cpp:2390: pSlotWin->GetSlotLocalPosition((uint32_t)iSlotIndex, &iX, &iY);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\EterPythonLib\PythonWindowManagerModule.cpp:2414: pSlotWin->GetSlotGlobalPosition((uint32_t)iSlotIndex, &iX, &iY);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\GameLib\MapOutdoorLoad.cpp:422: SetBaseXY((uint32_t) atol(c_rstrMapBaseX.c_str()), (uint32_t) atol(c_rstrMapBaseY.c_str()));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\GameLib\MapOutdoorLoad.cpp:613: dwMonsterCount = (uint32_t) atoi(c_rstrCount.c_str());
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\GameLib\MapOutdoorLoad.cpp:614: dwMonsterVID = (uint32_t) atoi(c_rstrVID.c_str());
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\UserInterface\PythonBackgroundModule.cpp:708: CPythonBackground::Instance().Warp((uint32_t) iX * 100, (uint32_t) iY * 100);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\UserInterface\PythonMiniMap.cpp:415: STATEMANAGER.SetRenderState(D3DRS_TEXTUREFACTOR, (uint32_t) c);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\UserInterface\PythonMiniMapModule.cpp:258: CPythonMiniMap::Instance().AddWayPoint(CPythonMiniMap::TYPE_WAYPOINT, (uint32_t) iID, fX, fY, buf);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\UserInterface\PythonMiniMapModule.cpp:269: CPythonMiniMap::Instance().RemoveWayPoint((uint32_t) iID);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\UserInterface\PythonPlayerModule.cpp:2016: if (pScrollItemData->GetIndex() == (uint32_t)ETRANSMUTATIONSETTINGS::TRANSMUTATION_CLEAR_SCROLL) {
+
+========================================
+PATTERN: \(DWORD\)\s*[A-Za-z_][A-Za-z0-9_]*
+========================================
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Src\UserInterface\PythonMiniMap.cpp:1224: STATEMANAGER.SetRenderState(D3DRS_TEXTUREFACTOR, (DWORD)c);
+
+========================================
+PATTERN: \(int\)\s*this
+========================================
+
+========================================
+PATTERN: reinterpret_cast<int>
+========================================
+
+========================================
+PATTERN: reinterpret_cast<uint32_t>
+========================================
+
+========================================
+PATTERN: reinterpret_cast<DWORD>
+========================================
