@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "InsultChecker.h"
 
 CInsultChecker & CInsultChecker::GetSingleton() const
@@ -26,10 +27,10 @@ bool CInsultChecker::__GetInsultLength(const char * c_szWord, uint32_t * puInsul
 {
 	for (auto & rstInsult : m_kList_stInsult)
 	{
-		int ret = LocaleService_StringCompareCI(c_szWord, rstInsult.c_str(), rstInsult.length());
+		int ret = LocaleService_StringCompareCI(c_szWord, rstInsult.c_str(), m2::narrow<int>(rstInsult.length()));
 		if (0 == ret)
 		{
-			*puInsultLen = rstInsult.length();
+			*puInsultLen = m2::narrow<uint32_t>(rstInsult.length());
 			return true;
 		}
 	}

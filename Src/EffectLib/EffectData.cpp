@@ -128,7 +128,7 @@ CLightData * CEffectData::AllocLight()
 
 uint32_t CEffectData::GetLightCount() const
 {
-	return m_LightVector.size();
+	return m2::narrow<uint32_t>(m_LightVector.size());
 }
 
 CLightData * CEffectData::GetLightPointer(uint32_t dwPosition)
@@ -139,7 +139,7 @@ CLightData * CEffectData::GetLightPointer(uint32_t dwPosition)
 
 uint32_t CEffectData::GetParticleCount() const
 {
-	return m_ParticleVector.size();
+	return m2::narrow<uint32_t>(m_ParticleVector.size());
 }
 
 CParticleSystemData * CEffectData::GetParticlePointer(uint32_t dwPosition)
@@ -152,7 +152,7 @@ CParticleSystemData * CEffectData::GetParticlePointer(uint32_t dwPosition)
 
 uint32_t CEffectData::GetMeshCount() const
 {
-	return m_MeshVector.size();
+	return m2::narrow<uint32_t>(m_MeshVector.size());
 }
 
 CEffectMeshScript * CEffectData::GetMeshPointer(uint32_t dwPosition)

@@ -31,23 +31,23 @@ void stl_lowers(std::string & rstRet)
 
 int split_string(const std::string & input, const std::string & delimiter, std::vector<std::string> & results, bool includeEmpties)
 {
-	int iPos = 0;
-	uint32_t sizeS2 = delimiter.size();
-	uint32_t isize = input.size();
+	std::string::size_type iPos = 0;
+	const std::string::size_type sizeS2 = delimiter.size();
+	const std::string::size_type isize = input.size();
 
 	if ((isize == 0) || (sizeS2 == 0))
 		return 0;
 
-	std::vector<int> positions;
+	std::vector<std::string::size_type> positions;
 
-	int newPos = input.find(delimiter, 0);
+	auto newPos = input.find(delimiter, 0);
 
-	if (newPos < 0)
+	if (newPos == std::string::npos)
 		return 0;
 
 	int numFound = 0;
 
-	while (newPos >= iPos)
+	while (newPos != std::string::npos && newPos >= iPos)
 	{
 		numFound++;
 		positions.emplace_back(newPos);

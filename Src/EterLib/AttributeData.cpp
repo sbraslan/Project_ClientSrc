@@ -34,7 +34,7 @@ const THeightDataVector & CAttributeData::GetHeightDataVector() const
 
 uint32_t CAttributeData::GetHeightDataCount() const
 {
-	return m_HeightDataVector.size();
+	return m2::narrow<uint32_t>(m_HeightDataVector.size());
 }
 
 BOOL CAttributeData::GetHeightDataPointer(uint32_t dwIndex, const THeightData ** c_ppHeightData) const

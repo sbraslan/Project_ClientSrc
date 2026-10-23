@@ -277,7 +277,7 @@ CGraphicFontTexture::TCharacterInfomation * CGraphicFontTexture::UpdateCharacter
 
 	TCharacterInfomation & rNewCharInfo = m_charInfoMap[code];
 
-	rNewCharInfo.index = m_pFontTextureVector.size() - 1;
+	rNewCharInfo.index = m2::narrow<int16_t>(m_pFontTextureVector.size() - 1);
 	rNewCharInfo.width = size.cx;
 	rNewCharInfo.height = size.cy;
 	rNewCharInfo.left = float(m_x) * rhwidth;

@@ -149,7 +149,7 @@ TLightID CLightManager::NewLightID()
 		return (id);
 	}
 
-	return m_dwSkipIndex + m_LightMap.size();
+	return m2::narrow<TLightID>(static_cast<std::size_t>(m_dwSkipIndex) + m_LightMap.size());
 }
 
 void CLightManager::ReleaseLightID(TLightID LightID)

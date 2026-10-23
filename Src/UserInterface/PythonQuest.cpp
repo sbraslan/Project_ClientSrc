@@ -111,7 +111,7 @@ void CPythonQuest::SetQuestIconFileName(uint32_t dwIndex, const char * c_szIconF
 
 int CPythonQuest::GetQuestCount() const
 {
-	return m_QuestInstanceContainer.size();
+	return m2::narrow<int>(m_QuestInstanceContainer.size());
 }
 
 bool CPythonQuest::GetQuestInstancePtr(uint32_t dwArrayIndex, SQuestInstance ** ppQuestInstance)

@@ -237,7 +237,7 @@ BOOL CRaceData::GetMotionVectorPointer(uint16_t wMotionMode, uint16_t wMotionInd
 
 uint32_t CRaceData::GetAttachingDataCount()
 {
-	return m_AttachingDataVector.size();
+	return m2::narrow<uint32_t>(m_AttachingDataVector.size());
 }
 
 BOOL CRaceData::GetAttachingDataPointer(uint32_t dwIndex, const NRaceData::TAttachingData ** c_ppAttachingData)

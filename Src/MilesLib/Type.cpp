@@ -45,7 +45,7 @@ bool NSound::LoadSoundInformationPiece(const char * c_szFileName, NSound::TSound
 	char szSoundDataHeader[32 + 1];
 	for (std::size_t i = 0; i < rSoundDataVector.size(); ++i)
 	{
-		_snprintf(szSoundDataHeader, sizeof(szSoundDataHeader), "sounddata%02d", i);
+		_snprintf(szSoundDataHeader, sizeof(szSoundDataHeader), "sounddata%02zu", i);
 		CTokenVector * pTokenVector;
 		if (!rkTextFileLoader.GetTokenVector(szSoundDataHeader, &pTokenVector))
 		{

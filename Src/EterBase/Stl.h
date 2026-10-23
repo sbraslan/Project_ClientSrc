@@ -187,9 +187,9 @@ public:
 	{
 		assert(!m_dataVector.empty() && "stl_stack_pool::alloc you MUST run stl_stack_pool::initialize");
 
-		int max = m_dataVector.size();
+		const std::size_t max = m_dataVector.size();
 
-		if (m_pos >= max)
+		if (static_cast<std::size_t>(m_pos) >= max)
 		{
 			assert(!"stl_stack_pool::alloc OUT of memory");
 			m_pos = 0;

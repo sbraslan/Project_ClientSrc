@@ -181,7 +181,7 @@ void GetOnlyFileName(const char * sz_Name, std::string & strFileName)
 	strFileName = "";
 
 	int i;
-	for (i = strlen(sz_Name) - 1; i >= 0; --i)
+	for (i = m2::narrow<int>(strlen(sz_Name)) - 1; i >= 0; --i)
 	{
 		if ('\\' == sz_Name[i] || '/' == sz_Name[i])
 		{
@@ -207,7 +207,7 @@ void GetExceptionPathName(const char * sz_Name, std::string & OnlyFileName)
 void GetOnlyPathName(const char * sz_Name, std::string & OnlyPathName)
 {
 	int i;
-	for (i = strlen(sz_Name) - 1; i >= 0; --i)
+	for (i = m2::narrow<int>(strlen(sz_Name)) - 1; i >= 0; --i)
 	{
 		if ('\\' == sz_Name[i] || '/' == sz_Name[i])
 		{
@@ -247,8 +247,8 @@ bool GetLocalFileName(const char * c_szGlobalPath, const char * c_szFullPathFile
 	if (strGlobalPath.length() >= strFullPathFileName.length())
 		return false;
 
-	uint32_t length = std::min(strGlobalPath.length(), strFullPathFileName.length());
-	for (uint32_t dwPos = 0; dwPos < length; ++dwPos)
+	const std::size_t length = std::min(strGlobalPath.length(), strFullPathFileName.length());
+	for (std::size_t dwPos = 0; dwPos < length; ++dwPos)
 	{
 		if (strGlobalPath[dwPos] != strFullPathFileName[dwPos])
 			return false;
@@ -426,7 +426,7 @@ void MyCreateDirectory(const char * path)
 
 	const char * p = path;
 
-	int len = strlen(path) + 1;
+	const std::size_t len = strlen(path) + 1;
 	std::vector<char> dir(len);
 
 	while (*p)
@@ -503,14 +503,18 @@ void RemoveAllDirectory(const char * c_szDirectoryName)
 
 void StringExceptCharacter(std::string * pstrString, const char * c_szCharacter)
 {
-	int icurPos = 0;
-	int iNextPos;
+	std::string::size_type currentPos = 0;
 
-	while ((iNextPos = pstrString->find_first_of(c_szCharacter, icurPos)) >= 0)
+	while (true)
 	{
-		std::string strFront = pstrString->substr(icurPos, iNextPos - icurPos);
-		std::string strBack = pstrString->substr(iNextPos + 1, pstrString->length() - iNextPos - 1);
-		*pstrString = strFront + strBack;
+		const auto nextPos =
+			pstrString->find_first_of(c_szCharacter, currentPos);
+
+		if (nextPos == std::string::npos)
+			break;
+
+		pstrString->erase(nextPos, 1);
+		currentPos = nextPos;
 	}
 }
 
@@ -521,22 +525,24 @@ bool SplitLine(const char * c_szLine, const char * c_szDelimeter, std::vector<st
 
 	std::string strLine = c_szLine;
 
-	uint32_t basePos = 0;
+	std::string::size_type basePos = 0;
 
 	do
 	{
-		int beginPos = strLine.find_first_not_of(c_szDelimeter, basePos);
-		if (beginPos < 0)
+		auto beginPos =
+			strLine.find_first_not_of(c_szDelimeter, basePos);
+
+		if (beginPos == std::string::npos)
 			return false;
 
-		int endPos;
+		std::string::size_type endPos;
 
 		if (strLine[beginPos] == '"')
 		{
 			++beginPos;
 			endPos = strLine.find_first_of('"', beginPos);
 
-			if (endPos < 0)
+			if (endPos == std::string::npos)
 				return false;
 
 			basePos = endPos + 1;
@@ -547,8 +553,11 @@ bool SplitLine(const char * c_szLine, const char * c_szDelimeter, std::vector<st
 			basePos = endPos;
 		}
 
-		pkVec_strToken->emplace_back(strLine.substr(beginPos, endPos - beginPos));
-	} while (basePos < strLine.length());
+		pkVec_strToken->emplace_back(
+			strLine.substr(beginPos, endPos - beginPos)
+		);
+	} while (basePos != std::string::npos &&
+			 basePos < strLine.length());
 
 	return true;
 }
@@ -579,8 +588,8 @@ PCHAR * CommandLineToArgv(PCHAR CmdLine, int * _argc)
 {
 	CHAR a;
 
-	ULONG len = strlen(CmdLine);
-	ULONG i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
+	const std::size_t len = strlen(CmdLine);
+	std::size_t i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
 
 	auto argv = static_cast<PCHAR *>(GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR)));
 

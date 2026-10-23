@@ -97,7 +97,7 @@ uint32_t CFlyingData::AttachFlyEffect(int iType, const std::string & strFilename
 	}
 
 	m_AttachDataVector.emplace_back(fad);
-	return m_AttachDataVector.size() - 1;
+	return m2::narrow<uint32_t>(m_AttachDataVector.size() - 1);
 }
 
 void CFlyingData::RemoveAttach(int iIndex)

@@ -93,7 +93,7 @@ bool CGroupTextParseTreeLoader::LoadGroup(CGroupNode* pGroupNode)
 			{
 				stl_lowers(stTokenVector[i]);
 				//pGroupNode->m_map_columnNameToIndex.emplace(CMapNameToIndex::value_type(stTokenVector[i], i - 1));
-				pGroupNode->m_map_columnNameToIndex.emplace(stTokenVector[i], i - 1);
+				pGroupNode->m_map_columnNameToIndex.emplace(stTokenVector[i], m2::narrow<int>(i - 1));
 			}
 		}
 		else
@@ -139,7 +139,7 @@ CGroupNode::~CGroupNode()
 
 uint32_t CGroupNode::GetChildNodeCount()
 {
-	return m_mapChildNodes.size();
+	return m2::narrow<uint32_t>(m_mapChildNodes.size());
 }
 
 bool CGroupNode::SetChildNode(const char* c_szKey, CGroupNode* pChildGroup)
@@ -180,7 +180,7 @@ bool CGroupNode::IsToken(const std::string& c_rstrKey) const
 
 int CGroupNode::GetRowCount()
 {
-	return m_map_rows.size();
+	return m2::narrow<int>(m_map_rows.size());
 }
 
 bool CGroupNode::GetRow(const std::string& c_rstrRowKey, OUT const CGroupNode::CGroupNodeRow** ppRow) const
@@ -252,6 +252,6 @@ CGroupNode::CGroupNodeRow::~CGroupNodeRow()
 
 int CGroupNode::CGroupNodeRow::GetSize() const
 {
-	return m_vec_values.size();
+	return m2::narrow<int>(m_vec_values.size());
 }
 #endif

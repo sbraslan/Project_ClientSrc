@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterBase/CRC32.h"
 #include "PythonWindow.h"
 #include "PythonSlotWindow.h"
@@ -99,10 +100,10 @@ struct FClear
 
 void CWindow::Clear()
 {
-	// FIXME : ChildrenÀ» Áï½Ã DeleteÇÏÁö´Â ¾Ê´Â´Ù.
-	//         ¾îÂ÷ÇÇ PythonÂÊ¿¡¼­ Destroy°¡ ÇÏ³ª¾¿ ´Ù½Ã È£Ãâ µÉ °ÍÀÌ¹Ç·Î..
-	//         ÇÏÁö¸¸ ¸¸¾àÀ» À§ÇØ ¸µÅ©´Â ²÷¾î ³õ´Â´Ù.
-	//         ´õ ÁÁÀº ÇüÅÂ´Â ÀÖ´Â°¡? - [levites]
+	// FIXME : Childrenï¿½ï¿½ ï¿½ï¿½ï¿½ Deleteï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
+	//         ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Pythonï¿½Ê¿ï¿½ï¿½ï¿½ Destroyï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ È£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¹Ç·ï¿½..
+	//         ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â´ï¿½.
+	//         ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â´ï¿½ ï¿½Ö´Â°ï¿½? - [levites]
 	std::for_each(m_pChildList.begin(), m_pChildList.end(), FClear());
 	m_pChildList.clear();
 
@@ -797,7 +798,7 @@ BOOL CWindow::OnMouseLeftButtonDown()
 BOOL CWindow::OnMouseLeftButtonUp()
 {
 	PyCallClassMemberFunc(m_poHandler, "OnMouseLeftButtonUp", BuildEmptyTuple());
-	return TRUE; // NOTE : ButtonUpÀº ¿¹¿Ü·Î ¹«Á¶°Ç TRUE
+	return TRUE; // NOTE : ButtonUpï¿½ï¿½ ï¿½ï¿½ï¿½Ü·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ TRUE
 }
 
 BOOL CWindow::OnMouseLeftButtonDoubleClick()
@@ -1085,12 +1086,12 @@ void CWindow::SetRenderingRect(float fLeft, float fTop, float fRight, float fBot
 
 int CWindow::GetRenderingWidth()
 {
-	return std::max<size_t>(0, GetWidth() + m_renderingRect.right + m_renderingRect.left);
+	return m2::narrow<int>(std::max<size_t>(0, GetWidth() + m_renderingRect.right + m_renderingRect.left));
 }
 
 int CWindow::GetRenderingHeight()
 {
-	return std::max<size_t>(0, GetHeight() + m_renderingRect.bottom + m_renderingRect.top);
+	return m2::narrow<int>(std::max<size_t>(0, GetHeight() + m_renderingRect.bottom + m_renderingRect.top));
 }
 
 void CWindow::ResetRenderingRect(bool bCallEvent)
@@ -1776,7 +1777,7 @@ void CImageBox::SetCoolTimeStart(float fCoolTimeStart)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// MarkBox - ¸¶Å© Ãâ·Â¿ë UI À©µµ¿ì
+// MarkBox - ï¿½ï¿½Å© ï¿½ï¿½Â¿ï¿½ UI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 ///////////////////////////////////////////////////////////////////////////////////////////////
 CMarkBox::CMarkBox(PyObject * ppyObject) : CWindow(ppyObject)
 {
@@ -2200,11 +2201,11 @@ void CAniImageBox::ResetFrame()
 #ifdef ENABLE_FISHING_RENEWAL
 void CAniImageBox::SetRotation(float fRotation)
 {
-	const int iSize = m_ImageVector.size();
+	const std::size_t iSize = m_ImageVector.size();
 	if (iSize > 0)
 	{
 		m_RotationProcess = true;
-		for (int i = 0; i < iSize; i++)
+		for (std::size_t i = 0; i < iSize; ++i)
 			m_ImageVector[i]->SetRotation(fRotation);
 	}
 

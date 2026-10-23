@@ -71,7 +71,7 @@ BOOL CPythonGuildBank::GetSlotGuildBankItemID(uint32_t dwSlotIndex, uint32_t* pd
 
 uint32_t CPythonGuildBank::GetGuildBankSize()
 {
-	return m_GuildBankItemInstanceVector.size();
+	return m2::narrow<uint32_t>(m_GuildBankItemInstanceVector.size());
 }
 
 PyObject* guildbankGetItemID(PyObject* poSelf, PyObject* poArgs)

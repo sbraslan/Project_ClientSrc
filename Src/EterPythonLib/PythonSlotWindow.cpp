@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterBase/CRC32.h"
 #include "../EterBase/Filename.h"
 #include "PythonWindow.h"
@@ -241,7 +242,7 @@ void CSlotWindow::SetCoverButton(uint32_t dwIndex, const char* c_szUpImageName, 
 	rpCoverButton->Enable();
 	rpCoverButton->Show();
 
-	// NOTE : Cover ¹öÆ°ÀÌ Plus ¹öÆ°À» °¡·Á¹ö·Á¼­ ÀÓ½Ã ÄÚµå¸¦..
+	// NOTE : Cover ï¿½ï¿½Æ°ï¿½ï¿½ Plus ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ó½ï¿½ ï¿½Úµå¸¦..
 	if (pSlot->pSlotButton)
 		SetTop(pSlot->pSlotButton);
 }
@@ -865,7 +866,7 @@ void CSlotWindow::RefreshSlot()
 {
 	OnRefreshSlot();
 
-	// NOTE : Refresh µÉ¶§ ToolTip µµ °»½Å ÇÕ´Ï´Ù - [levites]
+	// NOTE : Refresh ï¿½É¶ï¿½ ToolTip ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Õ´Ï´ï¿½ - [levites]
 	if (IsRendering())
 	{
 		TSlot * pSlot;
@@ -881,7 +882,7 @@ void CSlotWindow::OnRefreshSlot() {}
 
 uint32_t CSlotWindow::GetSlotCount() const
 {
-	return m_SlotList.size();
+	return m2::narrow<uint32_t>(m_SlotList.size());
 }
 
 void CSlotWindow::LockSlot(uint32_t dwIndex)
@@ -1022,7 +1023,7 @@ void CSlotWindow::ClearSelected()
 
 uint32_t CSlotWindow::GetSelectedSlotCount() const
 {
-	return m_dwSelectedSlotIndexList.size();
+	return m2::narrow<uint32_t>(m_dwSelectedSlotIndexList.size());
 }
 
 uint32_t CSlotWindow::GetSelectedSlotNumber(uint32_t dwIndex)
@@ -1193,8 +1194,8 @@ void CSlotWindow::OnMouseOverOut()
 
 void CSlotWindow::OnMouseOver()
 {
-	// FIXME : À©µµ¿ì¸¦ µå·¡±ë ÇÏ´Â µµÁß¿¡ SetTopÀÌ µÇ¾î¹ö¸®¸é Capture°¡ Ç®¾îÁ® ¹ö¸°´Ù. ±×°ÍÀÇ ¹æÁö ÄÚµå.
-	//         Á» ´õ ±Ùº»ÀûÀÎ ÇØ°áÃ¥À» Ã£¾Æ¾ß ÇÒ µí - [levites]
+	// FIXME : ï¿½ï¿½ï¿½ï¿½ï¿½ì¸¦ ï¿½å·¡ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ß¿ï¿½ SetTopï¿½ï¿½ ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Captureï¿½ï¿½ Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½×°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½.
+	//         ï¿½ï¿½ ï¿½ï¿½ ï¿½Ùºï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø°ï¿½Ã¥ï¿½ï¿½ Ã£ï¿½Æ¾ï¿½ ï¿½ï¿½ ï¿½ï¿½ - [levites]
 	//	if (UI::CWindowManager::Instance().IsCapture())
 	//	if (!UI::CWindowManager::Instance().IsAttaching())
 	//		return;
@@ -1356,7 +1357,7 @@ void CSlotWindow::OnRender()
 	std::for_each(m_pChildList.begin(), m_pChildList.end(), std::mem_fn(&CWindow::OnRender));
 
 	//
-	// ¸ðµç ½½·Ô »óÀÚ ±×¸®±â
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
 	//////////////////////////////////////////////////////////////////////////
 #ifdef __RENDER_SLOT_AREA__
 	CPythonGraphic::Instance().SetDiffuseColor(0.5f, 0.5f, 0.5f);
@@ -1657,14 +1658,14 @@ BOOL CSlotWindow::GetPickedSlotPointer(TSlot ** ppSlot)
 	int ixLocal = lx - m_rect.left;
 	int iyLocal = ly - m_rect.top;
 
-	// NOTE : ¿ÞÂÊ ¸ÇÀ§ »ó´Ü ÇÑ°÷ÀÌ ±âÁØ ÀÌ¶ó´Â Á¡À» ÀÌ¿ëÇØ ¿ÞÂÊ À§¿¡¼­ºÎÅÍ ¿À¸¥ÂÊ ¾Æ·¡·Î
-	//        Â÷·Ê·Î °Ë»öÇØ °¨À¸·Î½á µ¤Çô ÀÖ´Â SlotÀº ÀÚµ¿ ¹«½Ã µÈ´Ù´Â Æ¯¼ºÀ» ÀÌ¿ëÇÑ´Ù. - [levites]
+	// NOTE : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ñ°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ï¿½ï¿½
+	//        ï¿½ï¿½ï¿½Ê·ï¿½ ï¿½Ë»ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Î½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ Slotï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½È´Ù´ï¿½ Æ¯ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½Ñ´ï¿½. - [levites]
 	for (auto & rSlot : m_SlotList)
 	{
 		int ixCellSize = rSlot.ixCellSize;
 		int iyCellSize = rSlot.iyCellSize;
 
-		// NOTE : ItemÀÌ Hide µÇ¾îÀÖÀ» °æ¿ì¸¦ À§ÇÑ..
+		// NOTE : Itemï¿½ï¿½ Hide ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¸¦ ï¿½ï¿½ï¿½ï¿½..
 		if (rSlot.isItem)
 		{
 			ixCellSize = std::max(rSlot.ixCellSize, int(rSlot.byxPlacedItemSize * ITEM_WIDTH));

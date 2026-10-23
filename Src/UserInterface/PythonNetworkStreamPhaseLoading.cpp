@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PythonNetworkStream.h"
 #include "Packet.h"
 #include "PythonApplication.h"
@@ -31,7 +32,7 @@ bool CPythonNetworkStream::IsChatInsultIn(const char * c_szMsg)
 
 bool CPythonNetworkStream::IsInsultIn(const char * c_szMsg)
 {
-	return m_kInsultChecker.IsInsultIn(c_szMsg, strlen(c_szMsg));
+	return m_kInsultChecker.IsInsultIn(c_szMsg, m2::narrow<uint32_t>(strlen(c_szMsg)));
 }
 
 bool CPythonNetworkStream::LoadInsultList(const char * c_szInsultListFileName)
@@ -88,7 +89,7 @@ bool CPythonNetworkStream::LoadPartyMatchInfo(const char* FileName)
 			if (pkTextFileLoader->SetChildNode(j))
 			{
 				CTokenVector* tv;
-				for (int k = 0; k < items.size(); k++)
+				for (std::size_t k = 0; k < items.size(); ++k)
 				{
 					if (pkTextFileLoader->GetTokenVector(std::to_string(k + 1), &tv))
 					{
@@ -249,12 +250,12 @@ const char* CPythonNetworkStream::GetLoadingTipVnum(long lMapIndex)
 
 	if (it == m_kMap_dwMapIndex_vecTipList.end())
 	{
-		std::uniform_int_distribution<std::mt19937::result_type> dist(0, m_kMap_dwMapIndex_vecTipList.begin()->second.size() - 1);
+		std::uniform_int_distribution<std::mt19937::result_type> dist(0, m2::narrow<std::mt19937::result_type>(m_kMap_dwMapIndex_vecTipList.begin()->second.size() - 1));
 		sprintf(s_szTip, "%s", m_kMap_dwID_strTipString.find(m_kMap_dwMapIndex_vecTipList.begin()->second.at(dist(rd)))->second.c_str());
 	}
 	else
 	{
-		std::uniform_int_distribution<std::mt19937::result_type> dist(0, it->second.size() - 1);
+		std::uniform_int_distribution<std::mt19937::result_type> dist(0, m2::narrow<std::mt19937::result_type>(it->second.size() - 1));
 		sprintf(s_szTip, "%s", m_kMap_dwID_strTipString.find(it->second.at(dist(rd)))->second.c_str());
 	}
 

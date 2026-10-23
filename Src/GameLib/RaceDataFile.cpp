@@ -34,9 +34,9 @@ BOOL CRaceData::LoadRaceData(const char * c_szFileName)
 			return FALSE;
 		}
 
-		uint32_t uLineCount = pSmokeTokenVector->size() / 2;
+		const std::size_t uLineCount = pSmokeTokenVector->size() / 2;
 
-		for (uint32_t uLine = 0; uLine < uLineCount; ++uLine)
+		for (std::size_t uLine = 0; uLine < uLineCount; ++uLine)
 		{
 			int eSmoke = atoi(pSmokeTokenVector->at(uLine * 2 + 0).c_str());
 			if (eSmoke < 0 || eSmoke >= SMOKE_NUM)

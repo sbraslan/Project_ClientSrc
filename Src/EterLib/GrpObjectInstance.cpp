@@ -406,7 +406,7 @@ void CGraphicObjectInstance::UpdateCollisionData(const CStaticCollisionDataVecto
 
 uint32_t CGraphicObjectInstance::GetCollisionInstanceCount()
 {
-	return m_StaticCollisionInstanceVector.size();
+	return m2::narrow<uint32_t>(m_StaticCollisionInstanceVector.size());
 }
 
 CBaseCollisionInstance * CGraphicObjectInstance::GetCollisionInstanceData(uint32_t dwIndex)

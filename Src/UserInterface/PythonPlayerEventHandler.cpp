@@ -190,13 +190,13 @@ void CPythonPlayerEventHandler::FlushVictimList()
 
 	// #0000682: [M2EU] ������ ��ų ���� ƨ��
 	unsigned int SYNC_POSITION_COUNT_LIMIT = 16;
-	unsigned int uiVictimCount = m_kVctkVictim.size();
+	const unsigned int uiVictimCount = m2::narrow<unsigned int>(m_kVctkVictim.size());
 
 	CPythonNetworkStream & rkStream = CPythonNetworkStream::Instance();
 
 	TPacketCGSyncPosition kPacketSyncPos;
 	kPacketSyncPos.bHeader = HEADER_CG_SYNC_POSITION;
-	kPacketSyncPos.wSize = sizeof(kPacketSyncPos) + sizeof(TPacketCGSyncPositionElement) * uiVictimCount;
+	kPacketSyncPos.wSize = m2::narrow<uint16_t>(sizeof(kPacketSyncPos) + sizeof(TPacketCGSyncPositionElement) * static_cast<std::size_t>(uiVictimCount));
 
 	rkStream.Send(sizeof(kPacketSyncPos), &kPacketSyncPos);
 

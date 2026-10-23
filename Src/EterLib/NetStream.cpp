@@ -77,10 +77,10 @@ bool CNetworkStream::__RecvInternalBuffer()
 	}
 
 #ifdef _IMPROVED_PACKET_ENCRYPTION_
-	const int restSize = m_recvBuf.size() - m_recvBufInputPos;
+	const int restSize = m2::narrow<int>(m_recvBuf.size() - static_cast<std::size_t>(m_recvBufInputPos));
 	if (restSize > 0)
 	{
-		const int recvSize = recv(m_sock, m_recvBuf.data() + m_recvBufInputPos, m_recvBuf.size() - m_recvBufInputPos, 0);
+		const int recvSize = recv(m_sock, m_recvBuf.data() + m_recvBufInputPos, m2::narrow<int>(m_recvBuf.size() - static_cast<std::size_t>(m_recvBufInputPos)), 0);
 
 		if (recvSize < 0)
 		{
@@ -486,7 +486,7 @@ int CNetworkStream::__GetSendBufferSize()
 
 bool CNetworkStream::Send(int size, const char * pSrcBuf)
 {
-	const int sendBufRestSize = m_sendBuf.size() - m_sendBufInputPos;
+	const int sendBufRestSize = m2::narrow<int>(m_sendBuf.size() - static_cast<std::size_t>(m_sendBufInputPos));
 	if ((size + 1) > sendBufRestSize)
 		return false;
 

@@ -166,7 +166,7 @@ int InGameEventManager::GetDayEventCount(int iDay)
 	if (iDay > DAY_MAX_NUM)
 		return 0;
 
-	return m_map_Event[iDay].size();
+	return m2::narrow<int>(m_map_Event[iDay].size());
 }
 
 void InGameEventManager::GetEventData(int eventIdx, int iDay, TEventTable& table)

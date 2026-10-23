@@ -353,7 +353,7 @@ BOOL CActorInstance::__SplashAttackProcess(CActorInstance& rVictim)
 	{
 		rHittedInstanceMap.emplace(&rVictim, GetLocalTime() + c_rAttackData.fInvisibleTime);
 
-		const int iCurrentHitCount = rHittedInstanceMap.size();
+		const int iCurrentHitCount = m2::narrow<int>(rHittedInstanceMap.size());
 		const int iMaxHitCount = (0 == c_rAttackData.iHitLimitCount ? MAX_HIT_COUNT : c_rAttackData.iHitLimitCount);	//@fixme439
 		//Tracef(" ------------------- Splash Hit : %d\n", iCurrentHitCount);
 
@@ -480,7 +480,7 @@ BOOL CActorInstance::__NormalAttackProcess(CActorInstance& rVictim)
 						{
 							itHitData->second.emplace(&rVictim, GetLocalTime() + pad->fInvisibleTime);
 
-							const int iCurrentHitCount = itHitData->second.size();
+							const int iCurrentHitCount = m2::narrow<int>(itHitData->second.size());
 							// NOTE : ���� ������ 16���� �Ѱ�
 							if (NRaceData::MOTION_TYPE_COMBO == pad->iMotionType || NRaceData::MOTION_TYPE_NORMAL == pad->iMotionType)
 							{

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PythonChat.h"
 
 #include "AbstractApplication.h"
@@ -214,7 +215,7 @@ void CPythonChat::UpdateViewMode(uint32_t dwID)
 		return;
 
 	TChatLineList * pLineList = &(pChatSet->m_ShowingChatLineList);
-	int iLineIndex = pLineList->size();
+	const int iLineIndex = m2::narrow<int>(pLineList->size());
 	int iHeight = -(int(pLineList->size() + 1) * pChatSet->m_iStep);
 
 	for (auto itor = pLineList->begin(); itor != pLineList->end();)
@@ -571,7 +572,7 @@ int CPythonChat::GetVisibleLineCount(uint32_t dwID)
 	if (!pLineList)
 		return 0;
 
-	return pLineList->size();
+	return m2::narrow<int>(pLineList->size());
 }
 
 int CPythonChat::GetEditableLineCount(uint32_t dwID)
@@ -682,7 +683,7 @@ void CPythonChat::ArrangeShowingChat(uint32_t dwID)
 #endif
 	}
 
-	int icurLineCount = TempChatLineDeque.size();
+	const int icurLineCount = m2::narrow<int>(TempChatLineDeque.size());
 	int iVisibleLineCount = std::min(icurLineCount, (pChatSet->m_iHeight + pChatSet->m_iStep) / pChatSet->m_iStep);
 	int iEndLine = iVisibleLineCount + int(float(icurLineCount - iVisibleLineCount - 1) * pChatSet->m_fEndPos);
 

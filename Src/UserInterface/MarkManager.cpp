@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "MarkManager.h"
 
 CGuildMarkManager::CGuildMarkManager()
@@ -6,7 +7,7 @@ CGuildMarkManager::CGuildMarkManager()
 #if _MSC_VER >= 1200
 	_mkdir("mark");
 #endif
-	// ³²Àº mark id ¼ÂÀ» ¸¸µç´Ù. (¼­¹ö¿ë)
+	// ï¿½ï¿½ï¿½ï¿½ mark id ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½. (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 	for (uint32_t i = 0; i < MAX_IMAGE_COUNT * CGuildMarkImage::MARK_TOTAL_COUNT; ++i)
 		m_setFreeMarkID.emplace(i);
 }
@@ -29,7 +30,7 @@ void CGuildMarkManager::SetMarkPathPrefix(const char * prefix)
 	m_pathPrefix = prefix;
 }
 
-// ¸¶Å© ÀÎµ¦½º ºÒ·¯¿À±â (¼­¹ö¿¡¼­¸¸ »ç¿ë)
+// ï¿½ï¿½Å© ï¿½Îµï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
 bool CGuildMarkManager::LoadMarkIndex()
 {
 	std::string path = fmt::format("mark/{}_index", m_pathPrefix);
@@ -147,7 +148,7 @@ uint32_t CGuildMarkManager::__AllocMarkID(uint32_t guildID)
 	uint32_t markID = *it;
 
 	uint32_t imgIdx = markID / CGuildMarkImage::MARK_TOTAL_COUNT;
-	CGuildMarkImage * pkImage = __GetImage(imgIdx); // ÀÌ¹ÌÁö°¡ ¾ø´Ù¸é ¸¸µé±â À§ÇØ
+	CGuildMarkImage * pkImage = __GetImage(imgIdx); // ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	if (pkImage && AddMarkIDByGuildID(guildID, markID))
 		return markID;
@@ -157,12 +158,12 @@ uint32_t CGuildMarkManager::__AllocMarkID(uint32_t guildID)
 
 uint32_t CGuildMarkManager::GetMarkImageCount() const
 {
-	return m_mapIdx_Image.size();
+	return m2::narrow<uint32_t>(m_mapIdx_Image.size());
 }
 
 uint32_t CGuildMarkManager::GetMarkCount() const
 {
-	return m_mapGID_MarkID.size();
+	return m2::narrow<uint32_t>(m_mapGID_MarkID.size());
 }
 
 // SERVER
@@ -236,7 +237,7 @@ void CGuildMarkManager::GetDiffBlocks(uint32_t imgIdx, const uint32_t * crcList,
 {
 	mapDiffBlocks.clear();
 
-	// Å¬¶óÀÌ¾ðÆ®¿¡¼­ ¼­¹ö¿¡ ¾ø´Â ÀÌ¹ÌÁö¸¦ ¿äÃ»ÇÒ ¼ö´Â ¾ø´Ù.
+	// Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	if (m_mapIdx_Image.end() == m_mapIdx_Image.find(imgIdx))
 	{
 		Tracenf("invalid idx %u", imgIdx); // @warme668
@@ -263,7 +264,7 @@ bool CGuildMarkManager::SaveBlockFromCompressedData(uint32_t imgIdx, uint32_t po
 // CLIENT
 bool CGuildMarkManager::GetBlockCRCList(uint32_t imgIdx, uint32_t * crcList)
 {
-	// Å¬¶óÀÌ¾ðÆ®¿¡¼­ ¼­¹ö¿¡ ¾ø´Â ÀÌ¹ÌÁö¸¦ ¿äÃ»ÇÒ ¼ö´Â ¾ø´Ù.
+	// Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	if (m_mapIdx_Image.end() == m_mapIdx_Image.find(imgIdx))
 	{
 		Tracenf("invalid idx %u", imgIdx); // @warme668
@@ -325,13 +326,13 @@ void CGuildMarkManager::SaveSymbol(const char * filename)
 		return;
 	}
 
-	uint32_t symbolCount = m_mapSymbol.size();
+	const uint32_t symbolCount = m2::narrow<uint32_t>(m_mapSymbol.size());
 	fwrite(&symbolCount, 4, 1, fPtr.get());
 
 	for (auto & it : m_mapSymbol)
 	{
 		uint32_t guildID = it.first;
-		uint32_t dwSize = it.second.raw.size();
+		const uint32_t dwSize = m2::narrow<uint32_t>(it.second.raw.size());
 		fwrite(&guildID, 4, 1, fPtr.get());
 		fwrite(&dwSize, 4, 1, fPtr.get());
 		fwrite(&it.second.raw[0], 1, dwSize, fPtr.get());

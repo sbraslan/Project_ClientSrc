@@ -73,22 +73,22 @@ bool SplitToken(const char * c_szLine, CTokenVector * pstTokenVector, const char
 	std::string stToken;
 	std::string strLine = c_szLine;
 
-	uint32_t basePos = 0;
+	std::string::size_type basePos = 0;
 
 	do
 	{
-		int beginPos = strLine.find_first_not_of(c_szDelimeter, basePos);
-		if (beginPos < 0)
+		auto beginPos = strLine.find_first_not_of(c_szDelimeter, basePos);
+		if (beginPos == std::string::npos)
 			return false;
 
-		int endPos;
+		std::string::size_type endPos;
 
 		if (strLine[beginPos] == '"')
 		{
 			++beginPos;
 			endPos = strLine.find_first_of('\"', beginPos);
 
-			if (endPos < 0)
+			if (endPos == std::string::npos)
 				return false;
 
 			basePos = endPos + 1;
@@ -101,8 +101,8 @@ bool SplitToken(const char * c_szLine, CTokenVector * pstTokenVector, const char
 
 		pstTokenVector->emplace_back(strLine.substr(beginPos, endPos - beginPos));
 
-		// Ãß°¡ ÄÚµå. ¸ÇµÚ¿¡ ÅÇÀÌ ÀÖ´Â °æ¿ì¸¦ Ã¼Å©ÇÑ´Ù. - [levites]
-		if (int(strLine.find_first_not_of(c_szDelimeter, basePos)) < 0)
+		// ï¿½ß°ï¿½ ï¿½Úµï¿½. ï¿½ÇµÚ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ì¸¦ Ã¼Å©ï¿½Ñ´ï¿½. - [levites]
+		if (strLine.find_first_not_of(c_szDelimeter, basePos) == std::string::npos)
 			break;
 	} while (basePos < strLine.length());
 
@@ -234,7 +234,7 @@ void CPythonNetworkStream::ServerCommand(char * c_szCommand)
 		else if ("r_list" == TokenVector[1])
 		{
 			// result list (/cube r_list npcVNUM resultCount resultText)
-			// 20383 4 72723,1/72725,1/72730.1/50001,5 <- ÀÌ·±½ÄÀ¸·Î "/" ¹®ÀÚ·Î ±¸ºÐµÈ ¸®½ºÆ®¸¦ ÁÜ
+			// 20383 4 72723,1/72725,1/72730.1/50001,5 <- ï¿½Ì·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ "/" ï¿½ï¿½ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½Ðµï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½
 			if (5 != TokenVector.size())
 			{
 				TraceError("CPythonNetworkStream::ServerCommand(c_szCommand=%s) - Strange Parameter Count : %d", c_szCommand, 5);
@@ -249,9 +249,9 @@ void CPythonNetworkStream::ServerCommand(char * c_szCommand)
 		else if ("m_info" == TokenVector[1])
 		{
 			// material list (/cube m_info requestStartIndex resultCount MaterialText)
-			// ex) requestStartIndex: 0, resultCount : 5 - ÇØ´ç NPC°¡ ¸¸µé¼ö ÀÖ´Â ¾ÆÀÌÅÛ Áß 0~4¹øÂ°¿¡ ÇØ´çÇÏ´Â ¾ÆÀÌÅÛÀ» ¸¸µå´Â µ¥ ÇÊ¿äÇÑ ¸ðµç Àç·áµéÀÌ MaterialText¿¡ µé¾îÀÖÀ½
-			// À§ ¿¹½ÃÃ³·³ ¾ÆÀÌÅÛÀÌ ´Ù¼öÀÎ °æ¿ì ±¸ºÐÀÚ "@" ¹®ÀÚ¸¦ »ç¿ë
-			// 0 5 125,1|126,2|127,2|123,5&555,5&555,4/120000 <- ÀÌ·±½ÄÀ¸·Î ¼­¹ö¿¡¼­ Å¬¶ó·Î ¸®½ºÆ®¸¦ ÁÜ
+			// ex) requestStartIndex: 0, resultCount : 5 - ï¿½Ø´ï¿½ NPCï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ 0~4ï¿½ï¿½Â°ï¿½ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ MaterialTextï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ "@" ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½
+			// 0 5 125,1|126,2|127,2|123,5&555,5&555,4/120000 <- ï¿½Ì·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½
 
 			if (5 != TokenVector.size())
 			{

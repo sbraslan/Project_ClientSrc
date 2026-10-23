@@ -130,7 +130,7 @@ bool CWeaponTrace::BuildVertex()
 
 	float length = std::min(m_fLifeTime, m_LongTimePointList.back().first);
 
-	int n = m_LongTimePointList.size() - 1;
+	const int n = m2::narrow<int>(m_LongTimePointList.size() - 1);
 	assert(n < max_size - 1);
 
 	// cubic spline

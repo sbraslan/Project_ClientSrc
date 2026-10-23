@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterBase/CRC32.h"
 #include "PythonGridSlotWindow.h"
 
@@ -160,8 +161,8 @@ BOOL CGridSlotWindow::GetPickedSlotPointer(TSlot ** ppSlot)
 
 	for (auto & pSlot : SlotList)
 	{
-		// NOTE : ÇÑ ½½·Ô ÀÌ»ó »çÀÌÁîÀÇ ¾ÆÀÌÅÛÀÇ °æ¿ì °¡Àå ¿ÞÂÊ À§ÀÇ ½½·Ô Æ÷ÀÎÅÍ¸¦ ¸®ÅÏÇÑ´Ù.
-		//        ¸í½ÃÀûÀÌÁö ¸øÇÑ ÄÚµå.. ´õ ÁÁÀº ¹æ¹ýÀº ¾ø´Â°¡? - [levites]
+		// NOTE : ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+		//        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½.. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½? - [levites]
 		if (!pMinSlot)
 			pMinSlot = pSlot;
 		else
@@ -184,7 +185,7 @@ BOOL CGridSlotWindow::GetPickedSlotPointer(TSlot ** ppSlot)
 
 	*ppSlot = pCenterSlot;
 
-	// ÇöÀç ¾ÆÀÌÅÛÀ» µé°í ÀÖ´Â ÁßÀÌ°í..
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½Ì°ï¿½..
 	if (CWindowManager::Instance().IsAttaching())
 	{
 		uint32_t dwSlotNumber = CWindowManager::Instance().GetAttachingSlotNumber();
@@ -221,7 +222,7 @@ BOOL CGridSlotWindow::GetPickedSlotList(int iWidth, int iHeight, std::list<TSlot
 		int ixStart = int(ix) - int(ixHalfStep - (ixHalfStep % 2));
 		int ixEnd = int(ix) + int(ixHalfStep);
 
-		// FIXME : Á¦´ë·Î µÈ °è»ê °ø½ÄÀ» Ã£ÀÚ - [levites]
+		// FIXME : ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ - [levites]
 		int iyStart = 0, iyEnd = 0;
 
 		if (1 == iHeight)
@@ -294,7 +295,7 @@ BOOL CGridSlotWindow::GetPickedSlotList(int iWidth, int iHeight, std::list<TSlot
 			}
 		}
 
-		// Refine Scroll µîÀ» À§ÇÑ ¿¹¿Ü Ã³¸®
+		// Refine Scroll ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 		if (m_isUseMode && 1 == pSlotPointerList->size())
 		{
 			TSlot * pMainSlot = *pSlotPointerList->begin();
@@ -453,7 +454,7 @@ BOOL CGridSlotWindow::CheckMoving(uint32_t dwSlotNumber, uint32_t dwItemIndex, c
 	if (m_dwSlotStyle != SLOT_STYLE_PICK_UP)
 		return TRUE;
 
-	uint16_t wCellMaxPerPage = m_SlotVector.size();
+	const uint16_t wCellMaxPerPage = m2::narrow<uint16_t>(m_SlotVector.size());
 	while (dwSlotNumber >= wCellMaxPerPage)
 		dwSlotNumber -= wCellMaxPerPage;
 
@@ -553,11 +554,11 @@ BOOL CGridSlotWindow::CheckMoving(uint32_t dwSlotNumber, uint32_t dwItemIndex, c
 
 	for (auto & pSlot : c_rSlotList)
 	{
-		if (dwSlotNumber != pSlot->dwCenterSlotNumber) // µé¾ú´ø ÀÚ¸®°¡ ¾Æ´Ò °æ¿ì¿¡
+		if (dwSlotNumber != pSlot->dwCenterSlotNumber) // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¸ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½ì¿¡
 		{
-			if (0 != pSlot->dwItemIndex || pSlot->dwCenterSlotNumber != pSlot->dwSlotNumber) // ¾ÆÀÌÅÛÀÌ ÀÖ°í
+			if (0 != pSlot->dwItemIndex || pSlot->dwCenterSlotNumber != pSlot->dwSlotNumber) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö°ï¿½
 			{
-				if (dwItemIndex != pSlot->dwItemIndex) // ´Ù¸¥ ¾ÆÀÌÅÛÀÌ¸é ¸ø ¿Å±è
+				if (dwItemIndex != pSlot->dwItemIndex) // ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ ï¿½Å±ï¿½
 					return false;
 			}
 		}

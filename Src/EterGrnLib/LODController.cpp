@@ -334,7 +334,7 @@ void CGrannyLODController::SetLODLevel(uint8_t bLodLevel)
 	assert(m_que_pkModelInst.size() > 0);
 
 	if (!m_que_pkModelInst.empty())
-		m_bLODLevel = static_cast<uint8_t>(MIN(m_que_pkModelInst.size() - 1, bLodLevel));
+		m_bLODLevel = m2::narrow<uint8_t>(std::min<std::size_t>(m_que_pkModelInst.size() - 1, static_cast<std::size_t>(bLodLevel)));
 }
 
 void CGrannyLODController::CreateDeviceObjects()
@@ -414,7 +414,7 @@ void CGrannyLODController::UpdateLODLevel(float fDistanceFromCenter, float fDist
 		if (m_fLODDistance > 0.0f)
 			m_dwLODAniFPS =
 				static_cast<uint32_t>((static_cast<float>(CGrannyModelInstance::ANIFPS_MAX - CGrannyModelInstance::ANIFPS_MIN) * fLODFactor / m_fLODDistance) +
-									  CGrannyModelInstance::ANIFPS_MIN);
+									  static_cast<float>(CGrannyModelInstance::ANIFPS_MIN));
 		else
 			m_dwLODAniFPS = CGrannyModelInstance::ANIFPS_MIN;
 

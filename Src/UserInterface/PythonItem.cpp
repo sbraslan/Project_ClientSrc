@@ -704,7 +704,7 @@ void CPythonItem::BuildNoGradeNameData(int iType) const
 
 uint32_t CPythonItem::GetNoGradeNameDataCount() const
 {
-	return m_NoGradeNameItemData.size();
+	return m2::narrow<uint32_t>(m_NoGradeNameItemData.size());
 }
 
 CItemData * CPythonItem::GetNoGradeNameDataPtr(uint32_t dwIndex)

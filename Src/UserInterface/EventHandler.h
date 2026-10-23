@@ -42,7 +42,7 @@ public:
 
 	void DeleteProccess()
 	{
-		int size = EventInfoMap.size();
+		const std::size_t size = EventInfoMap.size();
 		if (size > 0)
 		{
 			for (size_t i = 0; i < size; i++)

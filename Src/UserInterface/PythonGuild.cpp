@@ -177,7 +177,7 @@ const CPythonGuild::TGuildBoardCommentDataVector & CPythonGuild::GetGuildBoardCo
 
 uint32_t CPythonGuild::GetMemberCount() const
 {
-	return m_GuildMemberDataVector.size();
+	return m2::narrow<uint32_t>(m_GuildMemberDataVector.size());
 }
 
 BOOL CPythonGuild::GetMemberDataPtr(uint32_t dwIndex, TGuildMemberData ** ppData)
@@ -331,7 +331,7 @@ void CPythonGuild::__CalculateLevelAverage()
 	}
 
 	assert(!m_GuildMemberDataVector.empty());
-	m_dwMemberLevelAverage = m_dwMemberLevelSummary / m_GuildMemberDataVector.size();
+	m_dwMemberLevelAverage = m_dwMemberLevelSummary / m2::narrow<uint32_t>(m_GuildMemberDataVector.size());
 }
 
 struct CPythonGuild_SLessMemberGrade

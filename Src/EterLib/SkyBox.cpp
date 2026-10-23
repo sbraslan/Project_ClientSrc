@@ -631,7 +631,7 @@ void CSkyBox::SetSkyColor(const TVectorGradientColor & c_rColorVector, const TVe
 									 c_rNextColorVector[ulVectorGradientColornum].m_FirstColor.a, lTransitionTime);
 	}
 	TSkyObjectFace & aFaceBottom = m_Faces[5];
-	ulVectorGradientColornum = c_rColorVector.size() - 1;
+	ulVectorGradientColornum = m2::narrow<unsigned long>(c_rColorVector.size() - 1);
 	for (uck = 0; uck < aFaceBottom.m_SkyObjectQuadVector.size(); ++uck)
 	{
 		CSkyObjectQuad & aSkyObjectQuad = aFaceBottom.m_SkyObjectQuadVector[uck];

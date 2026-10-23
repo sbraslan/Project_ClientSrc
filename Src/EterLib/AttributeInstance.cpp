@@ -160,10 +160,10 @@ void CAttributeInstance::RefreshObject(const D3DXMATRIX & c_rmatGlobal)
 		if (!m_roAttributeData->GetHeightDataPointer(i, &c_pHeightData))
 			continue;
 
-		uint32_t dwVertexCount = c_pHeightData->v3VertexVector.size();
+		const std::size_t dwVertexCount = c_pHeightData->v3VertexVector.size();
 		m_v3HeightDataVector[i].clear();
 		m_v3HeightDataVector[i].resize(dwVertexCount);
-		for (uint32_t j = 0; j < dwVertexCount; ++j)
+		for (std::size_t j = 0; j < dwVertexCount; ++j)
 			D3DXVec3TransformCoord(&m_v3HeightDataVector[i][j], &c_pHeightData->v3VertexVector[j], &m_matGlobal);
 	}
 }

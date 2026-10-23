@@ -29,7 +29,7 @@ uint32_t CPropertyLoader::RegisterFile(const char * c_szPathName, const char * c
 	strFileName += c_szFileName;
 
 	std::string stExt;
-	GetFileExtension(strFileName.c_str(), strFileName.length(), &stExt);
+	GetFileExtension(strFileName.c_str(), m2::narrow<int>(strFileName.length()), &stExt);
 
 	stl_lowers(stExt);
 	stl_lowers(strFileName);

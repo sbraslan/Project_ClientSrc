@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterPack/EterPackManager.h"
 
 #include "TextFileLoader.h"
@@ -293,7 +294,7 @@ void __strcat1(char * str, int i)
 void base64_decode(const char * str, char * resultStr)
 {
 	int nCount = 0, i = 0, r, result;
-	int length = strlen(str);
+	const int length = m2::narrow<int>(strlen(str));
 	char szDest[5] = "";
 
 	strcpy(resultStr, "");

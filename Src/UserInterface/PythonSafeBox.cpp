@@ -48,7 +48,7 @@ uint32_t CPythonSafeBox::GetMoney() const
 
 int CPythonSafeBox::GetCurrentSafeBoxSize() const
 {
-	return m_ItemInstanceVector.size();
+	return m2::narrow<int>(m_ItemInstanceVector.size());
 }
 
 BOOL CPythonSafeBox::GetSlotItemID(uint32_t dwSlotIndex, uint32_t * pdwItemID)
@@ -137,7 +137,7 @@ BOOL CPythonSafeBox::GetSlotMallItemID(uint32_t dwSlotIndex, uint32_t * pdwItemI
 
 uint32_t CPythonSafeBox::GetMallSize() const
 {
-	return m_MallItemInstanceVector.size();
+	return m2::narrow<uint32_t>(m_MallItemInstanceVector.size());
 }
 
 CPythonSafeBox::CPythonSafeBox()

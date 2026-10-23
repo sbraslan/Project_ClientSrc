@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "resource.h"
 #include "PythonApplication.h"
 #include "../EterLib/Camera.h"
@@ -258,7 +259,7 @@ PyObject * appLoadLocaleAddr(PyObject * poSelf, PyObject * poArgs)
 	static const unsigned char key[16] = {0x82, 0x1b, 0x34, 0xae, 0x12, 0x3b, 0xfb, 0x17, 0xd7, 0x2c, 0x39, 0xae, 0x41, 0x98, 0xf1, 0x63};
 
 	auto * buf = static_cast<char *>(_alloca(size));
-	tea_decrypt(reinterpret_cast<uint32_t *>(buf), reinterpret_cast<const uint32_t *>(enc), reinterpret_cast<const uint32_t *>(key), size);
+	tea_decrypt(reinterpret_cast<uint32_t *>(buf), reinterpret_cast<const uint32_t *>(enc), reinterpret_cast<const uint32_t *>(key), m2::narrow<int>(size));
 
 	unsigned int retSize = *reinterpret_cast<unsigned int *>(buf);
 	char * ret = buf + sizeof(unsigned int);

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterLib/StateManager.h"
 #include "../EterLib/JpegFile.h"
 #include "PythonGraphic.h"
@@ -518,7 +519,7 @@ void CPythonGraphic::RenderCoolTimeBoxColor(float fxCenter, float fyCenter, floa
 		return;
 	}
 
-	if (SetPDTStream(&vertices[0], vertices.size()))
+	if (SetPDTStream(&vertices[0], m2::narrow<uint32_t>(vertices.size())))
 	{
 		STATEMANAGER.SaveTextureStageState(0, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
 		STATEMANAGER.SaveTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
@@ -598,7 +599,7 @@ void CPythonGraphic::RenderCoolTimeBox(float fxCenter, float fyCenter, float fRa
 	if (vertices.empty())
 		return;
 
-	if (SetPDTStream(&vertices[0], vertices.size()))
+	if (SetPDTStream(&vertices[0], m2::narrow<uint32_t>(vertices.size())))
 	{
 		STATEMANAGER.SaveTextureStageState(0, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
 		STATEMANAGER.SaveTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
@@ -688,7 +689,7 @@ void CPythonGraphic::RenderCoolTimeBoxInverse(float fxCenter, float fyCenter, fl
 		return;
 	}
 
-	if (SetPDTStream(vertices.data(), vertices.size()))
+	if (SetPDTStream(vertices.data(), m2::narrow<uint32_t>(vertices.size())))
 	{
 		STATEMANAGER.SaveTextureStageState(0, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
 		STATEMANAGER.SaveTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);

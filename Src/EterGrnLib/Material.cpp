@@ -404,8 +404,8 @@ CGrannyMaterial & CGrannyMaterialPalette::GetMaterialRef(uint32_t mtrlIndex)
 
 void CGrannyMaterialPalette::SetMaterialImagePointer(const char * c_szImageName, CGraphicImage * pImage)
 {
-	uint32_t size = m_mtrlVector.size();
-	for (uint32_t i = 0; i < size; ++i)
+	const std::size_t size = m_mtrlVector.size();
+	for (std::size_t i = 0; i < size; ++i)
 	{
 		CGrannyMaterial::TRef & roMtrl = m_mtrlVector[i];
 
@@ -451,8 +451,8 @@ void CGrannyMaterialPalette::SetMaterialData(const char * c_szMtrlName, const SM
 
 void CGrannyMaterialPalette::SetSpecularInfo(const char * c_szMtrlName, BOOL bEnable, float fPower)
 {
-	uint32_t size = m_mtrlVector.size();
-	uint32_t i;
+	const std::size_t size = m_mtrlVector.size();
+	std::size_t i;
 	if (c_szMtrlName)
 	{
 		for (i = 0; i < size; ++i)
@@ -479,22 +479,22 @@ void CGrannyMaterialPalette::SetSpecularInfo(const char * c_szMtrlName, BOOL bEn
 
 uint32_t CGrannyMaterialPalette::RegisterMaterial(granny_material * pgrnMaterial)
 {
-	uint32_t size = m_mtrlVector.size();
-	for (uint32_t i = 0; i < size; ++i)
+	const std::size_t size = m_mtrlVector.size();
+	for (std::size_t i = 0; i < size; ++i)
 	{
 		CGrannyMaterial::TRef & roMtrl = m_mtrlVector[i];
 		if (roMtrl->IsEqual(pgrnMaterial))
-			return i;
+			return m2::narrow<uint32_t>(i);
 	}
 
 	auto * pkNewMtrl = new CGrannyMaterial;
 	pkNewMtrl->CreateFromGrannyMaterialPointer(pgrnMaterial);
 	m_mtrlVector.emplace_back(pkNewMtrl);
 
-	return size;
+	return m2::narrow<uint32_t>(size);
 }
 
 uint32_t CGrannyMaterialPalette::GetMaterialCount() const
 {
-	return m_mtrlVector.size();
+	return m2::narrow<uint32_t>(m_mtrlVector.size());
 }

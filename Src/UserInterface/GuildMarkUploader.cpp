@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "GuildMarkUploader.h"
 #include "Packet.h"
 #if defined(_WIN64)
@@ -331,7 +332,7 @@ bool CGuildMarkUploader::__SendSymbolPacket()
 
 	if (!Send(sizeof(TPacketCGSymbolUpload), &kPacketSymbolUpload))
 		return false;
-	if (!Send(m_pbySymbolBuf.size(), m_pbySymbolBuf.data()))
+	if (!Send(m2::narrow<int>(m_pbySymbolBuf.size()), m_pbySymbolBuf.data()))
 		return false;
 
 #ifdef _DEBUG

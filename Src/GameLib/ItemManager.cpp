@@ -13,8 +13,8 @@ BOOL CItemManager::SelectItemData(uint32_t dwIndex)
 
 	if (m_ItemMap.end() == f)
 	{
-		int n = m_vec_ItemRange.size();
-		for (int i = 0; i < n; i++)
+		const std::size_t n = m_vec_ItemRange.size();
+		for (std::size_t i = 0; i < n; ++i)
 		{
 			CItemData * p = m_vec_ItemRange[i];
 			const CItemData::TItemTable * pTable = p->GetTable();
@@ -47,8 +47,8 @@ BOOL CItemManager::GetItemDataPointer(uint32_t dwItemID, CItemData ** ppItemData
 
 	if (m_ItemMap.end() == f)
 	{
-		int n = m_vec_ItemRange.size();
-		for (int i = 0; i < n; i++)
+		const std::size_t n = m_vec_ItemRange.size();
+		for (std::size_t i = 0; i < n; ++i)
 		{
 			CItemData * p = m_vec_ItemRange[i];
 			const CItemData::TItemTable * pTable = p->GetTable();
@@ -223,16 +223,16 @@ bool CItemManager::LoadItemList(const char * c_szFileName)
 
 const std::string & __SnapString(const std::string & c_rstSrc, std::string & rstTemp)
 {
-	uint32_t uSrcLen = c_rstSrc.length();
+	const std::string::size_type uSrcLen = c_rstSrc.length();
 	if (uSrcLen < 2)
 		return c_rstSrc;
 
 	if (c_rstSrc[0] != '"')
 		return c_rstSrc;
 
-	uint32_t uLeftCut = 1;
+	const std::string::size_type uLeftCut = 1;
 
-	uint32_t uRightCut = uSrcLen;
+	std::string::size_type uRightCut = uSrcLen;
 	if (c_rstSrc[uSrcLen - 1] == '"')
 		uRightCut = uSrcLen - 1;
 
@@ -283,7 +283,7 @@ bool CItemManager::LoadItemDesc(const char * c_szFileName)
 
 uint32_t GetHashCode(const char * pString)
 {
-	unsigned long i, len;
+	std::size_t i, len;
 	unsigned long ch;
 	unsigned long result;
 

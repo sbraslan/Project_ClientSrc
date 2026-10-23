@@ -277,7 +277,7 @@ float CRaceMotionData::GetLoopEndTime() const
 // Motion Event Data
 uint32_t CRaceMotionData::GetMotionEventDataCount() const
 {
-	return m_MotionEventDataVector.size();
+	return m2::narrow<uint32_t>(m_MotionEventDataVector.size());
 }
 
 BOOL CRaceMotionData::GetMotionEventDataPointer(uint8_t byIndex, const CRaceMotionData::TMotionEventData ** c_ppData) const

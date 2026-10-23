@@ -135,7 +135,7 @@ int CMappedFile::Seek(uint32_t offset, int iSeekType)
 		break;
 
 	case SEEK_TYPE_END:
-		m_seekPosition = std::max<size_t>(0, Size() - offset);
+		m_seekPosition = m2::narrow<uint32_t>(std::max<size_t>(0, Size() - offset));
 		break;
 	}
 

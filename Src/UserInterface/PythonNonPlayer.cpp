@@ -519,7 +519,7 @@ void CPythonNonPlayer::SortMobDataName()
 		std::string stRealName2 = pItem2->szLocaleName;
 		std::transform(stRealName2.begin(), stRealName2.end(), stRealName2.begin(), ::tolower);
 
-		int iSmallLen = std::min(stRealName1.length(), stRealName2.length());
+		const int iSmallLen = m2::narrow<int>(std::min(stRealName1.length(), stRealName2.length()));
 		int iRetCompare = stRealName1.compare(0, iSmallLen, stRealName2, 0, iSmallLen);
 
 		if (iRetCompare != 0)

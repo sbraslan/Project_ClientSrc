@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PythonIME.h"
 #include "PythonApplication.h"
 
@@ -52,7 +53,7 @@ PyObject * imeSetText(PyObject * poSelf, PyObject * poArgs)
 	if (!PyTuple_GetString(poArgs, 0, &szText))
 		return Py_BuildException();
 
-	CPythonIME::Instance().SetText(szText, strlen(szText));
+	CPythonIME::Instance().SetText(szText, m2::narrow<int>(strlen(szText)));
 	return Py_BuildNone();
 }
 

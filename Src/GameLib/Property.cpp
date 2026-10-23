@@ -55,7 +55,7 @@ bool CProperty::GetString(const char * c_pszKey, const char ** c_ppString)
 
 uint32_t CProperty::GetSize()
 {
-	return m_stTokenMap.size();
+	return m2::narrow<uint32_t>(m_stTokenMap.size());
 }
 
 bool CProperty::GetVector(const char * c_pszKey, CTokenVector & rTokenVector)
@@ -131,7 +131,7 @@ bool CProperty::Save(const char * c_pszFileName)
 		m_stCRC.assign(szCRC);
 	}
 
-	file.Write(m_stCRC.c_str(), m_stCRC.length());
+	file.Write(m_stCRC.c_str(), m2::narrow<int>(m_stCRC.length()));
 	file.Write("\r\n", 2);
 
 	auto itor = m_stTokenMap.begin();

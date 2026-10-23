@@ -35,7 +35,7 @@ int CGraphicTextInstance::Hyperlink_GetText(char * buf, int len)
 
 	int codePage = GetDefaultCodePage();
 
-	return WideCharToMultiByte(codePage, 0, gs_hyperlinkText.c_str(), gs_hyperlinkText.length(), buf, len, nullptr, nullptr);
+	return WideCharToMultiByte(codePage, 0, gs_hyperlinkText.c_str(), m2::narrow<int>(gs_hyperlinkText.length()), buf, len, nullptr, nullptr);
 }
 
 int CGraphicTextInstance::__DrawCharacter(CGraphicFontTexture * pFontTexture, uint16_t codePage, wchar_t text, uint32_t dwColor)
@@ -330,7 +330,7 @@ void CGraphicTextInstance::Update()
 										kEmoji.x = x;
 
 										char retBuf[1024];
-										int retLen = WideCharToMultiByte(GetDefaultCodePage(), 0, emojiBuffer.c_str(), emojiBuffer.length(), retBuf, sizeof(retBuf) - 1, nullptr, nullptr);
+										int retLen = WideCharToMultiByte(GetDefaultCodePage(), 0, emojiBuffer.c_str(), m2::narrow<int>(emojiBuffer.length()), retBuf, sizeof(retBuf) - 1, nullptr, nullptr);
 										retBuf[retLen] = '\0';
 
 										char szPath[255];
@@ -470,7 +470,7 @@ void CGraphicTextInstance::Update()
 										kEmoji.x = x;
 
 										char retBuf[1024];
-										int retLen = WideCharToMultiByte(GetDefaultCodePage(), 0, emojiBuffer.c_str(), emojiBuffer.length(), retBuf, sizeof(retBuf) - 1, nullptr, nullptr);
+										int retLen = WideCharToMultiByte(GetDefaultCodePage(), 0, emojiBuffer.c_str(), m2::narrow<int>(emojiBuffer.length()), retBuf, sizeof(retBuf) - 1, nullptr, nullptr);
 										retBuf[retLen] = '\0';
 
 										char szPath[255];
@@ -540,7 +540,7 @@ void CGraphicTextInstance::Update()
 						kEmoji.x = x;
 
 						char retBuf[1024];
-						int retLen = WideCharToMultiByte(GetDefaultCodePage(), 0, emojiBuffer.c_str(), emojiBuffer.length(), retBuf, sizeof(retBuf) - 1, nullptr, nullptr);
+						int retLen = WideCharToMultiByte(GetDefaultCodePage(), 0, emojiBuffer.c_str(), m2::narrow<int>(emojiBuffer.length()), retBuf, sizeof(retBuf) - 1, nullptr, nullptr);
 						retBuf[retLen] = '\0';
 
 						char szPath[255];

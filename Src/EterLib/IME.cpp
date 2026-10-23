@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "IME.h"
 #include "TextTag.h"
 #include "../EterBase/Utils.h"
@@ -440,12 +441,12 @@ int CIME::GetReading(std::string & rstrText)
 	if (ms_wstrReading.empty())
 		return 0;
 	int readingLen =
-		WideCharToMultiByte(ms_uOutputCodePage, 0, &ms_wstrReading[0], ms_wstrReading.size(), reading, sizeof(reading), nullptr, nullptr);
+		WideCharToMultiByte(ms_uOutputCodePage, 0, &ms_wstrReading[0], m2::narrow<int>(ms_wstrReading.size()), reading, sizeof(reading), nullptr, nullptr);
 
 	rstrText.append(GetCodePageText());
 	rstrText.append(reading, reading + readingLen);
 
-	return rstrText.size();
+	return m2::narrow<int>(rstrText.size());
 }
 
 int CIME::GetReadingError()
@@ -522,7 +523,7 @@ int CIME::GetText(std::string & rstrText, bool addCodePage)
 		rstrText.append(text + i, text + len);
 	}
 
-	return rstrText.size();
+	return m2::narrow<int>(rstrText.size());
 }
 
 const char * CIME::GetCodePageText()
@@ -564,7 +565,7 @@ int CIME::GetCandidate(uint32_t index, std::string & rstrText)
 	if (wszText == nullptr)
 		return 0;
 
-	int wTextLen = wcslen(wszText);
+	const int wTextLen = m2::narrow<int>(wcslen(wszText));
 	if (wTextLen == 0)
 		return 0;
 

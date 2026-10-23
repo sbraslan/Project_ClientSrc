@@ -317,7 +317,7 @@ void CArea::RenderEffect()
 
 uint32_t CArea::DEBUG_GetRenderedCRCNum()
 {
-	return m_kRenderedThingInstanceCRCWithNumberVector.size();
+	return m2::narrow<uint32_t>(m_kRenderedThingInstanceCRCWithNumberVector.size());
 }
 
 CArea::TCRCWithNumberVector & CArea::DEBUG_GetRenderedCRCWithNumVector()
@@ -327,7 +327,7 @@ CArea::TCRCWithNumberVector & CArea::DEBUG_GetRenderedCRCWithNumVector()
 
 uint32_t CArea::DEBUG_GetRenderedGrapphicThingInstanceNum()
 {
-	return m_kRenderedGrapphicThingInstanceVector.size();
+	return m2::narrow<uint32_t>(m_kRenderedGrapphicThingInstanceVector.size());
 }
 
 void CArea::CollectRenderingObject(std::vector<CGraphicThingInstance *> & rkVct_pkOpaqueThingInst)
@@ -1198,7 +1198,7 @@ bool CArea::__Load_LoadObject(const char * c_szFileName)
 			if (s != rVector[4].npos)
 			{
 				ObjectData.m_fYaw = atoi(rVector[4].substr(0, s - 1).c_str());
-				int p = s + 1;
+				const std::string::size_type p = s + 1;
 				s = rVector[4].find('#', p);
 				ObjectData.m_fPitch = atoi(rVector[4].substr(p, s - 1 - p + 1).c_str());
 				ObjectData.m_fRoll = atoi(rVector[4].substr(s + 1).c_str());
@@ -1323,7 +1323,7 @@ bool CArea::CheckObjectIndex(uint32_t dwIndex) const
 
 uint32_t CArea::GetObjectDataCount()
 {
-	return m_ObjectDataVector.size();
+	return m2::narrow<uint32_t>(m_ObjectDataVector.size());
 }
 
 bool CArea::GetObjectDataPointer(uint32_t dwIndex, const TObjectData ** ppObjectData) const
@@ -1340,7 +1340,7 @@ bool CArea::GetObjectDataPointer(uint32_t dwIndex, const TObjectData ** ppObject
 
 const uint32_t CArea::GetObjectInstanceCount() const
 {
-	return m_ObjectInstanceVector.size();
+	return m2::narrow<uint32_t>(m_ObjectInstanceVector.size());
 }
 
 const bool CArea::GetObjectInstancePointer(const uint32_t & dwIndex, const TObjectInstance ** ppObjectInstance) const

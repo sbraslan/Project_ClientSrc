@@ -69,7 +69,7 @@ int LocaleString_RightTrim(char * base, int len)
 
 void LocaleString_RightTrim(char * base)
 {
-	LocaleString_RightTrim(base, strlen(base));
+	LocaleString_RightTrim(base, m2::narrow<int>(strlen(base)));
 }
 
 void OLD_rtrim(char * base)
@@ -276,7 +276,7 @@ int Group::Create(const std::string& stSource)
 		return -1;
 	}
 
-	int str_len = stSource.length();
+	const int str_len = m2::narrow<int>(stSource.length());
 	int str_pos = 0;
 	int len_line = 0;
 

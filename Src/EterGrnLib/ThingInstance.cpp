@@ -204,9 +204,9 @@ bool CGraphicThingInstance::CheckModelInstanceIndex(int iModelInstance) const
 	if (iModelInstance < 0)
 		return false;
 
-	int max = m_LODControllerVector.size();
+	const std::size_t max = m_LODControllerVector.size();
 
-	return iModelInstance < max;
+	return static_cast<std::size_t>(iModelInstance) < max;
 }
 
 bool CGraphicThingInstance::CheckModelThingIndex(int iModelThing) const
@@ -214,9 +214,9 @@ bool CGraphicThingInstance::CheckModelThingIndex(int iModelThing) const
 	if (iModelThing < 0)
 		return false;
 
-	int max = m_modelThingSetVector.size();
+	const std::size_t max = m_modelThingSetVector.size();
 
-	return iModelThing < max;
+	return static_cast<std::size_t>(iModelThing) < max;
 }
 
 bool CGraphicThingInstance::CheckMotionThingIndex(uint32_t dwMotionKey)
@@ -645,8 +645,8 @@ BOOL CGraphicThingInstance::GetCompositeBoneMatrix(uint32_t dwModelInstanceIndex
 
 void CGraphicThingInstance::UpdateTransform(D3DXMATRIX * pMatrix, float fSecondsElapsed, int iModelInstanceIndex)
 {
-	int nLODCount = m_LODControllerVector.size();
-	if (iModelInstanceIndex >= nLODCount)
+	const std::size_t nLODCount = m_LODControllerVector.size();
+	if (iModelInstanceIndex < 0 || static_cast<std::size_t>(iModelInstanceIndex) >= nLODCount)
 		return;
 
 	CGrannyLODController * pkLODCtrl = m_LODControllerVector[iModelInstanceIndex].get();
@@ -928,7 +928,7 @@ void CGraphicThingInstance::OnRenderPCBlocker()
 
 uint32_t CGraphicThingInstance::GetLODControllerCount() const
 {
-	return m_LODControllerVector.size();
+	return m2::narrow<uint32_t>(m_LODControllerVector.size());
 }
 
 CGrannyLODController * CGraphicThingInstance::GetLODControllerPointer(uint32_t dwModelIndex) const

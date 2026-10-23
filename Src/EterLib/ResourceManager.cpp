@@ -427,7 +427,7 @@ void CResourceManager::DumpFileListToTextFile(const char * c_szFileName)
 			msl::file_ptr fPtr2(data.filename, "rb");
 
 			if (fPtr2)
-				filesize = fPtr2.size();
+				filesize = m2::narrow<int>(fPtr2.size());
 			else
 				filesize = 0;
 		}

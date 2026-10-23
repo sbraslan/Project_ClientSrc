@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "MovieMan.h"
 #include "PythonApplication.h"
 
@@ -54,7 +55,7 @@ void CMovieMan::FillRect(RECT & fillRect, uint32_t fillColor) const
 
 	if (fillRect.bottom == fillRect.top || fillRect.left == fillRect.right)
 	{
-		// Ã¤¿ï ÇÊ¿ä ¾øÀ½
+		// Ã¤ï¿½ï¿½ ï¿½Ê¿ï¿½ ï¿½ï¿½ï¿½ï¿½
 		return;
 	}
 
@@ -79,7 +80,7 @@ inline void CMovieMan::GDIFillRect(const RECT & fillRect, uint32_t fillColor) co
 }
 
 //----------------------------------------------------------------------------------------------------
-// Æ¯Á¤ ¼­ÇÇ½º¸¦ GDI·Î ¹ÙÅÁÈ­¸é¿¡ »Ñ¸°´Ù
+// Æ¯ï¿½ï¿½ ï¿½ï¿½ï¿½Ç½ï¿½ï¿½ï¿½ GDIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½é¿¡ ï¿½Ñ¸ï¿½ï¿½ï¿½
 //
 inline void CMovieMan::GDIBlt(IDirectDrawSurface * pSrcSurface, const RECT * pDestRect) const
 {
@@ -105,7 +106,7 @@ void CMovieMan::PlayLogo(const char * pcszName)
 
 void CMovieMan::PlayIntro()
 {
-	// ÀÎÆ®·Î ¿µ»óÀº Å°º¸µå ÀÔ·ÂÀÌ³ª ¸¶¿ì½º Å¬¸¯À¸·Î ½ºÅµ °¡´É
+	// ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ï¿½Ì³ï¿½ ï¿½ï¿½ï¿½ì½º Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Åµ ï¿½ï¿½ï¿½ï¿½
 	PlayMovie(INTRO_FILE, MOVIEMAN_SKIPPABLE_YES, MOVIEMAN_POSTEFFECT_FADEOUT, 0xFFFFFF);
 }
 
@@ -147,7 +148,7 @@ BOOL CMovieMan::PlayMovie(const char * cpFileName, const bool bSkipAllowed, cons
 		return FALSE;
 	}
 
-	// 32ºñÆ®ÀÎÁö ¾Ë¾Æº»´Ù
+	// 32ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¾Æºï¿½ï¿½ï¿½
 	ZeroMemory(&ddsd, sizeof(ddsd));
 	ddsd.dwSize = sizeof(ddsd);
 	ddsd.dwFlags = DDSD_PIXELFORMAT;
@@ -179,12 +180,12 @@ BOOL CMovieMan::PlayMovie(const char * cpFileName, const bool bSkipAllowed, cons
 			hr = pDDStream->GetFormat(&ddsd, nullptr, nullptr, nullptr);
 			if (SUCCEEDED(hr))
 			{
-				// µ¿¿µ»ó Å©±â¿Í À©µµ¿ì Å©±â¸¦ ±âÁØÀ¸·Î µ¿¿µ»ó Àç»ýµÉ Àû´çÇÑ ¿µ¿ªÀ» ¼³Á¤
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½â¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				m_movieWidth = ddsd.dwWidth;
 				m_movieHeight = ddsd.dwHeight;
 
-				// ¹é¹öÆÛ´Â ¹«Á¶°Ç RGB32·Î ¸¸µé°í PrimarySurface¿Í Çü½ÄÀÌ ´Ù¸£¸é
-				// GDI fallback ÇØ¼­ StretchBlt ÇÑ´Ù
+				// ï¿½ï¿½ï¿½ï¿½Û´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ RGB32ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ PrimarySurfaceï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ï¿½ï¿½
+				// GDI fallback ï¿½Ø¼ï¿½ StretchBlt ï¿½Ñ´ï¿½
 				DDSURFACEDESC ddsdBackSurface;
 				ZeroMemory(&ddsdBackSurface, sizeof(ddsdBackSurface));
 				ddsdBackSurface.ddpfPixelFormat.dwSize = sizeof(ddsdBackSurface.ddpfPixelFormat);
@@ -229,7 +230,7 @@ BOOL CMovieMan::PlayMovie(const char * cpFileName, const bool bSkipAllowed, cons
 
 	pDD->Release();
 
-	// Å°º¸µå, ¸¶¿ì½º ¹öÆÛ ºñ¿ì±â
+	// Å°ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	MSG msg;
 	while (PeekMessage(&msg, hWnd, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
 		continue;
@@ -240,7 +241,7 @@ BOOL CMovieMan::PlayMovie(const char * cpFileName, const bool bSkipAllowed, cons
 }
 
 //----------------------------------------------------------------------------------------------------
-// ¸ÞÀÎ À©µµ¿ìÀÇ Screen ÁÂÇ¥¸¦ ¹ÝÈ¯
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Screen ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½È¯
 //
 void CMovieMan::GetWindowRect(RECT & windowRect) const
 {
@@ -259,12 +260,12 @@ void CMovieMan::GetWindowRect(RECT & windowRect) const
 	//
 	GetClientRect(hWnd, &windowRect);
 
-	// clientRect¸¦ ClientToScreen ÇÏ´Â °Í°ú °°À½
+	// clientRectï¿½ï¿½ ClientToScreen ï¿½Ï´ï¿½ ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½
 	OffsetRect(&windowRect, p.x, p.y);
 }
 
 //----------------------------------------------------------------------------------------------------
-// ¸ÞÀÎ À©µµ¿ì¿¡ µ¿¿µ»óÀ» ²ËÃ¤¿ì´Â RECT ¹ÝÈ¯(°¡·Î/¼¼·Î ºñÀ² À¯Áö)
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ì¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¤ï¿½ï¿½ï¿½ RECT ï¿½ï¿½È¯(ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 //
 void CMovieMan::CalcMovieRect(int srcWidth, int srcHeight, RECT & movieRect) const
 {
@@ -293,7 +294,7 @@ void CMovieMan::CalcMovieRect(int srcWidth, int srcHeight, RECT & movieRect) con
 }
 
 //----------------------------------------------------------------------------------------------------
-// È­¸é À§¿¡¼­ µ¿¿µ»óÀÌ ¾Æ´Ñ °ËÀº»ö ¿µ¿ª, Ç×»ó 2°³ÀÇ RECT·Î Ç¥Çö °¡´É
+// È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½×»ï¿½ 2ï¿½ï¿½ï¿½ï¿½ RECTï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 //
 void CMovieMan::CalcBackgroundRect(const RECT & movieRect, RECT & upperRect, RECT & lowerRect) const
 {
@@ -302,20 +303,20 @@ void CMovieMan::CalcBackgroundRect(const RECT & movieRect, RECT & upperRect, REC
 
 	if (m_movieWidth > m_movieHeight)
 	{
-		// À§¾Æ·¡ µÎ°³
+		// ï¿½ï¿½ï¿½Æ·ï¿½ ï¿½Î°ï¿½
 		SetRect(&upperRect, windowRect.left, windowRect.top, windowRect.right, movieRect.top);
 		SetRect(&lowerRect, windowRect.left, movieRect.bottom, windowRect.right, windowRect.bottom);
 	}
 	else
 	{
-		// ÁÂ¿ì µÎ°³
+		// ï¿½Â¿ï¿½ ï¿½Î°ï¿½
 		SetRect(&upperRect, windowRect.left, windowRect.top, movieRect.left, windowRect.bottom);
 		SetRect(&lowerRect, movieRect.right, windowRect.top, windowRect.right, windowRect.bottom);
 	}
 }
 
 //----------------------------------------------------------------------------------------------------
-// Æ¯Á¤ ¼­ÇÇ½º¿¡ BlockingÀ¸·Î µ¿¿µ»óÀ» ±×¸°´Ù
+// Æ¯ï¿½ï¿½ ï¿½ï¿½ï¿½Ç½ï¿½ï¿½ï¿½ Blockingï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
 //
 HRESULT CMovieMan::RenderStreamToSurface(IDirectDrawSurface * pSurface, IDirectDrawMediaStream * pDDStream, IMultiMediaStream * pMMStream,
 										 bool bSkipAllowed, int nPostEffectID, uint32_t dwPostEffectData) const
@@ -326,7 +327,7 @@ HRESULT CMovieMan::RenderStreamToSurface(IDirectDrawSurface * pSurface, IDirectD
 	HRESULT hr = pDDStream->CreateSample(pSurface, nullptr, 0, &pSample);
 	if (SUCCEEDED(hr))
 	{
-		// ÃÖÃÊ ÇÑ¹ø °ËÀº»öÀ¸·Î ¹è°æÀ» Ä¥ÇØÁØ´Ù
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Ä¥ï¿½ï¿½ï¿½Ø´ï¿½
 		RECT movieRect;
 		RECT upperRect, lowerRect;
 		CalcMovieRect(m_movieWidth, m_movieHeight, movieRect);
@@ -337,7 +338,7 @@ HRESULT CMovieMan::RenderStreamToSurface(IDirectDrawSurface * pSurface, IDirectD
 		pMMStream->SetState(STREAMSTATE_RUN);
 		while (pSample->Update(0, nullptr, nullptr, 0) == S_OK)
 		{
-			// À©µµ¿ì Áß¾ÓÀ» ±âÁØÀ¸·Î ²ËÂ÷°Ô ±×¸°´Ù
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
 			CalcMovieRect(m_movieWidth, m_movieHeight, movieRect);
 			if (FAILED(m_pPrimarySurface->Blt(&movieRect, pSurface, nullptr, DDBLT_WAIT, nullptr)))
 				GDIBlt(pSurface, &movieRect);
@@ -361,7 +362,7 @@ HRESULT CMovieMan::RenderStreamToSurface(IDirectDrawSurface * pSurface, IDirectD
 #endif
 		}
 
-		// µ¿¿µ»ó Àç»ý Á¾·á½Ã¿¡ 2ÃÊ µ¿¾È ÆäÀÌµå¾Æ¿ô
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìµï¿½Æ¿ï¿½
 		switch (nPostEffectID)
 		{
 		case MOVIEMAN_POSTEFFECT_FADEOUT:
@@ -400,26 +401,26 @@ HRESULT CMovieMan::RenderFileToMMStream(const char * cpFilename, IMultiMediaStre
 	pAMStream->AddMediaStream(nullptr, &MSPID_PrimaryAudio, AMMSF_ADDDEFAULTRENDERER, nullptr);
 
 	std::string ext;
-	GetFileExtension(cpFilename, strlen(cpFilename), &ext);
+	GetFileExtension(cpFilename, m2::narrow<int>(strlen(cpFilename)), &ext);
 	std::transform(ext.begin(), ext.end(), ext.begin(), tolower);
 	if (ext == "mpg")
 	{
 		// 2007-08-01, nuclei
-		// MPG¸¸ Àç»ýÇÑ´Ù°í °¡Á¤ÇÏ°í ¸Å´º¾ó·Î °¢Á¾ ÄÚµ¦À» ¿¬°áÇØ
-		// ¿ÜºÎ ÄÚµ¦(ffdshow µî)¿¡ ¿µÇâÀ» ¹ÞÁö ¾Êµµ·Ï ÇÑ´Ù
-		// (±âÅ¸ ÆÄÀÏµµ Àç»ýÀº µÇÁö¸¸ ÄÚµ¦¿¡ ¿µÇâÀ» ¹ÞÀ» ¼ö ÀÖÀ½)
+		// MPGï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´Ù°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		// ï¿½Üºï¿½ ï¿½Úµï¿½(ffdshow ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½
+		// (ï¿½ï¿½Å¸ ï¿½ï¿½ï¿½Ïµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 		hr = BuildFilterGraphManually(wPath, pAMStream, CLSID_MPEG1Splitter, CLSID_CMpegVideoCodec, CLSID_CMpegAudioCodec);
 	}
 	else if (ext == "mp43")
 	{
 		// 2007-08-12, nuclei
-		// MPEG-4, MP3 ÄÚµ¦À» ÀÌ¿ëÇÑ AVIÀÇ Àç»ý Ãß°¡(È®ÀåÀÚ´Â .mp43À¸·Î ÇØ¾ßÇÔ)
+		// MPEG-4, MP3 ï¿½Úµï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½ï¿½ AVIï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ß°ï¿½(È®ï¿½ï¿½ï¿½Ú´ï¿½ .mp43ï¿½ï¿½ï¿½ï¿½ ï¿½Ø¾ï¿½ï¿½ï¿½)
 		hr = BuildFilterGraphManually(wPath, pAMStream, CLSID_AviSplitter, CLSID_MP4VideoCodec, CLSID_MP3AudioCodec);
 	}
 	else
 		hr = pAMStream->OpenFile(wPath, 0);
 
-	// Àç»ý ¼º°ø½Ã hrÀº S_OK
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ hrï¿½ï¿½ S_OK
 	if (SUCCEEDED(hr))
 		pAMStream->QueryInterface(IID_IMultiMediaStream, reinterpret_cast<void **>(ppMMStream));
 
@@ -429,11 +430,11 @@ HRESULT CMovieMan::RenderFileToMMStream(const char * cpFilename, IMultiMediaStre
 }
 
 //----------------------------------------------------------------------------------------------------
-// Æ¯Á¤»öÀ¸·Î È­¸éÀÌ ¹à¾ÆÁö°Å³ª ¾îµÎ¿öÁü
+// Æ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å³ï¿½ ï¿½ï¿½Î¿ï¿½ï¿½ï¿½
 //
 HRESULT CMovieMan::RenderPostEffectFadeOut(IDirectDrawSurface * pSurface, int fadeOutDuration, uint32_t fadeOutColor) const
 {
-	// Lock °É±â À§ÇØ ÃÊ±âÈ­
+	// Lock ï¿½É±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 	DDSURFACEDESC lockedSurfaceDesc;
 
 	std::vector<int> pCopiedSrcSurBuf;
@@ -447,14 +448,14 @@ HRESULT CMovieMan::RenderPostEffectFadeOut(IDirectDrawSurface * pSurface, int fa
 		if (FAILED(hr))
 			return hr;
 
-		// ÃÖÃÊ 1È¸¿¡ ¼­ÇÇ½º º¹»çÇÏ°í º¹»çº»¿¡ FadeOut Ã³¸®ÇÑ´Ù
+		// ï¿½ï¿½ï¿½ï¿½ 1È¸ï¿½ï¿½ ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½çº»ï¿½ï¿½ FadeOut Ã³ï¿½ï¿½ï¿½Ñ´ï¿½
 		if (pCopiedSrcSurBuf.empty())
 		{
 			pCopiedSrcSurBuf.resize(lockedSurfaceDesc.lPitch * m_movieHeight);
 			CopyMemory(pCopiedSrcSurBuf.data(), lockedSurfaceDesc.lpSurface, (LONG) lockedSurfaceDesc.lPitch * m_movieHeight);
 		}
 
-		// ÇÈ¼¿ ÇÃ¶ùÆÃ(32ºñÆ®)
+		// ï¿½È¼ï¿½ ï¿½Ã¶ï¿½ï¿½ï¿½(32ï¿½ï¿½Æ®)
 		int * pSrcSurfaceBuf = pCopiedSrcSurBuf.data();
 		auto * pDestSurfaceBuf = static_cast<int *>(lockedSurfaceDesc.lpSurface);
 
@@ -477,24 +478,24 @@ HRESULT CMovieMan::RenderPostEffectFadeOut(IDirectDrawSurface * pSurface, int fa
 		}
 		pSurface->Unlock(lockedSurfaceDesc.lpSurface);
 
-		// »ö»óÀÌ ¹Ù²ï µ¿¿µ»ó ÀÌ¹ÌÁö ±×¸®±â
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
 		RECT movieRect;
 		CalcMovieRect(m_movieWidth, m_movieHeight, movieRect);
 		if (FAILED(m_pPrimarySurface->Blt(&movieRect, pSurface, nullptr, DDBLT_WAIT, nullptr)))
 			GDIBlt(pSurface, &movieRect);
 
-		// À§ ¶Ç´Â ÁÂÃø ºóÄ­ »öÃ¤¿ì±â
+		// ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä­ ï¿½ï¿½Ã¤ï¿½ï¿½ï¿½
 		RECT upperRect, lowerRect;
 		CalcBackgroundRect(movieRect, upperRect, lowerRect);
 		FillRect(upperRect, (fadeOutColorRed << 16) | (fadeOutColorGreen << 8) | fadeOutColorBlue);
 		FillRect(lowerRect, (fadeOutColorRed << 16) | (fadeOutColorGreen << 8) | fadeOutColorBlue);
 
-		// À½·® Á¶Àý
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (m_pBasicAudio)
 			m_pBasicAudio->put_Volume(static_cast<long>(-10000 * fadeProgress));
 	}
 
-	// ¸¶Áö¸·¿£ 1.0À» ±âÁØÀ¸·Î ¿ÏÀüÈ÷ FadeOutµÈ È­¸é ±×¸®±â
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1.0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ FadeOutï¿½ï¿½ È­ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
 	RECT windowRect;
 	GetWindowRect(windowRect);
 	FillRect(windowRect, fadeOutColor);
@@ -503,7 +504,7 @@ HRESULT CMovieMan::RenderPostEffectFadeOut(IDirectDrawSurface * pSurface, int fa
 }
 
 //----------------------------------------------------------------------------------------------------
-// MPEG-1 ºñµð¿À ÆÄÀÏÀ» ¿ÜºÎ ÄÚµ¦ °£¼·¾øÀÌ ·»´õ¸µÇÏ´Â ÇÔ¼ö
+// MPEG-1 ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Üºï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 //
 HRESULT CMovieMan::BuildFilterGraphManually(const WCHAR * wpFilename, IAMMultiMediaStream * pAMStream, const GUID FAR clsidSplitter,
 											const GUID FAR clsidVideoCodec, const GUID FAR clsidAudioCodec)
@@ -522,8 +523,8 @@ HRESULT CMovieMan::BuildFilterGraphManually(const WCHAR * wpFilename, IAMMultiMe
 	CoCreateInstance(clsidVideoCodec, nullptr, CLSCTX_INPROC_SERVER, IID_IBaseFilter, reinterpret_cast<void **>(&pVideoFilter));
 	CoCreateInstance(clsidAudioCodec, nullptr, CLSCTX_INPROC_SERVER, IID_IBaseFilter, reinterpret_cast<void **>(&pAudioFilter));
 
-	// ¸¸¾à MP43 µðÄÚ´õ°¡ ¾ø´Ù¸é DMO ÄÚµ¦À» ´ë½Å ³Ö¾îÁØ´Ù
-	// MONSTERÆÀ¿¡¼­ ¹ß°ßµÈ ÄÉÀÌ½º(ÄÚµ¦À» ´©±º°¡ °­Á¦·Î »èÁ¦)
+	// ï¿½ï¿½ï¿½ï¿½ MP43 ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ DMO ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½Ø´ï¿½
+	// MONSTERï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ßµï¿½ ï¿½ï¿½ï¿½Ì½ï¿½(ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 	if (!pVideoFilter && IsEqualGUID(clsidVideoCodec, CLSID_MP4VideoCodec))
 	{
 		// Create the DMO Wrapper filter.
@@ -566,7 +567,7 @@ HRESULT CMovieMan::BuildFilterGraphManually(const WCHAR * wpFilename, IAMMultiMe
 	pOutPin->Release();
 	if (SUCCEEDED(hr))
 	{
-		// ¿¬°áÈÄ¿¡¸¸ Output ÇÉµéÀÌ ³ªÅ¸³­´Ù
+		// ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ Output ï¿½Éµï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½
 		pSplitterFilter->EnumPins(&pEnumPins);
 		PIN_INFO pinInfo;
 		while (SUCCEEDED(pEnumPins->Next(1, &pInPin, nullptr)))
@@ -575,7 +576,7 @@ HRESULT CMovieMan::BuildFilterGraphManually(const WCHAR * wpFilename, IAMMultiMe
 			pinInfo.pFilter->Release();
 			if (pinInfo.dir == PINDIR_OUTPUT)
 			{
-				// PinÀÇ ¼ø¼­¸¦ ºñµð¿À-¿Àµð¿À·Î °¡Á¤
+				// Pinï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				pSplitterVideoOutPin = pInPin;
 				pEnumPins->Next(1, &pSplitterAudioOutPin, nullptr);
 				break;
@@ -592,12 +593,12 @@ HRESULT CMovieMan::BuildFilterGraphManually(const WCHAR * wpFilename, IAMMultiMe
 		hr = pGraphBuilder->Connect(pSplitterVideoOutPin, pInPin);
 		if (SUCCEEDED(hr))
 		{
-			// ºñµð¿À ·»´õ
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			hr = pGraphBuilder->Render(pOutPin);
 			pInPin->Release();
 			pOutPin->Release();
 
-			// ¿Àµð¿À´Â ÆÄÀÏ¿¡ µû¶ó ¾øÀ» ¼öµµ ÀÖ´Ù
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½
 			if (pSplitterAudioOutPin && pAudioFilter)
 			{
 				pAudioFilter->EnumPins(&pEnumPins);
@@ -605,7 +606,7 @@ HRESULT CMovieMan::BuildFilterGraphManually(const WCHAR * wpFilename, IAMMultiMe
 				pEnumPins->Next(1, &pOutPin, nullptr);
 				pEnumPins->Release();
 				pGraphBuilder->Connect(pSplitterAudioOutPin, pInPin);
-				// ¿Àµð¿À ·»´õ´Â ½ÇÆÐÇØµµ ³Ñ¾î°¥ ¼ö ÀÖÀ½
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ ï¿½Ñ¾î°¥ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				pGraphBuilder->Render(pOutPin);
 				pInPin->Release();
 				pOutPin->Release();

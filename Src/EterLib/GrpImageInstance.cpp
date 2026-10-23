@@ -355,7 +355,7 @@ void CGraphicImageInstance::OnRenderCoolTime(float fCoolTime)
 			return;
 
 		STATEMANAGER.SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
-		if (CGraphicBase::SetPDTStream(&vertices[0], vertices.size()))
+		if (CGraphicBase::SetPDTStream(&vertices[0], m2::narrow<uint32_t>(vertices.size())))
 		{
 			CGraphicBase::SetDefaultIndexBuffer(CGraphicBase::DEFAULT_IB_FILL_TRI);
 			STATEMANAGER.SetTexture(0, pTexture->GetD3DTexture());
