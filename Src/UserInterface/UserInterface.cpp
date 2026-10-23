@@ -101,7 +101,9 @@ extern "C"
 #endif
 
 #include <cstdlib>
+#if !defined(_WIN64)
 #include <cryptopp/cryptoppLibLink.h>
+#endif
 
 // #define __USE_CYTHON__
 #ifdef __USE_CYTHON__
