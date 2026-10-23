@@ -612,14 +612,14 @@ void CDXTCImage::DecompressDXT1(int miplevel, uint32_t * pdwDest)
 	for (int y = 0; y < yblocks; ++y)
 	{
 		// 8 bytes per block
-		auto * pBlock = reinterpret_cast<DXTColBlock *>((uint32_t) pPos + y * xblocks * 8);
+		auto * pBlock = reinterpret_cast<DXTColBlock *>(reinterpret_cast<uint8_t *>(pPos) + y * xblocks * 8);
 
 		for (int x = 0; x < xblocks; ++x, ++pBlock)
 		{
 			// inline func:
 			GetColorBlockColors(pBlock, &col_0, &col_1, &col_2, &col_3, wrd);
 
-			auto * pImPos = (uint32_t *) ((uint32_t) pBase + x * 16 + (y * 4) * nWidth * 4);
+			auto * pImPos = reinterpret_cast<uint32_t *>(reinterpret_cast<uint8_t *>(pBase) + x * 16 + (y * 4) * nWidth * 4);
 			DecodeColorBlock(pImPos, pBlock, nWidth, reinterpret_cast<uint32_t *>(&col_0), reinterpret_cast<uint32_t *>(&col_1),
 							 reinterpret_cast<uint32_t *>(&col_2), reinterpret_cast<uint32_t *>(&col_3));
 			// Set to RGB test pattern
@@ -670,7 +670,7 @@ void CDXTCImage::DecompressDXT3(int miplevel, uint32_t * pdwDest)
 	{
 		// 8 bytes per block
 		// 1 block for alpha, 1 block for color
-		auto * pBlock = reinterpret_cast<DXTColBlock *>((uint32_t)(pPos + y * xblocks * 16));
+		auto * pBlock = reinterpret_cast<DXTColBlock *>(reinterpret_cast<uint8_t *>(pPos) + y * xblocks * 16);
 
 		for (int x = 0; x < xblocks; ++x, ++pBlock)
 		{
@@ -685,7 +685,7 @@ void CDXTCImage::DecompressDXT3(int miplevel, uint32_t * pdwDest)
 
 			// Decode the color block into the bitmap bits
 			// inline func:
-			auto * pImPos = (uint32_t *) ((uint32_t)(pBase + x * 16 + (y * 4) * nWidth * 4));
+			auto * pImPos = reinterpret_cast<uint32_t *>(reinterpret_cast<uint8_t *>(pBase) + x * 16 + (y * 4) * nWidth * 4);
 
 			DecodeColorBlock(pImPos, pBlock, nWidth, reinterpret_cast<uint32_t *>(&col_0), reinterpret_cast<uint32_t *>(&col_1),
 							 reinterpret_cast<uint32_t *>(&col_2), reinterpret_cast<uint32_t *>(&col_3));
@@ -734,7 +734,7 @@ void CDXTCImage::DecompressDXT5(int level, uint32_t * pdwDest)
 	{
 		// 8 bytes per block
 		// 1 block for alpha, 1 block for color
-		auto * pBlock = reinterpret_cast<DXTColBlock *>((uint32_t)(pPos + y * xblocks * 16));
+		auto * pBlock = reinterpret_cast<DXTColBlock *>(reinterpret_cast<uint8_t *>(pPos) + y * xblocks * 16);
 
 		for (int x = 0; x < xblocks; ++x, ++pBlock)
 		{
@@ -751,7 +751,7 @@ void CDXTCImage::DecompressDXT5(int level, uint32_t * pdwDest)
 
 			// Decode the color block into the bitmap bits
 			// inline func:
-			auto * pImPos = (uint32_t *) ((uint32_t)(pBase + x * 16 + (y * 4) * nWidth * 4));
+			auto * pImPos = reinterpret_cast<uint32_t *>(reinterpret_cast<uint8_t *>(pBase) + x * 16 + (y * 4) * nWidth * 4);
 
 			//DecodeColorBlock(pImPos, pBlock, nWidth, (uint32_t *)&col_0, (uint32_t *)&col_1, (uint32_t *)&col_2, (uint32_t *)&col_3);
 			DecodeColorBlock(pImPos, pBlock, nWidth, reinterpret_cast<uint32_t *>(&col_0), reinterpret_cast<uint32_t *>(&col_1),

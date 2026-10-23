@@ -23,8 +23,7 @@ public:
 			MessageBoxA(NULL, typeid(T).name(), "CSingleton() DECLARED MORE THAN ONCE", MB_ICONEXCLAMATION | MB_OK);
 #endif
 		assert(!ms_singleton);
-		int offset = (int) (T *) 1 - (int) (CSingleton<T> *) (T *) 1;
-		ms_singleton = (T *) ((int) this + offset);
+		ms_singleton = static_cast<T *>(this);
 	}
 
 	virtual ~CSingleton()

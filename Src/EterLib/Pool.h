@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "../eterBase/Debug.h"
 
 //#define DYNAMIC_POOL_STRICT
@@ -189,7 +191,7 @@ public:
 	CPooledObject() {}
 	virtual ~CPooledObject() {}
 
-	void * operator new(unsigned int /*mem_size*/) { return ms_kPool.Alloc(); }
+	void * operator new(std::size_t /*mem_size*/) { return ms_kPool.Alloc(); }
 
 	void operator delete(void * pT) { ms_kPool.Free((T *) pT); }
 
