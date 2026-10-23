@@ -43,7 +43,7 @@ bool NSound::LoadSoundInformationPiece(const char * c_szFileName, NSound::TSound
 	rSoundDataVector.resize(iCount);
 
 	char szSoundDataHeader[32 + 1];
-	for (uint32_t i = 0; i < rSoundDataVector.size(); ++i)
+	for (std::size_t i = 0; i < rSoundDataVector.size(); ++i)
 	{
 		_snprintf(szSoundDataHeader, sizeof(szSoundDataHeader), "sounddata%02d", i);
 		CTokenVector * pTokenVector;
@@ -102,12 +102,12 @@ bool NSound::SaveSoundInformationPiece(const char * c_szFileName, NSound::TSound
 	fprintf(fPtr.get(), "ScriptType        CharacterSoundInformation\n");
 	fprintf(fPtr.get(), "\n");
 
-	fprintf(fPtr.get(), "SoundDataCount    %u\n", rSoundDataVector.size());
+	fprintf(fPtr.get(), "SoundDataCount    %zu\n", rSoundDataVector.size());
 
-	for (uint32_t i = 0; i < rSoundDataVector.size(); ++i)
+	for (std::size_t i = 0; i < rSoundDataVector.size(); ++i)
 	{
 		NSound::TSoundData & rSoundData = rSoundDataVector[i];
-		fprintf(fPtr.get(), "SoundData%02u       %f \"%s\"\n", i, rSoundData.fTime, rSoundData.strSoundFileName.c_str());
+		fprintf(fPtr.get(), "SoundData%02zu       %f \"%s\"\n", i, rSoundData.fTime, rSoundData.strSoundFileName.c_str());
 	}
 	return true;
 }

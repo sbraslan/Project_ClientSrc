@@ -1362,8 +1362,8 @@ void CInstanceBase::__Create_SetWarpName(const SCreateData & c_rkCreateData)
 	if (CPythonNonPlayer::Instance().GetName(c_rkCreateData.m_dwRace, &c_szName))
 	{
 		std::string strName = c_szName;
-		int iFindingPos = strName.find_first_of(' ', 0);
-		if (iFindingPos > 0)
+		const auto iFindingPos = strName.find_first_of(' ', 0);
+		if (iFindingPos != std::string::npos && iFindingPos > 0)
 			strName.resize(iFindingPos);
 
 		SetNameString(strName.c_str(), strName.length());
@@ -1372,7 +1372,7 @@ void CInstanceBase::__Create_SetWarpName(const SCreateData & c_rkCreateData)
 		SetNameString(c_rkCreateData.m_stName.c_str(), c_rkCreateData.m_stName.length());
 }
 
-void CInstanceBase::SetNameString(const char * c_szName, int len)
+void CInstanceBase::SetNameString(const char * c_szName, std::size_t len)
 {
 	m_stName.assign(c_szName, len);
 }
@@ -3308,9 +3308,9 @@ uint32_t CInstanceBase::__GetRefinedEffect(CItemData* pItem
 	uint32_t refine = pItem->GetRefine();
 #else
 #	ifdef ENABLE_PROTO_RENEWAL
-	auto refine = std::max<size_t>(pItem->GetRefine() + pItem->GetSocketCount(), METIN_SOCKET_MAX_NUM) - METIN_SOCKET_MAX_NUM;
+	const uint32_t refine = std::max<uint32_t>(pItem->GetRefine() + static_cast<uint32_t>(pItem->GetSocketCount()), static_cast<uint32_t>(METIN_SOCKET_MAX_NUM)) - static_cast<uint32_t>(METIN_SOCKET_MAX_NUM);
 #	else
-	auto refine = std::max<size_t>(pItem->GetRefine() + pItem->GetSocketCount(), CItemData::ITEM_SOCKET_MAX_NUM) - CItemData::ITEM_SOCKET_MAX_NUM;
+	const uint32_t refine = std::max<uint32_t>(pItem->GetRefine() + static_cast<uint32_t>(pItem->GetSocketCount()), static_cast<uint32_t>(CItemData::ITEM_SOCKET_MAX_NUM)) - static_cast<uint32_t>(CItemData::ITEM_SOCKET_MAX_NUM);
 #	endif
 #endif
 	uint32_t vnum = pItem->GetIndex();
@@ -4791,9 +4791,9 @@ void CInstanceBase::AttachElementEffect(const CItemData* pItem)
 	uint32_t refine = pItem->GetRefine();
 #else
 #ifdef ENABLE_YOHARA_SYSTEM
-	auto refine = std::max<size_t>(pItem->GetRefine() + pItem->GetSocketCount(), METIN_SOCKET_MAX_NUM) - METIN_SOCKET_MAX_NUM;
+	const uint32_t refine = std::max<uint32_t>(pItem->GetRefine() + static_cast<uint32_t>(pItem->GetSocketCount()), static_cast<uint32_t>(METIN_SOCKET_MAX_NUM)) - static_cast<uint32_t>(METIN_SOCKET_MAX_NUM);
 #else
-	auto refine = std::max<size_t>(pItem->GetRefine() + pItem->GetSocketCount(), CItemData::ITEM_SOCKET_MAX_NUM) - CItemData::ITEM_SOCKET_MAX_NUM;
+	const uint32_t refine = std::max<uint32_t>(pItem->GetRefine() + static_cast<uint32_t>(pItem->GetSocketCount()), static_cast<uint32_t>(CItemData::ITEM_SOCKET_MAX_NUM)) - static_cast<uint32_t>(CItemData::ITEM_SOCKET_MAX_NUM);
 #endif
 #endif
 

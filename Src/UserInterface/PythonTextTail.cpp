@@ -1,5 +1,5 @@
 //
-// Ä³¸¯ÅÍ¸¦ µû¶ó´Ù´Ï´Â ÅØ½ºÆ® °ü·Ã ¼Ò½º (ÀÌ¸§, ±æµåÀÌ¸§, ±æµå¸¶Å© µî)
+// Ä³ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ù´Ï´ï¿½ ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Ò½ï¿½ (ï¿½Ì¸ï¿½, ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½, ï¿½ï¿½å¸¶Å© ï¿½ï¿½)
 //
 #include "StdAfx.h"
 #include "InstanceBase.h"
@@ -65,7 +65,7 @@ CGraphicText * ms_pFont = nullptr;
 void CPythonTextTail::GetInfo(std::string * pstInfo)
 {
 	char szInfo[256];
-	sprintf(szInfo, "TextTail: ChatTail %u, ChrTail (Map %u, List %u), ItemTail (Map %u, List %u), Pool %u", m_ChatTailMap.size(),
+	sprintf(szInfo, "TextTail: ChatTail %zu, ChrTail (Map %zu, List %zu), ItemTail (Map %zu, List %zu), Pool %u", m_ChatTailMap.size(),
 			m_CharacterTextTailMap.size(), m_CharacterTextTailList.size(), m_ItemTextTailMap.size(), m_ItemTextTailList.size(),
 			m_TextTailPool.GetCapacity());
 
@@ -136,7 +136,7 @@ void CPythonTextTail::UpdateAllTextTail()
 		{
 			UpdateDistance(pixelPos, itorChat.second);
 
-			// NOTE : Chat TextTailÀÌ ÀÖÀ¸¸é Ä³¸¯ÅÍ ÀÌ¸§µµ Ãâ·ÂÇÑ´Ù.
+			// NOTE : Chat TextTailï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 			if (itorChat.second->bNameFlag)
 			{
 				uint32_t dwVID = itorChat.first;
@@ -174,7 +174,7 @@ void CPythonTextTail::UpdateShowingTextTail()
 
 		UpdateTextTail(pTextTail);
 
-		// NOTE : Chat TextTailÀÌ ÀÖÀ» °æ¿ì À§Ä¡¸¦ ¹Ù²Û´Ù.
+		// NOTE : Chat TextTailï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ù²Û´ï¿½.
 		auto itor = m_ChatTailMap.find(pTextTail->dwVirtualID);
 		if (m_ChatTailMap.end() != itor)
 		{
@@ -202,7 +202,7 @@ void CPythonTextTail::UpdateTextTail(TTextTail * pTextTail) const
 	pTextTail->x = floorf(pTextTail->x);
 	pTextTail->y = floorf(pTextTail->y);
 
-	// NOTE : 13m ¹Û¿¡ ÀÖÀ»¶§¸¸ ±íÀÌ¸¦ ³Ö½À´Ï´Ù - [levites]
+	// NOTE : 13m ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½ - [levites]
 	if (pTextTail->fDistanceFromPlayer < 1300.0f)
 		pTextTail->z = 0.0f;
 	else
@@ -425,7 +425,7 @@ void CPythonTextTail::ArrangeTextTail()
 				pTitle->SetPosition(pTextTail->x - (iNameWidth / 2), pTextTail->y, pTextTail->z);
 			pTitle->Update();
 
-			// Level À§Ä¡ ¾÷µ¥ÀÌÆ®
+			// Level ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 			CGraphicTextInstance * pLevel = pTextTail->pLevelTextInstance;
 			if (pLevel)
 			{
@@ -633,12 +633,12 @@ void CPythonTextTail::Render()
 
 void CPythonTextTail::RenderTextTailBox(const TTextTail * pTextTail) const
 {
-	// °ËÀº»ö Å×µÎ¸®
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×µÎ¸ï¿½
 	CPythonGraphic::Instance().SetDiffuseColor(0.0f, 0.0f, 0.0f, 1.0f);
 	CPythonGraphic::Instance().RenderBox2d(pTextTail->x + pTextTail->xStart, pTextTail->y + pTextTail->yStart,
 										   pTextTail->x + pTextTail->xEnd, pTextTail->y + pTextTail->yEnd, pTextTail->z);
 
-	// °ËÀº»ö Åõ¸í¹Ú½º
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ú½ï¿½
 	CPythonGraphic::Instance().SetDiffuseColor(0.0f, 0.0f, 0.0f, 0.3f);
 	CPythonGraphic::Instance().RenderBar2d(pTextTail->x + pTextTail->xStart, pTextTail->y + pTextTail->yStart,
 										   pTextTail->x + pTextTail->xEnd, pTextTail->y + pTextTail->yEnd, pTextTail->z);
@@ -651,8 +651,8 @@ void CPythonTextTail::RenderTextTailName(TTextTail * pTextTail) const
 
 void CPythonTextTail::HideAllTextTail()
 {
-	// NOTE : Show AllÀ» ÇØÁØµÚ Hide AllÀ» ÇØÁÖÁö ¾ÊÀ¸¸é ¹®Á¦ ¹ß»ý °¡´É¼º ÀÖÀ½
-	//        µðÀÚÀÎ ÀÚÃ¼°¡ ±×·¸°Ô ±ò²ûÇÏ°Ô µÇÁö ¾Ê¾ÒÀ½ - [levites]
+	// NOTE : Show Allï¿½ï¿½ ï¿½ï¿½ï¿½Øµï¿½ Hide Allï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ï¿½É¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+	//        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾ï¿½ï¿½ï¿½ - [levites]
 	m_CharacterTextTailList.clear();
 	m_ItemTextTailList.clear();
 }
@@ -693,8 +693,8 @@ void CPythonTextTail::ShowCharacterTextTail(uint32_t VirtualID)
 	if (m_CharacterTextTailList.end() != std::find(m_CharacterTextTailList.begin(), m_CharacterTextTailList.end(), pTextTail))
 		return;
 
-	// NOTE : ShowAll ½Ã¿¡´Â ¸ðµç Instance ÀÇ Pointer ¸¦ Ã£¾Æ¼­ Ã¼Å©ÇÏ¹Ç·Î ºÎÇÏ°¡ °É¸± °¡´É¼ºµµ ÀÖ´Ù.
-	//        CInstanceBase °¡ TextTail À» Á÷Á¢ °¡Áö°í ÀÖ´Â °ÍÀÌ °¡Àå ÁÁÀº ÇüÅÂÀÏ µí..
+	// NOTE : ShowAll ï¿½Ã¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Instance ï¿½ï¿½ Pointer ï¿½ï¿½ Ã£ï¿½Æ¼ï¿½ Ã¼Å©ï¿½Ï¹Ç·ï¿½ ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½É¸ï¿½ ï¿½ï¿½ï¿½É¼ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½.
+	//        CInstanceBase ï¿½ï¿½ TextTail ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½..
 	if (!pTextTail->pOwner->isShow())
 		return;
 

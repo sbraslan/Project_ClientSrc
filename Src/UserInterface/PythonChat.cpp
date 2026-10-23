@@ -802,7 +802,7 @@ void CPythonChat::AppendChat(int iType, const char * c_szChat)
 		TChatSet * pChatSet = &(itor.second);
 		//pChatLine->SetColor(itor->first, GetChatColor(iType));
 
-		// Edit Mode ¸¦ ¾ïÁö·Î ³¢¿ö ¸ÂÃß±â À§ÇØ Ãß°¡
+		// Edit Mode ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 		if (BOARD_STATE_EDIT == pChatSet->m_iBoardState)
 			ArrangeShowingChat(itor.first);
 		else // if (BOARD_STATE_VIEW == pChatSet->m_iBoardState)
@@ -1014,11 +1014,11 @@ uint32_t CPythonChat::GetChatColor(int iType) const
 void CPythonChat::IgnoreCharacter(const char * c_szName)
 {
 	auto itor = m_IgnoreCharacterSet.find(c_szName);
-	// NOTE : ÀÌ¹Ì Â÷´Ü ÁßÀÌ¶ó¸é..
+	// NOTE : ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½..
 	if (m_IgnoreCharacterSet.end() != itor)
 	{
 		m_IgnoreCharacterSet.erase(itor);
-		// NOTE : Â÷´ÜÀÌ µÇÁö ¾ÊÀº Ä³¸¯ÅÍ¶ó¸é..
+		// NOTE : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½Í¶ï¿½ï¿½..
 	}
 	else
 		m_IgnoreCharacterSet.emplace(c_szName);
@@ -1281,7 +1281,7 @@ void CWhisper::Render(float fx, float fy)
 	else if (!m_ChatLineDeque.empty())
 		iStartLine = iLineCount - 1;
 
-	RECT Rect = {fx, fy, fx + m_fWidth, fy + m_fHeight};
+	RECT Rect = {static_cast<LONG>(fx), static_cast<LONG>(fy), static_cast<LONG>(fx + m_fWidth), static_cast<LONG>(fy + m_fHeight)};
 
 	for (int i = iStartLine; i >= 0; --i)
 	{

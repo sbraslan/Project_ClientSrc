@@ -227,14 +227,14 @@ void CPythonEventManager::__ClearEventSetp(TEventSet * pEventSet)
 
 uint32_t CPythonEventManager::GetEmptyEventSetSlot()
 {
-	for (uint32_t i = 0; i < m_EventSetVector.size(); ++i)
+	for (std::size_t i = 0; i < m_EventSetVector.size(); ++i)
 	{
 		if (nullptr == m_EventSetVector[i])
-			return i;
+			return m2::narrow<uint32_t>(i);
 	}
 
 	m_EventSetVector.emplace_back(nullptr);
-	return m_EventSetVector.size() - 1;
+	return m2::narrow<uint32_t>(m_EventSetVector.size() - 1);
 }
 
 void CPythonEventManager::SetRestrictedCount(int iIndex, int iCount)
@@ -406,7 +406,7 @@ bool CPythonEventManager::ProcessEventSet(TEventSet * pEventSet)
 			pEventSet->strCurrentLine.append(c_rstValue);
 			pEventSet->pCurrentTextLine->SetValueString(pEventSet->strCurrentLine);
 			pEventSet->pCurrentTextLine->SetColor(pEventSet->CurrentColor.r, pEventSet->CurrentColor.g, pEventSet->CurrentColor.b);
-			pEventSet->iCurrentLetter += c_rstValue.length();
+			pEventSet->iCurrentLetter += m2::narrow<int>(c_rstValue.length());
 
 			if (pEventSet->iCurrentLetter >= pEventSet->iRestrictedCharacterCount)
 				__InsertLine(*pEventSet);
@@ -698,7 +698,7 @@ bool CPythonEventManager::ProcessEventSet(TEventSet * pEventSet)
 				pEventSet->strCurrentLine.append(pItemData->GetName());
 				pEventSet->pCurrentTextLine->SetValue(pEventSet->strCurrentLine.c_str());
 				pEventSet->pCurrentTextLine->SetColor(1.0f, 0.2f, 0.2f);
-				pEventSet->iCurrentLetter += strlen(pItemData->GetName());
+				pEventSet->iCurrentLetter += m2::narrow<int>(strlen(pItemData->GetName()));
 
 				if (pEventSet->iCurrentLetter >= pEventSet->iRestrictedCharacterCount)
 					__InsertLine(*pEventSet);
@@ -718,7 +718,7 @@ bool CPythonEventManager::ProcessEventSet(TEventSet * pEventSet)
 			{
 				pEventSet->strCurrentLine.append(c_szName);
 				pEventSet->pCurrentTextLine->SetValue(pEventSet->strCurrentLine.c_str());
-				pEventSet->iCurrentLetter += strlen(c_szName);
+				pEventSet->iCurrentLetter += m2::narrow<int>(strlen(c_szName));
 
 				if (pEventSet->iCurrentLetter >= pEventSet->iRestrictedCharacterCount)
 					__InsertLine(*pEventSet);
@@ -934,8 +934,8 @@ void CPythonEventManager::MakeQuestion(TEventSet * pEventSet, script::TArgList &
 	if (rArgumentList.empty())
 		return;
 
-	PyCallClassMemberFunc(pEventSet->poEventHandler, "MakeQuestion", Py_BuildValue("(i)", rArgumentList.size()));
-	pEventSet->nAnswer = rArgumentList.size();
+	PyCallClassMemberFunc(pEventSet->poEventHandler, "MakeQuestion", Py_BuildValue("(i)", m2::narrow<int>(rArgumentList.size())));
+	pEventSet->nAnswer = m2::narrow<int>(rArgumentList.size());
 
 	int iIndex = 0;
 	for (auto & rArgument : rArgumentList)
@@ -1029,7 +1029,7 @@ int CPythonEventManager::GetProcessedLineCount(int iIndex)
 	if (!pEventSet)
 		return 0;
 
-	return pEventSet->ScriptTextLineList.size();
+	return m2::narrow<int>(pEventSet->ScriptTextLineList.size());
 }
 
 void CPythonEventManager::AllProcessEventSet(int iIndex)
@@ -1071,7 +1071,7 @@ int CPythonEventManager::GetLineCount(int iIndex)
 		return 0;
 
 	TEventSet * pEventSet = m_EventSetVector[iIndex];
-	return pEventSet->ScriptTextLineList.size() + pEventSet->iAdjustLine;
+	return m2::narrow<int>(pEventSet->ScriptTextLineList.size()) + pEventSet->iAdjustLine;
 }
 
 void CPythonEventManager::ClearLine(TEventSet * pEventSet)

@@ -1,4 +1,4 @@
-﻿#include "StdAfx.h"
+#include "StdAfx.h"
 #include "MapOutdoor.h"
 #include "AreaTerrain.h"
 #include "AreaLoaderThread.h"
@@ -474,8 +474,8 @@ bool CMapOutdoor::LoadSetting(const char * c_szFileName)
 	m_matSplatAlpha._41 = m_fTerrainTexCoordBase * 4.6f;
 	m_matSplatAlpha._42 = m_fTerrainTexCoordBase * 4.6f;
 
-	D3DXMatrixScaling(&m_matStaticShadow, +m_fTerrainTexCoordBase * ((float) CTerrainImpl::PATCH_XSIZE / CTerrainImpl::XSIZE),
-					  -m_fTerrainTexCoordBase * ((float) CTerrainImpl::PATCH_YSIZE / CTerrainImpl::XSIZE), 0.0f);
+	D3DXMatrixScaling(&m_matStaticShadow, +m_fTerrainTexCoordBase * (static_cast<float>(CTerrainImpl::PATCH_XSIZE) / static_cast<float>(CTerrainImpl::XSIZE)),
+					  -m_fTerrainTexCoordBase * (static_cast<float>(CTerrainImpl::PATCH_YSIZE) / static_cast<float>(CTerrainImpl::XSIZE)), 0.0f);
 	m_matStaticShadow._41 = 0.0f;
 	m_matStaticShadow._42 = 0.0f;
 

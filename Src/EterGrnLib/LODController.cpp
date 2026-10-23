@@ -413,7 +413,7 @@ void CGrannyLODController::UpdateLODLevel(float fDistanceFromCenter, float fDist
 
 		if (m_fLODDistance > 0.0f)
 			m_dwLODAniFPS =
-				static_cast<uint32_t>((CGrannyModelInstance::ANIFPS_MAX - CGrannyModelInstance::ANIFPS_MIN) * fLODFactor / m_fLODDistance +
+				static_cast<uint32_t>((static_cast<float>(CGrannyModelInstance::ANIFPS_MAX - CGrannyModelInstance::ANIFPS_MIN) * fLODFactor / m_fLODDistance) +
 									  CGrannyModelInstance::ANIFPS_MIN);
 		else
 			m_dwLODAniFPS = CGrannyModelInstance::ANIFPS_MIN;

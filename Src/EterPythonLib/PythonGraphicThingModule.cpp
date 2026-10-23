@@ -2,15 +2,7 @@
 
 bool PyTuple_GetThingInstance(PyObject * poArgs, int pos, CGraphicThingInstance ** ppRetThingInstance)
 {
-	int handle;
-	if (!PyTuple_GetInteger(poArgs, pos, &handle))
-		return false;
-
-	if (!handle)
-		return false;
-
-	*ppRetThingInstance = reinterpret_cast<CGraphicThingInstance *>(handle);
-	return true;
+	return PyTuple_GetPointer(poArgs, pos, ppRetThingInstance);
 }
 
 PyObject * grpThingGenerate(PyObject * poSelf, PyObject * poArgs)
@@ -32,7 +24,7 @@ PyObject * grpThingGenerate(PyObject * poSelf, PyObject * poArgs)
 	pThingInstance->ReserveModelInstance(1);
 	pThingInstance->RegisterModelThing(0, msl::inherit_cast<CGraphicThing *>(pResource));
 	pThingInstance->SetModelInstance(0, 0, 0);
-	return Py_BuildValue("i", pThingInstance);
+	return Py_BuildPointer(pThingInstance);
 }
 
 PyObject * grpThingDelete(PyObject * poSelf, PyObject * poArgs)

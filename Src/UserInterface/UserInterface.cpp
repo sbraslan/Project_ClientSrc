@@ -1,4 +1,4 @@
-﻿#include "StdAfx.h"
+#include "StdAfx.h"
 #include "PythonApplication.h"
 #include "ProcessScanner.h"
 #include "PythonExceptionSender.h"
@@ -889,7 +889,15 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 	SetInternetRegKey();
 #endif
 
-	uint32_t dwRandSeed = time(nullptr) + uint32_t(GetCurrentProcess());
+	const std::uint64_t currentTime =
+		static_cast<std::uint64_t>(time(nullptr));
+
+	const uint32_t dwRandSeed =
+		static_cast<uint32_t>(
+			(currentTime ^ (currentTime >> 32)) +
+			static_cast<std::uint64_t>(GetCurrentProcessId())
+		);
+
 	srandom(dwRandSeed);
 	srand(random());
 

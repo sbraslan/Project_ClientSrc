@@ -24,11 +24,11 @@ wchar_t CIME::m_wText[IMESTR_MAXLEN];
 #define LANG_CHS MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED)
 
 // Chinese Traditional
-#define _CHT_HKL_DAYI ((HKL) 0xE0060404) // DaYi
-#define _CHT_HKL_NEW_PHONETIC ((HKL) 0xE0080404) // New Phonetic
-#define _CHT_HKL_NEW_CHANG_JIE ((HKL) 0xE0090404) // New Chang Jie
-#define _CHT_HKL_NEW_QUICK ((HKL) 0xE00A0404) // New Quick
-#define _CHT_HKL_HK_CANTONESE ((HKL) 0xE00B0404) // Hong Kong Cantonese
+#define _CHT_HKL_DAYI reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE0060404u)) // DaYi
+#define _CHT_HKL_NEW_PHONETIC reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE0080404u)) // New Phonetic
+#define _CHT_HKL_NEW_CHANG_JIE reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE0090404u)) // New Chang Jie
+#define _CHT_HKL_NEW_QUICK reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE00A0404u)) // New Quick
+#define _CHT_HKL_HK_CANTONESE reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE00B0404u)) // Hong Kong Cantonese
 
 #define CHT_IMEFILENAME1 "TINTLGNT.IME" // New Phonetic
 #define CHT_IMEFILENAME2 "CINTLGNT.IME" // New Chang Jie
@@ -45,10 +45,10 @@ wchar_t CIME::m_wText[IMESTR_MAXLEN];
 	(LANG_CHT | MAKEIMEVERSION(7, 0)) // All TSF TIP under Cicero UI-less mode: a hack to make GetImeId() return non-zero value
 
 // Chinese Simplized
-#define _CHS_HKL ((HKL) 0xE00E0804) // MSPY
-#define _CHS_HKL_QQPINYIN ((HKL) 0xE0210804) // QQ PinYin
-#define _CHS_HKL_SOGOU ((HKL) 0xE0220804) // Sougou PinYin
-#define _CHS_HKL_GOOGLEPINYIN ((HKL) 0xE0230804) // Google PinYin
+#define _CHS_HKL reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE00E0804u)) // MSPY
+#define _CHS_HKL_QQPINYIN reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE0210804u)) // QQ PinYin
+#define _CHS_HKL_SOGOU reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE0220804u)) // Sougou PinYin
+#define _CHS_HKL_GOOGLEPINYIN reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0xE0230804u)) // Google PinYin
 
 #define CHS_IMEFILENAME1 "PINTLGNT.IME" // MSPY1.5/2/3
 #define CHS_IMEFILENAME2 "MSSCIPYA.IME" // MSPY3 for OfficeXP
@@ -310,14 +310,18 @@ bool CIME::Initialize(HWND hWnd)
 
 	g_disableCicero.Initialize();
 
+	bool bUnicodeImm = true;
+
+#if !defined(_WIN64)
 	ms_stOSVI.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
 	GetVersionExA(&ms_stOSVI);
 
-	bool bUnicodeImm = false;
-	// IMM in NT or Win98 supports Unicode
-	if (ms_stOSVI.dwPlatformId == VER_PLATFORM_WIN32_NT || (ms_stOSVI.dwMajorVersion > 4) ||
-		((ms_stOSVI.dwMajorVersion == 4) && (ms_stOSVI.dwMinorVersion > 0)))
-		bUnicodeImm = true;
+	// Legacy Win32 compatibility.
+	bUnicodeImm =
+		ms_stOSVI.dwPlatformId == VER_PLATFORM_WIN32_NT ||
+		ms_stOSVI.dwMajorVersion > 4 ||
+		(ms_stOSVI.dwMajorVersion == 4 && ms_stOSVI.dwMinorVersion > 0);
+#endif
 
 	// Load ImmLock/ImmUnlock Function Proc
 	CHAR szPath[MAX_PATH + 1];
@@ -818,7 +822,7 @@ void CIME::SetCurPos(int offset)
 	}
 	else
 	{
-		// offsetÀº º¸¿©Áö´Â ÅØ½ºÆ®ÀÇ À§Ä¡·Î ¿Â´Ù. µû¶ó¼­ »õ·Î °è»êÇØ¾ßÇÔ.
+		// offsetï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Â´ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½.
 		ms_curpos = std::min(ms_lastpos, GetTextTagInternalPosFromRenderPos(m_wText, ms_lastpos, offset));
 	}
 }
@@ -1013,7 +1017,7 @@ void CIME::CandidateProcess(HIMC hImc)
 			uint32_t i;
 			for (i = 0; i < ms_dwCandidateCount; i++)
 			{
-				const uint32_t uLen = lstrlenW((LPWSTR)((uint32_t) lpCandidateList + lpCandidateList->dwOffset[i])) + (3 - sizeof(WCHAR));
+				const uint32_t uLen = lstrlenW(reinterpret_cast<LPWSTR>(reinterpret_cast<BYTE *>(lpCandidateList) + lpCandidateList->dwOffset[i])) + (3 - sizeof(WCHAR));
 				if (uLen + cChars > maxCandChar)
 				{
 					if (i > ms_dwCandidateSelection)
@@ -1038,7 +1042,7 @@ void CIME::CandidateProcess(HIMC hImc)
 		//printf( "SEL: %d, START: %d, PAGED: %d\n", ms_dwCandidateSelection, iStartOfPage, ms_dwCandidatePageSize );
 		memset(&ms_wszCandidate, 0, sizeof(ms_wszCandidate));
 		for (uint32_t i = iStartOfPage, j = 0; (uint32_t) i < lpCandidateList->dwCount && j < ms_dwCandidatePageSize; i++, j++)
-			wcscpy(ms_wszCandidate[j], (LPWSTR)((uint32_t) lpCandidateList + lpCandidateList->dwOffset[i]));
+			wcscpy(ms_wszCandidate[j], reinterpret_cast<LPWSTR>(reinterpret_cast<BYTE *>(lpCandidateList) + lpCandidateList->dwOffset[i]));
 
 		// don't display selection in candidate list in case of Korean and old Chinese IME.
 		if (GETPRIMLANG() == LANG_KOREAN || GETLANG() == LANG_CHT && !GetImeId())
@@ -1148,18 +1152,29 @@ void CIME::ReadingProcess(HIMC hImc)
 
 			case IMEID_CHS_VER42: // 4.2.x.x // SCIME98 or MSPY2 (w/Office2k, Win2k, WinME, etc)
 			{
-				OSVERSIONINFOA osi;
+#if defined(_WIN64)
+				const int nTcharSize = sizeof(wchar_t);
+				const bool bPlatformUnicodeIME = true;
+#else
+				OSVERSIONINFOA osi{};
 				osi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
 				GetVersionExA(&osi);
 
-				const int nTcharSize = (osi.dwPlatformId == VER_PLATFORM_WIN32_NT) ? sizeof(wchar_t) : sizeof(char);
+				const int nTcharSize =
+					(osi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+						? sizeof(wchar_t)
+						: sizeof(char);
+
+				const bool bPlatformUnicodeIME =
+					osi.dwPlatformId == VER_PLATFORM_WIN32_NT;
+#endif
 				p = *(LPBYTE *) ((LPBYTE) _ImmLockIMCC(lpIC->hPrivate) + 1 * 4 + 1 * 4 + 6 * 4);
 				if (!p)
 					break;
 				tempLen = *(uint32_t *) (p + 1 * 4 + (16 * 2 + 2 * 4) + 5 * 4 + 16 * nTcharSize);
 				dwErr = *(uint32_t *) (p + 1 * 4 + (16 * 2 + 2 * 4) + 5 * 4 + 16 * nTcharSize + 1 * 4);
 				temp = (wchar_t *) (p + 1 * 4 + (16 * 2 + 2 * 4) + 5 * 4);
-				bUnicodeIme = (osi.dwPlatformId == VER_PLATFORM_WIN32_NT) ? true : false;
+				bUnicodeIme = bPlatformUnicodeIME;
 			}
 			break;
 
@@ -1234,7 +1249,7 @@ uint32_t CIME::GetImeId(uint32_t uIndex)
 		return ms_adwId[uIndex];
 	hklPrev = hkl;
 
-	const uint32_t dwLang = ((uint32_t) hkl & 0xffff);
+	const uint32_t dwLang = static_cast<uint32_t>(reinterpret_cast<ULONG_PTR>(hkl) & 0xffffu);
 
 	if (ms_bUILessMode && GETLANG() == LANG_CHT)
 	{
@@ -1476,8 +1491,8 @@ void CIME::CheckInputLocale()
 		ms_wszCurrentIndicator[1] = towlower(szLang[1]);
 	}
 
-	// ¾Æ¶ø¾î¿¡¼­ ¿µ¾î·Î º¯°æ½Ã ÄÚµå ÆäÀÌÁö¸¦ ¹Ù²ÙÁö ¾Ê´Â´Ù
-	// ³»¿ëµµ Áö¿ìÁö ¾Ê´Â´Ù.
+	// ï¿½Æ¶ï¿½ï¿½î¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½
+	// ï¿½ï¿½ï¿½ëµµ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 	if (ms_uOutputCodePage != 1256)
 	{
 		ms_uOutputCodePage = ms_uInputCodePage;
@@ -1502,7 +1517,7 @@ void CIME::CheckToggleState()
 
 	/* Check Toggle State */
 	const bool bIme = ImmIsIME(ms_hklCurrent) != 0 &&
-		((0xF0000000 & (uint32_t) ms_hklCurrent) ==
+		((reinterpret_cast<ULONG_PTR>(ms_hklCurrent) & static_cast<ULONG_PTR>(0xF0000000u)) ==
 		 0xE0000000); // Hack to detect IME correctly. When IME is running as TIP, ImmIsIME() returns true for CHT US keyboard.
 	ms_bChineseIME = (GETPRIMLANG() == LANG_CHINESE) && bIme;
 
@@ -2058,7 +2073,7 @@ LRESULT CIME::WMComposition(HWND hWnd, uint32_t /*uiMsg*/, WPARAM /*wParam*/, LP
 		AttributeProcess(hImc);
 	if (lParam & GCS_COMPSTR)
 	{
-		if (ms_uOutputCodePage == 950) // ´ë¸¸ ÁÖÀ½ ÀÔ·Â Ã³¸®
+		if (ms_uOutputCodePage == 950) // ï¿½ë¸¸ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ Ã³ï¿½ï¿½
 		{
 			if (lParam & GCS_COMPATTR)
 				CompositionProcessBuilding(hImc);

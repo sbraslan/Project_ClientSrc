@@ -332,8 +332,8 @@ PyObject* wikiRegisterModelViewWindow(PyObject* poSelf, PyObject* poArgs)
 	if (!PyTuple_GetInteger(poArgs, 0, &moduleID))
 		return Py_BadArgument();
 
-	int hwnd;
-	if (!PyTuple_GetInteger(poArgs, 1, &hwnd))
+	UI::CUiWikiRenderTarget * hwnd = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 1, &hwnd))
 		return Py_BadArgument();
 
 	CPythonWikiRenderTarget::Instance().RegisterRenderModule(moduleID, hwnd);

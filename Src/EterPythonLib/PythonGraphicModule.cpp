@@ -17,10 +17,10 @@ PyObject * grpCreateTextBar(PyObject * poSelf, PyObject * poArgs)
 	if (!pTextBar->Create(nullptr, iWidth, iHeight))
 	{
 		delete pTextBar;
-		return Py_BuildValue("i", nullptr);
+		return Py_BuildPointer<CTextBar>(nullptr);
 	}
 
-	return Py_BuildValue("i", pTextBar);
+	return Py_BuildPointer(pTextBar);
 }
 
 PyObject * grpCreateBigTextBar(PyObject * poSelf, PyObject * poArgs)
@@ -40,19 +40,17 @@ PyObject * grpCreateBigTextBar(PyObject * poSelf, PyObject * poArgs)
 	if (!pTextBar->Create(nullptr, iWidth, iHeight))
 	{
 		delete pTextBar;
-		return Py_BuildValue("i", nullptr);
+		return Py_BuildPointer<CTextBar>(nullptr);
 	}
 
-	return Py_BuildValue("i", pTextBar);
+	return Py_BuildPointer(pTextBar);
 }
 
 PyObject * grpDestroyTextBar(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CTextBar * pTextBar = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 0, &pTextBar))
 		return Py_BuildException();
-
-	auto * pTextBar = reinterpret_cast<CTextBar *>(iHandle);
 	delete pTextBar;
 
 	return Py_BuildNone();
@@ -60,8 +58,8 @@ PyObject * grpDestroyTextBar(PyObject * poSelf, PyObject * poArgs)
 
 PyObject * grpRenderTextBar(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CTextBar * pTextBar = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 0, &pTextBar))
 		return Py_BuildException();
 	int ix;
 	if (!PyTuple_GetInteger(poArgs, 1, &ix))
@@ -69,8 +67,6 @@ PyObject * grpRenderTextBar(PyObject * poSelf, PyObject * poArgs)
 	int iy;
 	if (!PyTuple_GetInteger(poArgs, 2, &iy))
 		return Py_BuildException();
-
-	auto * pTextBar = reinterpret_cast<CTextBar *>(iHandle);
 	if (pTextBar)
 		pTextBar->Render(ix, iy);
 
@@ -79,8 +75,8 @@ PyObject * grpRenderTextBar(PyObject * poSelf, PyObject * poArgs)
 
 PyObject * grpTextBarSetTextColor(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CTextBar * pTextBar = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 0, &pTextBar))
 		return Py_BuildException();
 	int r;
 	if (!PyTuple_GetInteger(poArgs, 1, &r))
@@ -91,8 +87,6 @@ PyObject * grpTextBarSetTextColor(PyObject * poSelf, PyObject * poArgs)
 	int b;
 	if (!PyTuple_GetInteger(poArgs, 3, &b))
 		return Py_BuildException();
-
-	auto * pTextBar = reinterpret_cast<CTextBar *>(iHandle);
 	if (pTextBar)
 		pTextBar->SetTextColor(r, g, b);
 
@@ -101,15 +95,14 @@ PyObject * grpTextBarSetTextColor(PyObject * poSelf, PyObject * poArgs)
 
 PyObject * grpTextBarGetTextExtent(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CTextBar * pTextBar = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 0, &pTextBar))
 		return Py_BuildException();
 	char * szText;
 	if (!PyTuple_GetString(poArgs, 1, &szText))
 		return Py_BuildException();
 
 	SIZE size = {0, 0};
-	auto * pTextBar = reinterpret_cast<CTextBar *>(iHandle);
 	if (pTextBar)
 		pTextBar->GetTextExtent(szText, &size);
 
@@ -118,8 +111,8 @@ PyObject * grpTextBarGetTextExtent(PyObject * poSelf, PyObject * poArgs)
 
 PyObject * grpTextBarTextOut(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CTextBar * pTextBar = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 0, &pTextBar))
 		return Py_BuildException();
 	int ix;
 	if (!PyTuple_GetInteger(poArgs, 1, &ix))
@@ -130,8 +123,6 @@ PyObject * grpTextBarTextOut(PyObject * poSelf, PyObject * poArgs)
 	char * szText;
 	if (!PyTuple_GetString(poArgs, 3, &szText))
 		return Py_BuildException();
-
-	auto * pTextBar = reinterpret_cast<CTextBar *>(iHandle);
 	if (pTextBar)
 		pTextBar->TextOut(ix, iy, szText);
 
@@ -140,11 +131,9 @@ PyObject * grpTextBarTextOut(PyObject * poSelf, PyObject * poArgs)
 
 PyObject * grpClearTextBar(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CTextBar * pTextBar = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 0, &pTextBar))
 		return Py_BuildException();
-
-	auto * pTextBar = reinterpret_cast<CTextBar *>(iHandle);
 	if (pTextBar)
 		pTextBar->ClearBar();
 
@@ -153,8 +142,8 @@ PyObject * grpClearTextBar(PyObject * poSelf, PyObject * poArgs)
 
 PyObject * grpSetTextBarClipRect(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CTextBar * pTextBar = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 0, &pTextBar))
 		return Py_BuildException();
 	int isx;
 	if (!PyTuple_GetInteger(poArgs, 1, &isx))
@@ -168,8 +157,6 @@ PyObject * grpSetTextBarClipRect(PyObject * poSelf, PyObject * poArgs)
 	int iey;
 	if (!PyTuple_GetInteger(poArgs, 4, &iey))
 		return Py_BuildException();
-
-	auto * pTextBar = reinterpret_cast<CTextBar *>(iHandle);
 	if (pTextBar)
 	{
 		RECT rect;

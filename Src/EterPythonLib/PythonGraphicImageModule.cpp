@@ -2,32 +2,21 @@
 
 bool PyTuple_GetImageInstance(PyObject * poArgs, int pos, CGraphicImageInstance ** ppRetImageInstance)
 {
-	int handle;
-
-	if (!PyTuple_GetInteger(poArgs, pos, &handle))
-		return false;
-
-	if (!handle)
-		return false;
-
-	*ppRetImageInstance = reinterpret_cast<CGraphicImageInstance *>(handle);
-	return true;
+	return PyTuple_GetPointer(poArgs, pos, ppRetImageInstance);
 }
 
 bool PyTuple_GetExpandedImageInstance(PyObject * poArgs, int pos, CGraphicExpandedImageInstance ** ppRetImageInstance)
 {
-	int handle;
+	CGraphicImageInstance * pImageInstance = nullptr;
 
-	if (!PyTuple_GetInteger(poArgs, pos, &handle))
+	if (!PyTuple_GetPointer(poArgs, pos, &pImageInstance))
 		return false;
 
-	if (!handle)
+	if (!pImageInstance->IsType(CGraphicExpandedImageInstance::Type()))
 		return false;
 
-	if (!reinterpret_cast<CGraphicImageInstance *>(handle)->IsType(CGraphicExpandedImageInstance::Type()))
-		return false;
-
-	*ppRetImageInstance = reinterpret_cast<CGraphicExpandedImageInstance *>(handle);
+	*ppRetImageInstance =
+		reinterpret_cast<CGraphicExpandedImageInstance *>(pImageInstance);
 
 	return true;
 }
@@ -53,7 +42,7 @@ PyObject * grpImageGenerate(PyObject * poSelf, PyObject * poArgs)
 	if (pImageInstance->IsEmpty())
 		return Py_BuildException("Cannot load image (filename: %s)", szFileName);
 
-	return Py_BuildValue("i", pImageInstance);
+	return Py_BuildPointer(pImageInstance);
 }
 
 PyObject * grpImageGenerateExpanded(PyObject * poSelf, PyObject * poArgs)
@@ -77,19 +66,19 @@ PyObject * grpImageGenerateExpanded(PyObject * poSelf, PyObject * poArgs)
 	if (pImageInstance->IsEmpty())
 		return Py_BuildException("Cannot load image (filename: %s)", szFileName);
 
-	return Py_BuildValue("i", pImageInstance);
+	return Py_BuildPointer(pImageInstance);
 }
 
 PyObject * grpImageGenerateFromHandle(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CGraphicImage * pImage = nullptr;
+	if (!PyTuple_GetPointer(poArgs, 0, &pImage))
 		return Py_BadArgument();
 
 	CGraphicImageInstance * pImageInstance = CGraphicImageInstance::New();
-	pImageInstance->SetImagePointer(reinterpret_cast<CGraphicImage *>(iHandle));
+	pImageInstance->SetImagePointer(pImage);
 
-	return Py_BuildValue("i", pImageInstance);
+	return Py_BuildPointer(pImageInstance);
 }
 
 PyObject * grpImageDelete(PyObject * poSelf, PyObject * poArgs)
@@ -295,7 +284,7 @@ PyObject* grpGetGraphicImagePointer(PyObject* poSelf, PyObject* poArgs)
 	if (pImageInstance->IsEmpty())
 		return Py_BuildException("Image is empty");
 
-	return Py_BuildValue("i", pImageInstance->GetGraphicImagePointer());
+	return Py_BuildPointer(pImageInstance->GetGraphicImagePointer());
 }
 #endif
 

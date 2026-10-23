@@ -2,22 +2,13 @@
 
 bool PyTuple_GetTextInstance(PyObject * poArgs, int pos, CGraphicTextInstance ** ppTextInstance)
 {
-	int handle;
-	if (!PyTuple_GetInteger(poArgs, pos, &handle))
-		return false;
-
-	if (!handle)
-		return false;
-
-	*ppTextInstance = reinterpret_cast<CGraphicTextInstance *>(handle);
-
-	return true;
+	return PyTuple_GetPointer(poArgs, pos, ppTextInstance);
 }
 
 PyObject * grpTextGenerate(PyObject * poSelf, PyObject * poArgs)
 {
 	CGraphicTextInstance * pTextInstance = CGraphicTextInstance::New();
-	return Py_BuildValue("i", pTextInstance);
+	return Py_BuildPointer(pTextInstance);
 }
 
 PyObject * grpTextDestroy(PyObject * poSelf, PyObject * poArgs)
@@ -285,7 +276,7 @@ PyObject * grpGetSplitingTextLineCount(PyObject * poSelf, PyObject * poArgs)
 		{
 			i += 1;
 
-			// ÀÚµ¿ ÁÙ ¹Ù²ÞµÇ°í ¹Ù·Î | °¡ ÀÖÀ» °æ¿ì
+			// ï¿½Úµï¿½ ï¿½ï¿½ ï¿½Ù²ÞµÇ°ï¿½ ï¿½Ù·ï¿½ | ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 			if (iPosition > 0)
 				++iLineCount;
 
@@ -335,15 +326,15 @@ PyObject * grpGetSplitingTextLine(PyObject * poSelf, PyObject * poArgs)
 	int iPosition = 0;
 	int iLineCount = 0;
 
-	// 1Â÷ : Á¶±Ý ´õ ±ò²ûÇÏ°Ô ¾ÈµÉ±î -_-a
-	// 2Â÷ : ¿À.. Á» ³ª¾ÆÁ³´Ù +_+
+	// 1ï¿½ï¿½ : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ÈµÉ±ï¿½ -_-a
+	// 2ï¿½ï¿½ : ï¿½ï¿½.. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ +_+
 	for (uint32_t i = 0; i < strlen(szText);)
 	{
 		if ('|' == szText[i])
 		{
 			i += 1;
 
-			// ÀÚµ¿ ÁÙ ¹Ù²ÞµÇ°í ¹Ù·Î | °¡ ÀÖÀ» °æ¿ì
+			// ï¿½Úµï¿½ ï¿½ï¿½ ï¿½Ù²ÞµÇ°ï¿½ ï¿½Ù·ï¿½ | ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 			if (iPosition > 0)
 				++iLineCount;
 			iPosition = 0;

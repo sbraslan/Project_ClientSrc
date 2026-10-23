@@ -9,7 +9,7 @@ void CGrannyModelInstance::Update(uint32_t dwAniFPS)
 	if (!dwAniFPS)
 		return;
 
-	const auto c_dwCurUpdateFrame = static_cast<uint32_t>(GetLocalTime() * ANIFPS_MAX);
+	const auto c_dwCurUpdateFrame = static_cast<uint32_t>(GetLocalTime() * static_cast<float>(ANIFPS_MAX));
 	const uint32_t ANIFPS_STEP = ANIFPS_MAX / dwAniFPS;
 	if (c_dwCurUpdateFrame > ANIFPS_STEP && c_dwCurUpdateFrame / ANIFPS_STEP == m_dwOldUpdateFrame / ANIFPS_STEP)
 		return;

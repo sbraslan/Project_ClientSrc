@@ -19,7 +19,7 @@ class CPythonWikiRenderTarget : public CSingleton<CPythonWikiRenderTarget>
 		typedef std::vector<std::tuple<int, std::shared_ptr<UI::CUiWikiRenderTarget>>> TWikiRenderTargetModules;
 		
 		int		GetFreeID();
-		void		RegisterRenderModule(int module_id, int module_wnd);
+		void		RegisterRenderModule(int module_id, UI::CUiWikiRenderTarget * module_wnd);
 		
 		void		ManageModelViewVisibility(int module_id, bool flag);
 		

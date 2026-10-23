@@ -179,7 +179,7 @@ PyObject * itemGetIconImage(PyObject * poSelf, PyObject * poArgs)
 	if (!pItemData)
 		return Py_BuildException("no selected item data");
 
-	return Py_BuildValue("i", pItemData->GetIconImage());
+	return Py_BuildPointer(pItemData->GetIconImage());
 }
 
 PyObject * itemGetIconImageFileName(PyObject * poSelf, PyObject * poArgs)
@@ -494,16 +494,17 @@ PyObject * itemGetIconInstance(PyObject * poSelf, PyObject * poArgs)
 	CGraphicImageInstance * pImageInstance = CGraphicImageInstance::New();
 	pImageInstance->SetImagePointer(pImage);
 
-	return Py_BuildValue("i", pImageInstance);
+	return Py_BuildPointer(pImageInstance);
 }
 
 PyObject * itemDeleteIconInstance(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CGraphicImageInstance * pImageInstance = nullptr;
+
+	if (!PyTuple_GetPointer(poArgs, 0, &pImageInstance))
 		return Py_BadArgument();
 
-	CGraphicImageInstance::Delete((CGraphicImageInstance *) iHandle);
+	CGraphicImageInstance::Delete(pImageInstance);
 
 	return Py_BuildNone();
 }
@@ -522,7 +523,7 @@ PyObject * itemIsEquipmentVID(PyObject * poSelf, PyObject * poArgs)
 	return Py_BuildValue("i", pItemData->IsEquipment());
 }
 
-// 2005.05.20.myevan.ÅëÇÕ USE_TYPE Ã¼Å©
+// 2005.05.20.myevan.ï¿½ï¿½ï¿½ï¿½ USE_TYPE Ã¼Å©
 PyObject * itemGetUseType(PyObject * poSelf, PyObject * poArgs)
 {
 	int iItemVID;

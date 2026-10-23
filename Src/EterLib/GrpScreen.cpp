@@ -48,7 +48,7 @@ void CScreen::RenderBox3d(float sx, float sy, float sz, float ex, float ey, floa
 		{ex, ey, ez, ms_diffuseColor, 0.0f, 0.0f}, // 3
 
 		{sx, ey, ez, ms_diffuseColor, 0.0f, 0.0f}, // 2
-		{ex + 1.0f, ey, ez, ms_diffuseColor, 0.0f, 0.0f} // 3, (x°¡ 1Áõ°¡µÈ 3)
+		{ex + 1.0f, ey, ez, ms_diffuseColor, 0.0f, 0.0f} // 3, (xï¿½ï¿½ 1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 3)
 	};
 
 	// 2004.11.18.myevan.DrawIndexPrimitiveUP -> DynamicVertexBuffer
@@ -467,11 +467,11 @@ void CScreen::SetCursorPosition(int x, int y, int hres, int vres)
 	ms_vtPickRayOrig.y = matViewInverse._42;
 	ms_vtPickRayOrig.z = matViewInverse._43;
 
-	//	// 2003. 9. 9 µ¿Çö Ãß°¡
-	//	// ÁöÇü pickingÀ» À§ÇÑ »¹Áþ... ¤Ñ¤Ñ; À§¿¡ °Í°ú ÅëÇÕ ÇÊ¿ä...
+	//	// 2003. 9. 9 ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
+	//	// ï¿½ï¿½ï¿½ï¿½ pickingï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½... ï¿½Ñ¤ï¿½; ï¿½ï¿½ï¿½ï¿½ ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½...
 	ms_Ray.SetStartPoint(ms_vtPickRayOrig);
 	ms_Ray.SetDirection(-ms_vtPickRayDir, 51200.0f);
-	//	// 2003. 9. 9 µ¿Çö Ãß°¡
+	//	// 2003. 9. 9 ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 }
 
 bool CScreen::GetCursorPosition(float * px, float * py, float * pz)
@@ -664,10 +664,10 @@ void CScreen::Show(HWND hWnd)
 
 	if (g_isBrowserMode)
 	{
-		RECT rcTop = {0, 0, ms_d3dPresentParameter.BackBufferWidth, g_rcBrowser.top};
-		RECT rcBottom = {0, g_rcBrowser.bottom, ms_d3dPresentParameter.BackBufferWidth, ms_d3dPresentParameter.BackBufferHeight};
+		RECT rcTop = {0, 0, static_cast<LONG>(ms_d3dPresentParameter.BackBufferWidth), g_rcBrowser.top};
+		RECT rcBottom = {0, g_rcBrowser.bottom, static_cast<LONG>(ms_d3dPresentParameter.BackBufferWidth), static_cast<LONG>(ms_d3dPresentParameter.BackBufferHeight)};
 		RECT rcLeft = {0, g_rcBrowser.top, g_rcBrowser.left, g_rcBrowser.bottom};
-		RECT rcRight = {g_rcBrowser.right, g_rcBrowser.top, ms_d3dPresentParameter.BackBufferWidth, g_rcBrowser.bottom};
+		RECT rcRight = {g_rcBrowser.right, g_rcBrowser.top, static_cast<LONG>(ms_d3dPresentParameter.BackBufferWidth), g_rcBrowser.bottom};
 
 		ms_lpd3dDevice->Present(&rcTop, &rcTop, hWnd, nullptr);
 		ms_lpd3dDevice->Present(&rcBottom, &rcBottom, hWnd, nullptr);

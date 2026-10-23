@@ -22,23 +22,23 @@ int SplitLine(const char * c_szText, CTokenVector * pstTokenVector, const char *
 	std::string stToken;
 	std::string stLine = c_szText;
 
-	uint32_t basePos = 0;
+	std::string::size_type basePos = 0;
 
 	do
 	{
-		int beginPos = stLine.find_first_not_of(c_szDelimeter, basePos);
+		auto beginPos = stLine.find_first_not_of(c_szDelimeter, basePos);
 
-		if (beginPos < 0)
+		if (beginPos == std::string::npos)
 			return -1;
 
-		int endPos;
+		std::string::size_type endPos;
 
 		if (stLine[beginPos] == '"')
 		{
 			++beginPos;
 			endPos = stLine.find_first_of('\"', beginPos);
 
-			if (endPos < 0)
+			if (endPos == std::string::npos)
 				return -2;
 
 			basePos = endPos + 1;
@@ -51,8 +51,8 @@ int SplitLine(const char * c_szText, CTokenVector * pstTokenVector, const char *
 
 		pstTokenVector->emplace_back(stLine.substr(beginPos, endPos - beginPos));
 
-		// Ãß°¡ ÄÚµå. ¸ÇµÚ¿¡ ÅÇÀÌ ÀÖ´Â °æ¿ì¸¦ Ã¼Å©ÇÑ´Ù. - [levites]
-		if (int(stLine.find_first_not_of(c_szDelimeter, basePos)) < 0)
+		// ï¿½ß°ï¿½ ï¿½Úµï¿½. ï¿½ÇµÚ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ì¸¦ Ã¼Å©ï¿½Ñ´ï¿½. - [levites]
+		if (stLine.find_first_not_of(c_szDelimeter, basePos) == std::string::npos)
 			break;
 	} while (basePos < stLine.length());
 
@@ -60,7 +60,7 @@ int SplitLine(const char * c_szText, CTokenVector * pstTokenVector, const char *
 }
 
 // OVERWRITE_SKILLPROTO_POLY
-void string_replace_word(const char * base, int base_len, const char * src, int src_len, const char * dst, int dst_len,
+void string_replace_word(const char * base, std::size_t base_len, const char * src, std::size_t src_len, const char * dst, std::size_t dst_len,
 						 std::string & result)
 {
 	result.resize(0);
@@ -69,8 +69,8 @@ void string_replace_word(const char * base, int base_len, const char * src, int 
 	else
 		result.reserve(base_len);
 
-	int prev = 0;
-	int cur = 0;
+	std::size_t prev = 0;
+	std::size_t cur = 0;
 	while (cur < base_len)
 	{
 		if (memcmp(base + cur, src, src_len) == 0)
@@ -389,7 +389,7 @@ bool CPythonSkill::RegisterSkillDesc(const char * c_szFileName)
 			const std::string & c_rstrJob = TokenVector[DESC_TOKEN_TYPE_JOB];
 			const std::string & c_rstrIconName = TokenVector[DESC_TOKEN_TYPE_ICON_NAME];
 
-			// NOTE : Support ½ºÅ³ÀÓ¿¡µµ 3´Ü°è¸¦ Áö¿øÇØ¾ß ÇØ¼­ ¿¹¿Ü Ã³¸® - [levites]
+			// NOTE : Support ï¿½ï¿½Å³ï¿½Ó¿ï¿½ï¿½ï¿½ 3ï¿½Ü°è¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ - [levites]
 			if (c_iSkillIndex_Riding == iSkillIndex)
 			{
 				char szIconFileNameHeader[64 + 1];
@@ -631,10 +631,10 @@ bool CPythonSkill::RegisterSkill(uint32_t dwSkillIndex, const char * c_szFileNam
 
 		if (isConditionData)
 		{
-			uint32_t dwSize = pConditionDataVector->size();
+			const std::size_t dwSize = pConditionDataVector->size();
 			SkillData.ConditionDataVector.clear();
 			SkillData.ConditionDataVector.resize(dwSize);
-			for (uint32_t i = 0; i < dwSize; ++i)
+			for (std::size_t i = 0; i < dwSize; ++i)
 				SkillData.ConditionDataVector[i] = pConditionDataVector->at(i);
 		}
 	}
@@ -652,10 +652,10 @@ bool CPythonSkill::RegisterSkill(uint32_t dwSkillIndex, const char * c_szFileNam
 
 		if (isAffectData)
 		{
-			uint32_t dwSize = pAffectDataVector->size() / 3;
+			const std::size_t dwSize = pAffectDataVector->size() / 3;
 			SkillData.AffectDataVector.clear();
 			SkillData.AffectDataVector.resize(dwSize);
-			for (uint32_t i = 0; i < dwSize; ++i)
+			for (std::size_t i = 0; i < dwSize; ++i)
 			{
 				SkillData.AffectDataVector[i].strAffectDescription = pAffectDataVector->at(i * 3 + 0);
 				SkillData.AffectDataVector[i].strAffectMinFormula = pAffectDataVector->at(i * 3 + 1);
@@ -1110,7 +1110,7 @@ bool CPythonSkill::SSkillData::GetState(const char * c_szStateName, int * piStat
 	{
 		*piState = 0;
 
-		// ÁõÁö¼ú ÀÓ½Ã Á¦¿Ü
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		/*
 				if (0 != ms_dwTimeIncreaseSkillNumber)
 				{
@@ -1184,11 +1184,11 @@ const char * CPythonSkill::SSkillData::GetAffectDescription(uint32_t dwIndex, fl
 
 	if (CP_ARABIC == GetDefaultCodePage())
 	{
-		// #0000870: [M2AE] ÇÑ±¹¾î ¸ðµåÀÏ¶§ Æ¯Á¤ ¾Æ¶ø¾î ¹®Àå¿¡¼­ Å©·¡½¬ ¹ß»ý
+		// #0000870: [M2AE] ï¿½Ñ±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¶ï¿½ Æ¯ï¿½ï¿½ ï¿½Æ¶ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½å¿¡ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½
 		static std::string strDescription;
 		strDescription = c_rstrAffectDescription;
-		int first = strDescription.find("%.0f");
-		if (first >= 0)
+		const auto first = strDescription.find("%.0f");
+		if (first != std::string::npos)
 		{
 			fMinValue = floorf(fMinValue);
 
@@ -1196,8 +1196,8 @@ const char * CPythonSkill::SSkillData::GetAffectDescription(uint32_t dwIndex, fl
 			_snprintf(szMinValue, sizeof(szMinValue), "%.0f", fMinValue);
 			strDescription.replace(first, 4, szMinValue);
 
-			int second = strDescription.find("%.0f", first);
-			if (second >= 0)
+			const auto second = strDescription.find("%.0f", first);
+			if (second != std::string::npos)
 			{
 				fMaxValue = floorf(fMaxValue);
 
@@ -1995,7 +1995,7 @@ PyObject * skillIsLevelUpSkill(PyObject * poSelf, PyObject * poArgs)
 	if (!CPythonSkill::Instance().GetSkillData(iSkillIndex, &c_pSkillData))
 		return Py_BuildException("skill.IsLevelUpSkill - Failed to find skill by %d", iSkillIndex);
 
-	// ¸ðµÎ ·¹º§¾÷ °¡´É
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	return Py_BuildValue("i", TRUE);
 }
@@ -2021,9 +2021,9 @@ PyObject * skillGetIconImage(PyObject * poSelf, PyObject * poArgs)
 
 	CPythonSkill::SSkillData * c_pSkillData;
 	if (!CPythonSkill::Instance().GetSkillData(iSkillIndex, &c_pSkillData))
-		return Py_BuildValue("i", 0); // ÀÍ¼Á¼ÇÀ» ³»´Â ´ë½Å 0À» ¸®ÅÏÇÑ´Ù.
+		return Py_BuildValue("i", 0); // ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ 0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 
-	return Py_BuildValue("i", c_pSkillData->pImage);
+	return Py_BuildPointer(c_pSkillData->pImage);
 }
 
 
@@ -2040,7 +2040,7 @@ PyObject * skillGetIconInstance(PyObject * poSelf, PyObject * poArgs)
 	CGraphicImageInstance * pImageInstance = CGraphicImageInstance::New();
 	pImageInstance->SetImagePointer(c_pSkillData->pImage);
 
-	return Py_BuildValue("i", pImageInstance);
+	return Py_BuildPointer(pImageInstance);
 }
 
 PyObject * skillGetIconImageNew(PyObject * poSelf, PyObject * poArgs)
@@ -2055,7 +2055,7 @@ PyObject * skillGetIconImageNew(PyObject * poSelf, PyObject * poArgs)
 
 	CPythonSkill::SSkillData * c_pSkillData;
 	if (!CPythonSkill::Instance().GetSkillData(iSkillIndex, &c_pSkillData))
-		return Py_BuildValue("i", 0); // ÀÍ¼Á¼ÇÀ» ³»´Â ´ë½Å 0À» ¸®ÅÏÇÑ´Ù.
+		return Py_BuildValue("i", 0); // ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ 0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 
 	if (iGradeIndex < 0)
 		iGradeIndex = 0;
@@ -2063,7 +2063,7 @@ PyObject * skillGetIconImageNew(PyObject * poSelf, PyObject * poArgs)
 	if (iGradeIndex >= CPythonSkill::SKILL_GRADE_COUNT)
 		iGradeIndex = CPythonSkill::SKILL_GRADE_COUNT - 1;
 
-	return Py_BuildValue("i", c_pSkillData->GradeData[iGradeIndex].pImage);
+	return Py_BuildPointer(c_pSkillData->GradeData[iGradeIndex].pImage);
 }
 
 PyObject * skillGetIconInstanceNew(PyObject * poSelf, PyObject * poArgs)
@@ -2089,16 +2089,17 @@ PyObject * skillGetIconInstanceNew(PyObject * poSelf, PyObject * poArgs)
 	CGraphicImageInstance * pImageInstance = CGraphicImageInstance::New();
 	pImageInstance->SetImagePointer(c_pSkillData->GradeData[iGradeIndex].pImage);
 
-	return Py_BuildValue("i", pImageInstance);
+	return Py_BuildPointer(pImageInstance);
 }
 
 PyObject * skillDeleteIconInstance(PyObject * poSelf, PyObject * poArgs)
 {
-	int iHandle;
-	if (!PyTuple_GetInteger(poArgs, 0, &iHandle))
+	CGraphicImageInstance * pImageInstance = nullptr;
+
+	if (!PyTuple_GetPointer(poArgs, 0, &pImageInstance))
 		return Py_BadArgument();
 
-	CGraphicImageInstance::Delete((CGraphicImageInstance *) iHandle);
+	CGraphicImageInstance::Delete(pImageInstance);
 	return Py_BuildNone();
 }
 
@@ -2215,7 +2216,7 @@ PyObject* skillGetPetSkillIconImage(PyObject* poSelf, PyObject* poArgs)
 	if (!CPythonSkillPet::Instance().GetSkillData(iSkillIndex, &c_pSkillData))
 		return Py_BuildValue("i", 0);
 
-	return Py_BuildValue("i", c_pSkillData->pImage);
+	return Py_BuildPointer(c_pSkillData->pImage);
 }
 
 PyObject* skillGetPetSkillbySlot(PyObject* poSelf, PyObject* poArgs)

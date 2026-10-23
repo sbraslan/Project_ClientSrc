@@ -134,7 +134,7 @@ bool CTerrain::LoadShadowMap(const char * c_pszFileName)
 }
 
 //////////////////////////////////////////////////////////////////////////
-// Seamless¿ë »õ·Î¿î ÇÔ¼öµé...
+// Seamlessï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½...
 //////////////////////////////////////////////////////////////////////////
 
 void CTerrain::CopySettingFromGlobalSetting()
@@ -448,7 +448,7 @@ void CTerrain::CalculateNormal(long x, long y)
 	normal.x = -m_fHeightScale * ((float) GetHeightMapValue((x - 1), y) - (float) GetHeightMapValue((x + 1), y));
 	normal.y = -m_fHeightScale * ((float) GetHeightMapValue(x, (y - 1)) - (float) GetHeightMapValue(x, (y + 1)));
 
-	normal.z = 2.0f * CELLSCALE;
+	normal.z = 2.0f * static_cast<float>(CELLSCALE);
 	normal *= 127.0f / D3DXVec3Length(&normal);
 
 	int ix, iy, iz;
@@ -907,7 +907,7 @@ void CTerrain::PutImage16(const uint8_t * src, uint8_t * dst, long src_pitch, lo
 		for (int x = 0; x < texturewidth; ++x)
 		{
 			uint16_t packed_pixel = src[x] << 8;
-			//& ¿¬»ê ÇÑ¹øÀÌ ¾Æ±õ´Ù
+			//& ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½Æ±ï¿½ï¿½ï¿½
 			//uint16_t packed_pixel = (src[x]&0xF0) << 8;
 			*((uint16_t *) (dst + x * 2)) = packed_pixel;
 		}
@@ -1013,11 +1013,11 @@ void CTerrain::_CalculateTerrainPatch(uint8_t byPatchNumX, uint8_t byPatchNumY)
 			lpTerrainVertex->kPosition = kPosition;
 			lpTerrainVertex->kNormal = kNormal;
 
-			if (0.5f > kNormal.z) // ¼öÆòÀ¸·Î ºÎÅÍ 30µµ ÀÌÇÏ °¢À¸·Î  ±â¿ï¾îÁ® ÀÖ´Ù. Cliff typeÀ¸·Î Á¤ÀÇ
+			if (0.5f > kNormal.z) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 30ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½. Cliff typeï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				++wNumCliffType;
-			else if (0.8660254f > kNormal.z) // ¼öÆòÀ¸·Î ºÎÅÍ 60µµ ÀÌÇÏ °¢À¸·Î  ±â¿ï¾îÁ® ÀÖ´Ù. Hill typeÀ¸·Î Á¤ÀÇ
+			else if (0.8660254f > kNormal.z) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 60ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½. Hill typeï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				++wNumHillType;
-			else // ±× ÀÌ»óÀº plain Å¸ÀÔ
+			else // ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ plain Å¸ï¿½ï¿½
 				++wNumPlainType;
 
 			if (kPosition.z > fMaxZ)

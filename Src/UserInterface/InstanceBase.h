@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "../GameLib/RaceData.h"
 #include "../GameLib/ActorInstance.h"
 #include "../GameLib/GameLibDefines.h"
@@ -840,7 +842,7 @@ public:
 	void MountHorse(uint32_t eRace);
 	void DismountHorse();
 
-	// ½ºÅ©¸³Æ®¿ë Å×½ºÆ® ÇÔ¼ö. ³ªÁß¿¡ ¾ø¿¡ÀÚ
+	// ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½×½ï¿½Æ® ï¿½Ô¼ï¿½. ï¿½ï¿½ï¿½ß¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	void SCRIPT_SetAffect(uint32_t eAffect, bool isVisible);
 
 	float CalculateDistanceSq3d(const TPixelPosition & c_rkPPosDst);
@@ -894,7 +896,7 @@ public:
 	// Temporary
 	void GetBoundBox(D3DXVECTOR3 * vtMin, D3DXVECTOR3 * vtMax);
 
-	void SetNameString(const char * c_szName, int len);
+	void SetNameString(const char * c_szName, std::size_t len);
 	bool SetRace(uint32_t eRace);
 	void SetVirtualID(uint32_t dwVirtualID);
 	void SetVirtualNumber(uint32_t dwVirtualNumber);
@@ -1255,8 +1257,8 @@ public:
 	//void					SetParts(const uint16_t * c_pParts);
 	void Refresh(uint32_t dwMotIndex, bool isLoop);
 
-	//void					AttachEffectByID(uint32_t dwParentPartIndex, const char * c_pszBoneName, uint32_t dwEffectID, int dwLife = CActorInstance::EFFECT_LIFE_INFINITE ); // ¼ö¸íÀº ms´ÜÀ§ÀÔ´Ï´Ù.
-	//void					AttachEffectByName(uint32_t dwParentPartIndex, const char * c_pszBoneName, const char * c_pszEffectName, int dwLife = CActorInstance::EFFECT_LIFE_INFINITE ); // ¼ö¸íÀº ms´ÜÀ§ÀÔ´Ï´Ù.
+	//void					AttachEffectByID(uint32_t dwParentPartIndex, const char * c_pszBoneName, uint32_t dwEffectID, int dwLife = CActorInstance::EFFECT_LIFE_INFINITE ); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ msï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½.
+	//void					AttachEffectByName(uint32_t dwParentPartIndex, const char * c_pszBoneName, const char * c_pszEffectName, int dwLife = CActorInstance::EFFECT_LIFE_INFINITE ); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ msï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½.
 
 	float GetDistance(CInstanceBase * pkTargetInst);
 	float GetDistance(const TPixelPosition & c_rPixelPosition);
@@ -1270,7 +1272,7 @@ public:
 	bool __Background_IsWaterPixelPosition(const TPixelPosition & c_rkPPos) const;
 	bool __Background_GetWaterHeight(const TPixelPosition & c_rkPPos, float * pfHeight) const;
 
-	// 2004.07.25.myevan.ÀÌÆåÆ® ¾È³ª¿À´Â ¹®Á¦
+	// 2004.07.25.myevan.ï¿½ï¿½ï¿½ï¿½Æ® ï¿½È³ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	/////////////////////////////////////////////////////////////
 	void __ClearAffectFlagContainer();
 	void __ClearAffects();
@@ -1325,7 +1327,7 @@ protected:
 	void __DisableChangingTCPState();
 	BOOL __IsEnableTCPProcess(uint32_t eCurFunc);
 
-	// 2004.07.17.levites.isShow¸¦ ViewFrustumCheck·Î º¯°æ
+	// 2004.07.17.levites.isShowï¿½ï¿½ ViewFrustumCheckï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	bool __CanRender();
 	bool __IsInViewFrustum();
 

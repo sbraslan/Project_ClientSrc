@@ -50,11 +50,11 @@ void CPythonMiniMap::Update(float fCenterX, float fCenterY)
 	if (!rkBG.IsMapOutdoor())
 		return;
 
-	// ¹Ì´Ï¸Ê ±×¸² °»½Å
+	// ï¿½Ì´Ï¸ï¿½ ï¿½×¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (m_fCenterX != fCenterX || m_fCenterY != fCenterY)
 		SetCenterPosition(fCenterX, fCenterY);
 
-	// Ä³¸¯ÅÍ ¸®½ºÆ® °»½Å
+	// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
 	m_OtherPCPositionVector.clear();
 	m_PartyPCPositionVector.clear();
 	m_NPCPositionVector.clear();
@@ -547,7 +547,7 @@ void CPythonMiniMap::Render(float fScreenX, float fScreenY)
 	STATEMANAGER.SaveSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 	STATEMANAGER.SaveSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 
-	// Ä³¸¯ÅÍ ¸¶Å©
+	// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å©
 	CInstanceBase * pkInst = CPythonCharacterManager::Instance().GetMainInstancePtr();
 
 	if (pkInst)
@@ -582,7 +582,7 @@ void CPythonMiniMap::Render(float fScreenX, float fScreenY)
 
 	CCamera * pkCmrCur = CCameraManager::Instance().GetCurrentCamera();
 
-	// Ä«¸Þ¶ó ¹æÇâ
+	// Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (pkCmrCur)
 	{
 		m_MiniMapCameraraphicImageInstance.SetRotation(pkCmrCur->GetRoll());
@@ -645,7 +645,7 @@ bool CPythonMiniMap::Create()
 	const std::string strWhiteMark = strImageRoot + "minimap/whitemark_new.tga";	//@custom012
 	const std::string strBossMark = strImageRoot + "minimap/bossmark.tga";	//@custom013
 
-	// ¹Ì´Ï¸Ê Ä¿¹ö
+	// ï¿½Ì´Ï¸ï¿½ Ä¿ï¿½ï¿½
 	auto * pImage = msl::inherit_cast<CGraphicImage *>(CResourceManager::Instance().GetResourcePointer(strImageFilter.c_str()));
 	m_MiniMapFilterGraphicImageInstance.SetImagePointer(pImage);
 	pImage = msl::inherit_cast<CGraphicImage *>(CResourceManager::Instance().GetResourcePointer(strImageCamera.c_str()));
@@ -655,7 +655,7 @@ bool CPythonMiniMap::Create()
 	m_matMiniMapCover._22 = 1.0f / (static_cast<float>(m_MiniMapFilterGraphicImageInstance.GetHeight()));
 	m_matMiniMapCover._33 = 0.0f;
 
-	// Ä³¸¯ÅÍ ¸¶Å©
+	// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å©
 	auto * pSubImage = msl::inherit_cast<CGraphicSubImage *>(CResourceManager::Instance().GetResourcePointer(strPlayerMark.c_str()));
 	m_PlayerMark.SetImagePointer(pSubImage);
 
@@ -688,7 +688,7 @@ bool CPythonMiniMap::Create()
 	m_GuildAreaFlagImageInstance.SetImagePointer(
 		msl::inherit_cast<CGraphicSubImage *>(CResourceManager::Instance().GetResourcePointer("d:/ymir work/ui/minimap/GuildArea01.sub")));
 
-	// ±×·ÁÁú Æú¸®°ï ¼¼ÆÃ
+	// ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 #pragma pack(push)
 #pragma pack(1)
 	LPMINIMAPVERTEX lpOrigMiniMapVertex;
@@ -1056,8 +1056,8 @@ bool CPythonMiniMap::LoadAtlas()
 	int16_t sTerrainCountX, sTerrainCountY;
 	rkMap.GetBaseXY(&m_dwAtlasBaseX, &m_dwAtlasBaseY);
 	rkMap.GetTerrainCount(&sTerrainCountX, &sTerrainCountY);
-	m_fAtlasMaxX = static_cast<float>(sTerrainCountX) * CTerrainImpl::TERRAIN_XSIZE;
-	m_fAtlasMaxY = static_cast<float>(sTerrainCountY) * CTerrainImpl::TERRAIN_YSIZE;
+	m_fAtlasMaxX = static_cast<float>(sTerrainCountX) * static_cast<float>(CTerrainImpl::TERRAIN_XSIZE);
+	m_fAtlasMaxY = static_cast<float>(sTerrainCountY) * static_cast<float>(CTerrainImpl::TERRAIN_YSIZE);
 
 	m_fAtlasImageSizeX = static_cast<float>(m_AtlasImageInstance.GetWidth());
 	m_fAtlasImageSizeY = static_cast<float>(m_AtlasImageInstance.GetHeight());

@@ -32,7 +32,7 @@ int CPythonWikiRenderTarget::GetFreeID()
 	return new_module;
 }
 
-void CPythonWikiRenderTarget::RegisterRenderModule(int module_id, int module_wnd)
+void CPythonWikiRenderTarget::RegisterRenderModule(int module_id, UI::CUiWikiRenderTarget * module_wnd)
 {
 	if (module_id == DELETE_PARM)
 	{
@@ -52,7 +52,7 @@ void CPythonWikiRenderTarget::RegisterRenderModule(int module_id, int module_wnd
 		if (!module_wnd)
 			return;
 		
-		UI::CUiWikiRenderTarget* _hwn = (UI::CUiWikiRenderTarget*)module_wnd;
+		UI::CUiWikiRenderTarget * _hwn = module_wnd;
 		_RenderWikiModules.emplace_back(std::make_tuple(module_id, _hwn));
 		
 		if (!_InitializeWindow(module_id, _hwn))

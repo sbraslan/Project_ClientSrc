@@ -74,8 +74,8 @@ void CGraphicMarkInstance::OnRender()
 	float eu = kRect.right * texReverseWidth;
 	float ev = kRect.bottom * texReverseHeight;
 
-	float fRenderWidth = MARK_WIDTH * m_fScale;
-	float fRenderHeight = MARK_HEIGHT * m_fScale;
+	float fRenderWidth = static_cast<float>(MARK_WIDTH) * m_fScale;
+	float fRenderHeight = static_cast<float>(MARK_HEIGHT) * m_fScale;
 
 	TPDTVertex vertices[4];
 	vertices[0].position.x = m_v2Position.x - 0.5f;
@@ -239,7 +239,7 @@ void CGraphicMarkInstance::Initialize()
 
 void CGraphicMarkInstance::Destroy()
 {
-	m_roImage.SetPointer(nullptr); // CRef ¿¡¼­ ·¹ÆÛ·±½º Ä«¿îÆ®°¡ ¶³¾îÁ®¾ß ÇÔ.
+	m_roImage.SetPointer(nullptr); // CRef ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½.
 	Initialize();
 }
 
