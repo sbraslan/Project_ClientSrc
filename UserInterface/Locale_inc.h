@@ -50,7 +50,7 @@ enum eCommon
 #define ENABLE_PACK_GET_CHECK						// enable py|pyc|txt check on pack.Get
 #define ENABLE_TELEPORT_CRASH_FIX					// 
 //#define ENABLE_SYSLOG_PACKET_SENT					// 
-#define ENABLE_CRASHRPT								// 
+//#define ENABLE_CRASHRPT								// 
 #define ENABLE_IE11_UPDATE							// upgrade IE7->IE11
 #define HIDE_GRANNY_SYSERR							// 
 //#define DISABLE_PROPERTY_SYSERR					// 
@@ -99,8 +99,8 @@ enum eCommon
 #define SIGN_FOR_PLUS_ITEMS							// Items+ (+)
 #define ENABLE_PLUS_ICON_ITEM						// Displays Value of Item
 #define ENABLE_TEXT_LEVEL_REFRESH					// enable text tail level refresh when levelup
-#define ENABLE_SET_NO_CHARACTER_ROTATION			// Charakter Richtungsänderung ohne Rotation
-#define ENABLE_SET_NO_MOUNT_ROTATION				// Mount Richtungsänderung ohne Rotation
+#define ENABLE_SET_NO_CHARACTER_ROTATION			// Charakter RichtungsÃ¤nderung ohne Rotation
+#define ENABLE_SET_NO_MOUNT_ROTATION				// Mount RichtungsÃ¤nderung ohne Rotation
 #define ENABLE_SLOT_WINDOW_EX						// it will fix the refresh of the activated and cooltimed slots in the skill page (V) (except when switching to the equitation tab and vice versa)
 //#define ENABLE_TEAM_GAMEMASTER						// GM's haben statt Lv Anzeige ein [Team] vor dem Namen
 #define ENABLE_NEUTRAL_RANG							// Neutraler Rang bei wenigen Rufpunkten
@@ -148,7 +148,7 @@ enum eCommon
 #define WJ_MULTI_TEXTLINE							// 
 #define ENABLE_NEW_SHINING_EFFEKT					// Neues Shining-System
 	#ifdef ENABLE_NEW_SHINING_EFFEKT
-	#	define ENABLE_LVL115_ARMOR_EFFECT					// Rüstungsshining
+	#	define ENABLE_LVL115_ARMOR_EFFECT					// RÃ¼stungsshining
 	#	define ENABLE_LVL96_WEAPON_EFFECT					// 
 	#	define ENABLE_LVL96_ARMOR_EFFECT					// 
 
@@ -242,7 +242,7 @@ enum eCommon
 #define ENABLE_DS_GRADE_MYTH						// Myth-grade
 #define ENABLE_DS_CHANGE_ATTR						// 
 #define ENABLE_DS_SET								// 
-#define ENABLE_COSTUME_SYSTEM						// Costümsystem
+#define ENABLE_COSTUME_SYSTEM						// CostÃ¼msystem
 #define ENABLE_MOUNT_COSTUME_SYSTEM					// enable mount costume slot
 #define ENABLE_WEAPON_COSTUME_SYSTEM				// enable weapon costume slot
 //#define ENABLE_WEAPON_COSTUME_RENEWAL				// Offical Costume Weapon changes
@@ -304,11 +304,11 @@ enum eCommon
 #define ENABLE_MYSHOP_DECO							// Shop Decoration
 #define ENABLE_MAILBOX								// Mailbox
 #define ENABLE_TICKET_SYSTEM						// Ingame Ticket
-#define ENABLE_DESTROY_SYSTEM						// Drop Items Zerstören System
+#define ENABLE_DESTROY_SYSTEM						// Drop Items ZerstÃ¶ren System
 //#define ENABLE_GROUP_DAMAGE_WEAPON_EFFECT			// Group-Dmg-System
 #define ENABLE_INGAME_WIKI							// 
 #define ENABLE_PATCHNOTE_WINDOW						// PatchNotes List
-#define ENABLE_QUIVER_SYSTEM						// Pfeilköcher
+#define ENABLE_QUIVER_SYSTEM						// PfeilkÃ¶cher
 #define ENABLE_DUNGEON_INFO_SYSTEM					// Dungeon Information
 #define ENABLE_MOVE_CHANNEL							// Channel Switcher
 #define ENABLE_QUEST_RENEWAL						// Quest page renewal
@@ -333,7 +333,7 @@ enum eCommon
 //	#	define ENABLE_LUCKY_EVENT							// unused
 	#	define ENABLE_MINI_GAME_OKEY_NORMAL					// Okey-Card
 //	#	define ENABLE_MINI_GAME_YUTNORI						// Halloween
-	#	define ENABLE_MONSTER_BACK							// Bossjäger
+	#	define ENABLE_MONSTER_BACK							// BossjÃ¤ger
 			#ifdef ENABLE_MONSTER_BACK
 			#	define ENABLE_ACCUMULATE_DAMAGE_DISPLAY				// 
 		//	#	define ENABLE_10TH_EVENT							// 
@@ -346,7 +346,7 @@ enum eCommon
 	#	define ENABLE_2016_VALENTINE						// Valentinstag
 	#	define ENABLE_FISH_EVENT							// Fischpuzzle
 	#	define ENABLE_FLOWER_EVENT							// Flower Event
-	#	define ENABLE_MINI_GAME_CATCH_KING					// Schnapp den König
+	#	define ENABLE_MINI_GAME_CATCH_KING					// Schnapp den KÃ¶nig
 	#	define ENABLE_GEM_SYSTEM							// Gaya
 			#ifdef ENABLE_GEM_SYSTEM
 			#	define ENABLE_GEM_SHOP								// 
@@ -431,7 +431,7 @@ enum eCommon
 	#	define ENABLE_NEW_WORLD_GUILDRENEWAL				// unfinished
 //	#	define ENABLE_GUILD_RANKING							// unfinished
 	#endif
-#define ENABLE_HUNTING_SYSTEM						// Jagdaufträge
+#define ENABLE_HUNTING_SYSTEM						// JagdauftrÃ¤ge
 #define ENABLE_WORLD_LOTTERY_SYSTEM					// Lotto
 #define ENABLE_SET_ITEM								// 
 #define ENABLE_SAFEBOX_IMPROVING					// 
@@ -449,7 +449,7 @@ enum eCommon
 #define ENABLE_DELETE_FAILURE_TYPE_ADD				// 
 #define ENABLE_GIVE_BASIC_ITEM						// Basic Items Give
 #define ENABLE_DICE_SYSTEM							// enable dice system: if the mob is king or boss and you're in party, the dropped item is randomly rolled
-#define ENABLE_PARTY_EXP_DISTRIBUTION_EQUAL			// Gleichmäßige Gruppenverteilung
+#define ENABLE_PARTY_EXP_DISTRIBUTION_EQUAL			// GleichmÃ¤ÃŸige Gruppenverteilung
 #define ENABLE_RENEWAL_SHOPEX						// Erweiterter Shop [Extend: Item, Exp]
 #define ENABLE_ANTI_EXP_RING						// Anti-Exp-Ring
 #define ENABLE_INVENTORY_SORT						// Inventar Sortier Button

@@ -482,6 +482,113 @@ void CrashRptInit()
 }
 #endif
 
+static LONG WINAPI ClientUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
+{
+	HANDLE hFile = CreateFileA(
+		"syserr.txt",
+		FILE_APPEND_DATA,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		nullptr,
+		OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		nullptr);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+		return EXCEPTION_EXECUTE_HANDLER;
+
+	SYSTEMTIME st{};
+	GetLocalTime(&st);
+
+	DWORD exceptionCode = 0;
+	DWORD exceptionFlags = 0;
+	void* exceptionAddress = nullptr;
+	char moduleName[MAX_PATH] = "unknown";
+
+	if (pExceptionInfo && pExceptionInfo->ExceptionRecord)
+	{
+		exceptionCode = pExceptionInfo->ExceptionRecord->ExceptionCode;
+		exceptionFlags = pExceptionInfo->ExceptionRecord->ExceptionFlags;
+		exceptionAddress = pExceptionInfo->ExceptionRecord->ExceptionAddress;
+
+		MEMORY_BASIC_INFORMATION mbi{};
+		if (exceptionAddress && VirtualQuery(exceptionAddress, &mbi, sizeof(mbi)) != 0)
+		{
+			GetModuleFileNameA(
+				static_cast<HMODULE>(mbi.AllocationBase),
+				moduleName,
+				MAX_PATH);
+		}
+	}
+
+	char buffer[2048] = {};
+	int length = wsprintfA(
+		buffer,
+		"\r\n"
+		"============================================================\r\n"
+		"FATAL CLIENT CRASH\r\n"
+		"Time            : %04u-%02u-%02u %02u:%02u:%02u.%03u\r\n"
+		"Exception Code  : 0x%08lX\r\n"
+		"Exception Flags : 0x%08lX\r\n"
+		"Exception Addr  : %p\r\n"
+		"Module          : %s\r\n"
+		"Thread ID       : %lu\r\n",
+		st.wYear,
+		st.wMonth,
+		st.wDay,
+		st.wHour,
+		st.wMinute,
+		st.wSecond,
+		st.wMilliseconds,
+		exceptionCode,
+		exceptionFlags,
+		exceptionAddress,
+		moduleName,
+		GetCurrentThreadId());
+
+	if (pExceptionInfo && pExceptionInfo->ContextRecord)
+	{
+		const CONTEXT* ctx = pExceptionInfo->ContextRecord;
+
+#if defined(_M_X64)
+		length += wsprintfA(
+			buffer + length,
+			"RIP             : 0x%016I64X\r\n"
+			"RSP             : 0x%016I64X\r\n"
+			"RBP             : 0x%016I64X\r\n",
+			static_cast<unsigned __int64>(ctx->Rip),
+			static_cast<unsigned __int64>(ctx->Rsp),
+			static_cast<unsigned __int64>(ctx->Rbp));
+#elif defined(_M_IX86)
+		length += wsprintfA(
+			buffer + length,
+			"EIP             : 0x%08lX\r\n"
+			"ESP             : 0x%08lX\r\n"
+			"EBP             : 0x%08lX\r\n",
+			ctx->Eip,
+			ctx->Esp,
+			ctx->Ebp);
+#endif
+	}
+
+	length += wsprintfA(
+		buffer + length,
+		"============================================================\r\n");
+
+	DWORD written = 0;
+	WriteFile(
+		hFile,
+		buffer,
+		static_cast<DWORD>(length),
+		&written,
+		nullptr);
+
+	FlushFileBuffers(hFile);
+	CloseHandle(hFile);
+
+	OutputDebugStringA(buffer);
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
 char gs_szErrorString[512] = "";
 
 void ApplicationSetErrorString(const char * szErrorString) noexcept
@@ -721,7 +828,7 @@ bool PackInitialize(const char * c_pszFolder)
 	CEterPackManager::Instance().SetCacheMode();
 	CEterPackManager::Instance().SetSearchMode(bPackFirst);
 
-	CSoundData::SetPackMode(); // Miles ÆÄÀÏ Äİ¹éÀ» ¼ÂÆÃ
+	CSoundData::SetPackMode(); // Miles íŒŒì¼ ì½œë°±ì„ ì…‹íŒ…
 
 	std::string strPackName, strTexCachePackName;
 	for (uint32_t i = 1; i < TextLoader.GetLineCount() - 1; i += 2)
@@ -883,7 +990,7 @@ void PythonRegisterCommandLine(const char * lpCmdLine)
 		SplitLine(lpCmdLine, seperator, &stVec);
 		if (CmdSize == stVec.size() && stVec[0] == loginMark)
 		{
-			char buf[MAX_PATH]; //TODO ¾Æ·¡ ÇÔ¼ö string ÇüÅÂ·Î ¼öÁ¤
+			char buf[MAX_PATH]; //TODO ì•„ë˜ í•¨ìˆ˜ string í˜•íƒœë¡œ ìˆ˜ì •
 			base64_decode(stVec[2].c_str(), buf);
 			stVec[2] = buf;
 			string_join(seperator, stVec, &stCmdLine);
@@ -929,6 +1036,9 @@ void SetInternetRegKey()
 
 bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
+	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
+	SetUnhandledExceptionFilter(ClientUnhandledExceptionFilter);
+
 #ifdef ENABLE_CRASHRPT
 	// CrThreadAutoInstallHelper cr_thread_install_helper(); unneccessary
 	CrashRptInit();
@@ -984,6 +1094,10 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 	auto app = std::make_unique<CPythonApplication>();
 	app->Initialize(hInstance);
 
+	// Some third-party libraries can replace the process-wide exception filter.
+	// Restore the client crash logger before entering the main game loop.
+	SetUnhandledExceptionFilter(ClientUnhandledExceptionFilter);
+
 	bool ret = false;
 	{
 		CPythonLauncher pyLauncher;
@@ -992,10 +1106,10 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 		if (pyLauncher.Create())
 		{
-			ret = RunMainScript(pyLauncher, lpCmdLine); //°ÔÀÓ ½ÇÇàÁß¿£ ÇÔ¼ö°¡ ³¡³ªÁö ¾Ê´Â´Ù.
+			ret = RunMainScript(pyLauncher, lpCmdLine); //ê²Œì„ ì‹¤í–‰ì¤‘ì—” í•¨ìˆ˜ê°€ ëë‚˜ì§€ ì•ŠëŠ”ë‹¤.
 		}
 
-		//°ÔÀÓ Á¾·á½Ã.
+		//ê²Œì„ ì¢…ë£Œì‹œ.
 		app->Clear();
 
 		timeEndPeriod(1);
@@ -1076,7 +1190,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	{
 		if (szArgv[i] == nullptr)
 			continue;
-		if (__IsLocaleVersion(szArgv[i])) // #0000829: [M2EU] ¹öÀü ÆÄÀÏÀÌ Ç×»ó »ı±âÁö ¾Êµµ·Ï ¼öÁ¤
+		if (__IsLocaleVersion(szArgv[i])) // #0000829: [M2EU] ë²„ì „ íŒŒì¼ì´ í•­ìƒ ìƒê¸°ì§€ ì•Šë„ë¡ ìˆ˜ì •
 		{
 			char szModuleName[MAX_PATH];
 			char szVersionPath[MAX_PATH];
@@ -1100,7 +1214,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		}
 		else if ((strcmp(szArgv[i], "--force-set-locale") == 0))
 		{
-			// locale ¼³Á¤¿£ ÀÎÀÚ°¡ µÎ °³ ´õ ÇÊ¿äÇÔ (·ÎÄÉÀÏ ¸íÄª, µ¥ÀÌÅÍ °æ·Î)
+			// locale ì„¤ì •ì—” ì¸ìê°€ ë‘ ê°œ ë” í•„ìš”í•¨ (ë¡œì¼€ì¼ ëª…ì¹­, ë°ì´í„° ê²½ë¡œ)
 			if (nArgc <= i + 2)
 			{
 				MessageBox(nullptr, "Invalid arguments", ApplicationStringTable_GetStringz(IDS_APP_NAME, "APP_NAME"), MB_ICONSTOP);
@@ -1118,7 +1232,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		goto Clean;
 
 #if defined(NEEDED_COMMAND_ARGUMENT)
-	// ¿É¼ÇÀÌ ¾øÀ¸¸é ºñÁ¤»ó ½ÇÇàÀ¸·Î °£ÁÖ, ÇÁ·Î±×·¥ Á¾·á
+	// ì˜µì…˜ì´ ì—†ìœ¼ë©´ ë¹„ì •ìƒ ì‹¤í–‰ìœ¼ë¡œ ê°„ì£¼, í”„ë¡œê·¸ë¨ ì¢…ë£Œ
 	if (strstr(lpCmdLine, NEEDED_COMMAND_ARGUMENT) == 0)
 	{
 		MessageBox(nullptr, ApplicationStringTable_GetStringz(IDS_ERR_MUST_LAUNCH_FROM_PATCHER, "ERR_MUST_LAUNCH_FROM_PATCHER"),
@@ -1207,7 +1321,7 @@ static void GrannyError(granny_log_message_type Type, granny_log_message_origin 
 int Setup(LPSTR lpCmdLine)
 {
 	/*
-	 *	Å¸ÀÌ¸Ó Á¤¹Ğµµ¸¦ ¿Ã¸°´Ù.
+	 *	íƒ€ì´ë¨¸ ì •ë°€ë„ë¥¼ ì˜¬ë¦°ë‹¤.
 	 */
 	TIMECAPS tc;
 
