@@ -9,8 +9,9 @@
 #pragma warning(disable : 4245)
 // #pragma warning(disable : 4099) // pdb not found
 
-#if _MSC_VER >= 1400
-//if don't use below, time_t is 64bit
+#if _MSC_VER >= 1400 && !defined(_WIN64)
+// Preserve the legacy 32-bit time_t ABI for Win32 builds only.
+// The MSVC/UCRT x64 runtime requires the native 64-bit time_t.
 #	define _USE_32BIT_TIME_T
 #endif
 #include <iterator>
