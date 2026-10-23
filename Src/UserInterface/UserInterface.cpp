@@ -82,7 +82,9 @@ extern "C"
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "imm32.lib")
 #pragma comment(lib, "oldnames.lib")
+#if !defined(_WIN64)
 #pragma comment(lib, "SpeedTreeRT.lib")
+#endif
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "ws2_32.lib")

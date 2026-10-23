@@ -77,7 +77,14 @@ public:
 	const CSpeedTreeMaterial& GetBranchMaterial(void) const { return m_cBranchMaterial; }
 	const CSpeedTreeMaterial& GetFrondMaterial(void) const { return m_cFrondMaterial; }
 	const CSpeedTreeMaterial& GetLeafMaterial(void) const { return m_cLeafMaterial; }
-	float GetLeafLightingAdjustment(void) const { return m_pSpeedTree->GetLeafLightingAdjustment(); }
+	float GetLeafLightingAdjustment(void) const
+	{
+#if defined(_WIN64)
+		return 0.0f;
+#else
+		return m_pSpeedTree->GetLeafLightingAdjustment();
+#endif
+	}
 	void Advance(void);
 	void CleanUpMemory(void);
 
