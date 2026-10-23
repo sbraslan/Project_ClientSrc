@@ -26,8 +26,8 @@
 
   <!--
     Reproducible native x64 open-source dependency stack.
-    Install with:
-      vcpkg install --x-manifest-root=<repo> --x-install-root=<repo>\vcpkg_installed --triplet x64-windows-static
+    Install dependencies with the repository vcpkg manifest using the
+    x64-windows-static triplet and the repo-local vcpkg_installed directory.
   -->
   <PropertyGroup Condition="'$(Platform)'=='x64'">
     <Metin2VcpkgTriplet>x64-windows-static</Metin2VcpkgTriplet>
