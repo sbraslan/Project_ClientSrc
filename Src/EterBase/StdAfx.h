@@ -11,7 +11,7 @@
 #pragma warning(disable : 4995) // pragma deprecated
 
 #pragma warning(disable : 4710) // not inlined
-#pragma warning(disable : 4786) // character 255 �Ѿ�°� ����
+#pragma warning(disable : 4786) // character 255 ³Ñ¾î°¡´Â°Å ²ô±â
 #pragma warning(disable : 4244) // type conversion possible lose of data
 
 #include <Windows.h>
@@ -58,7 +58,12 @@ using namespace std::string_literals; // enable "smth"s std::string literals
 
 // Armadillo nanomite protection
 #ifndef NANOBEGIN
-#	ifdef __BORLANDC__
+#	if defined(_M_X64) || defined(_WIN64)
+        // Armadillo nanomite byte markers use x86 inline assembly and have no
+        // x64 equivalent in MSVC. Preserve the guarded code and omit markers.
+#		define NANOBEGIN
+#		define NANOEND
+#	elif defined(__BORLANDC__)
 #		define NANOBEGIN __emit__(0xEB, 0x03, 0xD6, 0xD7, 0x01)
 #		define NANOEND __emit__(0xEB, 0x03, 0xD6, 0xD7, 0x00)
 #	else
