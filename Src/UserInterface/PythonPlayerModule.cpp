@@ -4937,15 +4937,15 @@ PyObject* playerGetAutoSlotIndex(PyObject* poSelf, PyObject* poArgs)
 
 PyObject* playerSetAutoSlotCoolTime(PyObject* poSelf, PyObject* poArgs)
 {
-	int 鞩ndex;
-	if (!PyTuple_GetInteger(poArgs, 0, &鞩ndex))
+	int iIndex;
+	if (!PyTuple_GetInteger(poArgs, 0, &iIndex))
 		return Py_BadArgument();
 
 	int iCoolTime;
 	if (!PyTuple_GetInteger(poArgs, 1, &iCoolTime))
 		return Py_BadArgument();
 
-	CPythonPlayer::Instance().SetAutoSlotCoolTime(鞩ndex, iCoolTime);
+	CPythonPlayer::Instance().SetAutoSlotCoolTime(iIndex, iCoolTime);
 	return Py_BuildNone();
 }
 

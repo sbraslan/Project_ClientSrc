@@ -92,7 +92,7 @@ int CPythonApplication::OnLogoUpdate()
 		m_pMediaEvent == nullptr || m_pVideoWnd == nullptr || false == bInitializedLogo)
 		return 0;
 
-	// 재생이 안瑛 경우 재생.
+	// Start playback if it is not already running.
 	if (!m_bLogoPlay)
 	{
 		m_pMediaCtrl->Run();
@@ -162,7 +162,7 @@ int CPythonApplication::OnLogoUpdate()
 		m_pLogoTex->Create(lWidth, lHeight, D3DFMT_A8R8G8B8);
 	}
 
-	// 준비瑛만 버퍼에서 텍스쳐로 복사해온다.
+	// Copy the prepared capture buffer into the texture.
 	LPDIRECT3DTEXTURE9 tex = m_pLogoTex->GetD3DTexture();
 	D3DLOCKED_RECT rt;
 	ZeroMemory(&rt, sizeof(rt));
