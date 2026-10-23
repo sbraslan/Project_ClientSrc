@@ -1,0 +1,48 @@
+﻿<Project>
+
+  <ItemDefinitionGroup>
+
+    <ClCompile>
+
+      <LanguageStandard>stdcpp20</LanguageStandard>
+
+      <ConformanceMode>false</ConformanceMode>
+
+      <TreatWarningAsError>false</TreatWarningAsError>
+
+    </ClCompile>
+
+  </ItemDefinitionGroup>
+
+
+  <!-- EterGrnLib legacy MFC PCH -->
+  <ItemDefinitionGroup
+      Condition="'$(ProjectName)'=='EterGrnLib'
+      and ('$(Configuration)'=='MfcDebug'
+      or '$(Configuration)'=='MfcRelease')">
+
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+
+  </ItemDefinitionGroup>
+
+
+  <!-- MilesLib legacy MFC packing -->
+  <ItemDefinitionGroup
+      Condition="'$(ProjectName)'=='MilesLib'
+      and ('$(Configuration)'=='MfcDebug'
+      or '$(Configuration)'=='MfcRelease')">
+
+    <ClCompile>
+
+      <PreprocessorDefinitions>
+        WINDOWS_IGNORE_PACKING_MISMATCH;
+        %(PreprocessorDefinitions)
+      </PreprocessorDefinitions>
+
+    </ClCompile>
+
+  </ItemDefinitionGroup>
+
+</Project>
