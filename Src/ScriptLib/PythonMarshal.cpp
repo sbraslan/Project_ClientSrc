@@ -4,6 +4,25 @@
    it would have to take circular links and sharing into account. */
 
 #include "StdAfx.h"
+#if defined(_WIN64)
+
+PyObject* _PyMarshal_ReadObjectFromFile(FILE* fp)
+{
+    return PyMarshal_ReadObjectFromFile(fp);
+}
+
+PyObject* _PyMarshal_ReadLastObjectFromFile(FILE* fp)
+{
+    return PyMarshal_ReadLastObjectFromFile(fp);
+}
+
+long _PyMarshal_ReadLongFromFile(FILE* fp)
+{
+    return PyMarshal_ReadLongFromFile(fp);
+}
+
+#else
+
 
 /* High water mark to determine when the marshalled object is dangerously deep
  * and risks coring the interpreter.  When the object stack gets this deep,
@@ -492,3 +511,5 @@ PyObject * _PyMarshal_ReadObjectFromString(char * str, int len)
 	rf.end = str + len;
 	return r_object(&rf);
 }
+
+#endif
