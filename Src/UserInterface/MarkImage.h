@@ -1,7 +1,9 @@
 #ifndef __INC_METIN_II_MARKIMAGE_H__
 #define __INC_METIN_II_MARKIMAGE_H__
 
+#if !defined(_WIN64)
 #include <IL/il.h>
+#endif
 
 using Pixel = unsigned long;
 
@@ -15,7 +17,7 @@ struct SGuildMark
 	};
 
 	///////////////////////////////////////////////////////////////////////////////
-	Pixel m_apxBuf[SIZE]; // ½ÇÁ¦ ÀÌ¹ÌÁö
+	Pixel m_apxBuf[SIZE]; // ì‹¤ì œ ì´ë¯¸ì§€
 
 	///////////////////////////////////////////////////////////////////////////////
 	void Clear();
@@ -37,11 +39,11 @@ struct SGuildMarkBlock
 	};
 
 	///////////////////////////////////////////////////////////////////////////////
-	Pixel m_apxBuf[SIZE]; // ½ÇÁ¦ ÀÌ¹ÌÁö
+	Pixel m_apxBuf[SIZE]; // ì‹¤ì œ ì´ë¯¸ì§€
 
-	uint8_t m_abCompBuf[MAX_COMP_SIZE]; // ¾ĞÃàµÈ µ¥ÀÌÅÍ
-	size_t m_sizeCompBuf; // ¾ĞÃàµÈ Å©±â
-	uint32_t m_crc; // ¾ĞÃàµÈ µ¥ÀÌÅÍÀÇ CRC
+	uint8_t m_abCompBuf[MAX_COMP_SIZE]; // ì••ì¶•ëœ ë°ì´í„°
+	size_t m_sizeCompBuf; // ì••ì¶•ëœ í¬ê¸°
+	uint32_t m_crc; // ì••ì¶•ëœ ë°ì´í„°ì˜ CRC
 
 	///////////////////////////////////////////////////////////////////////////////
 	uint32_t GetCRC() const;
@@ -87,9 +89,9 @@ public:
 
 	bool SaveMark(uint32_t posMark, uint8_t * pbImage);
 	bool DeleteMark(uint32_t posMark);
-	bool SaveBlockFromCompressedData(uint32_t posBlock, const uint8_t * pbComp, uint32_t dwCompSize); // ¼­¹ö -> Å¬¶óÀÌ¾ğÆ®
+	bool SaveBlockFromCompressedData(uint32_t posBlock, const uint8_t * pbComp, uint32_t dwCompSize); // ì„œë²„ -> í´ë¼ì´ì–¸íŠ¸
 
-	uint32_t GetEmptyPosition(); // ºó ¸¶Å© À§Ä¡¸¦ ¾ò´Â´Ù.
+	uint32_t GetEmptyPosition(); // ë¹ˆ ë§ˆí¬ ìœ„ì¹˜ë¥¼ ì–»ëŠ”ë‹¤.
 
 	void GetBlockCRCList(uint32_t * crcList);
 	void GetDiffBlocks(const uint32_t * crcList, std::map<uint8_t, const SGuildMarkBlock *> & mapDiffBlocks);
@@ -105,7 +107,11 @@ private:
 	SGuildMarkBlock m_aakBlock[BLOCK_ROW_COUNT][BLOCK_COL_COUNT];
 	Pixel m_apxImage[WIDTH * HEIGHT * sizeof(Pixel)];
 
+#if defined(_WIN64)
+	uint32_t m_uImg;
+#else
 	ILuint m_uImg;
+#endif
 };
 
 #endif

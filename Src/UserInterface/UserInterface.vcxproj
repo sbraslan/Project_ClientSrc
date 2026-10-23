@@ -596,6 +596,9 @@
     <ClCompile Include="PythonSystemModule.cpp" />
     <ClCompile Include="GuildMarkDownloader.cpp" />
     <ClCompile Include="GuildMarkUploader.cpp" />
+    <ClCompile Include="ImageCodec.cpp">
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="MarkImage.cpp" />
     <ClCompile Include="MarkManager.cpp" />
     <ClCompile Include="Locale.cpp" />

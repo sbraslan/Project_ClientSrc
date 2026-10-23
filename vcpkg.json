@@ -7,13 +7,33 @@
     "libjpeg-turbo",
     "lz4",
     "lzo",
-    "snappy"
+    "snappy",
+    "stb"
   ],
   "overrides": [
-    { "name": "cryptopp", "version": "8.9.0", "port-version": 2 },
-    { "name": "libjpeg-turbo", "version": "3.2.0", "port-version": 1 },
-    { "name": "lz4", "version": "1.10.0" },
-    { "name": "lzo", "version": "2.10", "port-version": 9 },
-    { "name": "snappy", "version": "1.2.2", "port-version": 2 }
+    {
+      "name": "cryptopp",
+      "version": "8.9.0",
+      "port-version": 2
+    },
+    {
+      "name": "libjpeg-turbo",
+      "version": "3.2.0",
+      "port-version": 1
+    },
+    {
+      "name": "lz4",
+      "version": "1.10.0"
+    },
+    {
+      "name": "lzo",
+      "version": "2.10",
+      "port-version": 9
+    },
+    {
+      "name": "snappy",
+      "version": "1.2.2",
+      "port-version": 2
+    }
   ]
 }

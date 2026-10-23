@@ -3,7 +3,9 @@
 #include "../EterLib/NetStream.h"
 #include "MarkImage.h"
 
+#if !defined(_WIN64)
 #include <IL/il.h>
+#endif
 
 class CGuildMarkUploader : public CNetworkStream, public CSingleton<CGuildMarkUploader>
 {

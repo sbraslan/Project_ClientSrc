@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "GuildMarkUploader.h"
 #include "Packet.h"
+#if defined(_WIN64)
+#include "ImageCodec.h"
+#endif
 
 CGuildMarkUploader::CGuildMarkUploader()
 {
@@ -31,6 +34,37 @@ bool CGuildMarkUploader::__Save(const char * c_szFileName) const
 
 bool CGuildMarkUploader::__Load(const char * c_szFileName, uint32_t * peError)
 {
+#if defined(_WIN64)
+	int width = 0;
+	int height = 0;
+	std::vector<uint8_t> pixels;
+	if (!ImageCodec::LoadBGRA(c_szFileName, &width, &height, &pixels))
+	{
+		*peError = ERROR_LOAD;
+		return false;
+	}
+
+	if (width != SGuildMark::WIDTH)
+	{
+		*peError = ERROR_WIDTH;
+		return false;
+	}
+
+	if (height != SGuildMark::HEIGHT)
+	{
+		*peError = ERROR_HEIGHT;
+		return false;
+	}
+
+	if (pixels.size() != sizeof(m_kMark.m_apxBuf))
+	{
+		*peError = ERROR_LOAD;
+		return false;
+	}
+
+	std::memcpy(m_kMark.m_apxBuf, pixels.data(), pixels.size());
+	return true;
+#else
 	ILuint uImg;
 	ilGenImages(1, &uImg);
 	ilBindImage(uImg);
@@ -40,32 +74,54 @@ bool CGuildMarkUploader::__Load(const char * c_szFileName, uint32_t * peError)
 	if (!ilLoad(IL_TYPE_UNKNOWN, c_szFileName))
 	{
 		*peError = ERROR_LOAD;
+		ilDeleteImages(1, &uImg);
 		return false;
 	}
 
 	if (ilGetInteger(IL_IMAGE_WIDTH) != SGuildMark::WIDTH)
 	{
 		*peError = ERROR_WIDTH;
+		ilDeleteImages(1, &uImg);
 		return false;
 	}
 
 	if (ilGetInteger(IL_IMAGE_HEIGHT) != SGuildMark::HEIGHT)
 	{
 		*peError = ERROR_HEIGHT;
+		ilDeleteImages(1, &uImg);
 		return false;
 	}
 
 	ilConvertImage(IL_BGRA, IL_BYTE);
-
 	ilCopyPixels(0, 0, 0, SGuildMark::WIDTH, SGuildMark::HEIGHT, 1, IL_BGRA, IL_BYTE, m_kMark.m_apxBuf);
-
 	ilDeleteImages(1, &uImg);
 	return true;
+#endif
 }
 
 bool CGuildMarkUploader::__LoadSymbol(const char * c_szFileName, uint32_t * peError)
 {
-	//	For Check Image
+#if defined(_WIN64)
+	int width = 0;
+	int height = 0;
+	if (!ImageCodec::GetInfo(c_szFileName, &width, &height))
+	{
+		*peError = ERROR_LOAD;
+		return false;
+	}
+
+	if (width != 64)
+	{
+		*peError = ERROR_WIDTH;
+		return false;
+	}
+
+	if (height != 128)
+	{
+		*peError = ERROR_HEIGHT;
+		return false;
+	}
+#else
 	ILuint uImg;
 	ilGenImages(1, &uImg);
 	ilBindImage(uImg);
@@ -74,22 +130,23 @@ bool CGuildMarkUploader::__LoadSymbol(const char * c_szFileName, uint32_t * peEr
 	if (!ilLoad(IL_TYPE_UNKNOWN, c_szFileName))
 	{
 		*peError = ERROR_LOAD;
+		ilDeleteImages(1, &uImg);
 		return false;
 	}
 	if (ilGetInteger(IL_IMAGE_WIDTH) != 64)
 	{
 		*peError = ERROR_WIDTH;
+		ilDeleteImages(1, &uImg);
 		return false;
 	}
 	if (ilGetInteger(IL_IMAGE_HEIGHT) != 128)
 	{
 		*peError = ERROR_HEIGHT;
+		ilDeleteImages(1, &uImg);
 		return false;
 	}
 	ilDeleteImages(1, &uImg);
-	ilShutDown();
-
-	/////
+#endif
 
 	msl::file_ptr fPtr(c_szFileName, "rb");
 	if (!fPtr)
@@ -99,11 +156,8 @@ bool CGuildMarkUploader::__LoadSymbol(const char * c_szFileName, uint32_t * peEr
 	}
 
 	auto dwSymbolBufSize = fPtr.size();
-
 	m_pbySymbolBuf.resize(dwSymbolBufSize);
 	fread(m_pbySymbolBuf.data(), m_pbySymbolBuf.size(), 1, fPtr.get());
-
-	/////
 
 	m_dwSymbolCRC32 = GetFileCRC32(c_szFileName);
 	return true;
@@ -367,7 +421,7 @@ bool CGuildMarkUploader::__LoginState_RecvKeyAgreement()
 	size_t agreedLength = Prepare(packetToSend.data, &dataLength);
 	if (agreedLength == 0)
 	{
-		// √ ±‚»≠ Ω«∆–
+		// Ï¥àÍ∏∞Ìôî Ïã§Ìå®
 		Disconnect();
 		return false;
 	}
@@ -375,7 +429,7 @@ bool CGuildMarkUploader::__LoginState_RecvKeyAgreement()
 
 	if (Activate(packet.wAgreedLength, packet.data, packet.wDataLength))
 	{
-		// Key agreement º∫∞¯, ¿¿¥‰ ¿¸º€
+		// Key agreement ÏÑ±Í≥µ, ÏùëÎãµ Ï†ÑÏÜ°
 		packetToSend.bHeader = HEADER_CG_KEY_AGREEMENT;
 		packetToSend.wAgreedLength = static_cast<uint16_t>(agreedLength);
 		packetToSend.wDataLength = static_cast<uint16_t>(dataLength);
@@ -389,7 +443,7 @@ bool CGuildMarkUploader::__LoginState_RecvKeyAgreement()
 	}
 	else
 	{
-		// ≈∞ «˘ªÛ Ω«∆–
+		// ÌÇ§ ÌòëÏÉÅ Ïã§Ìå®
 		Disconnect();
 		return false;
 	}

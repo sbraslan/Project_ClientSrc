@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include "MarkImage.h"
+#if defined(_WIN64)
+#include "ImageCodec.h"
+#endif
 
 #if !defined(_MSC_VER)
 #	include <IL/il.h>
@@ -26,11 +29,15 @@ CGuildMarkImage::~CGuildMarkImage()
 
 void CGuildMarkImage::Destroy()
 {
+#if defined(_WIN64)
+	m_uImg = INVALID_HANDLE;
+#else
 	if (INVALID_HANDLE == m_uImg)
 		return;
 
 	ilDeleteImages(1, &m_uImg);
 	m_uImg = INVALID_HANDLE;
+#endif
 }
 
 void CGuildMarkImage::Create()
@@ -38,11 +45,18 @@ void CGuildMarkImage::Create()
 	if (INVALID_HANDLE != m_uImg)
 		return;
 
+#if defined(_WIN64)
+	m_uImg = 1;
+#else
 	ilGenImages(1, &m_uImg);
+#endif
 }
 
 bool CGuildMarkImage::Save(const char * c_szFileName) const
 {
+#if defined(_WIN64)
+	return ImageCodec::SaveTgaBGRA(c_szFileName, WIDTH, HEIGHT, m_apxImage);
+#else
 	ilEnable(IL_FILE_OVERWRITE);
 	ilBindImage(m_uImg);
 
@@ -50,6 +64,7 @@ bool CGuildMarkImage::Save(const char * c_szFileName) const
 		return false;
 
 	return true;
+#endif
 }
 
 bool CGuildMarkImage::Build(const char * c_szFileName)
@@ -57,6 +72,10 @@ bool CGuildMarkImage::Build(const char * c_szFileName)
 	Destroy();
 	Create();
 
+#if defined(_WIN64)
+	std::fill_n(m_apxImage, WIDTH * HEIGHT, Pixel{0});
+	return Save(c_szFileName);
+#else
 	ilBindImage(m_uImg);
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_UPPER_LEFT);
@@ -75,6 +94,7 @@ bool CGuildMarkImage::Build(const char * c_szFileName)
 		return false;
 
 	return true;
+#endif
 }
 
 bool CGuildMarkImage::Load(const char * c_szFileName)
@@ -82,6 +102,39 @@ bool CGuildMarkImage::Load(const char * c_szFileName)
 	Destroy();
 	Create();
 
+#if defined(_WIN64)
+	int width = 0;
+	int height = 0;
+	std::vector<uint8_t> pixels;
+	if (!ImageCodec::LoadBGRA(c_szFileName, &width, &height, &pixels))
+	{
+		if (!Build(c_szFileName))
+		{
+			sys_err("CGuildMarkImage: cannot open file for writing %s", c_szFileName);
+			return false;
+		}
+		pixels.assign(sizeof(Pixel) * WIDTH * HEIGHT, 0);
+		width = WIDTH;
+		height = HEIGHT;
+	}
+
+	if (width != WIDTH)
+	{
+		sys_err("CGuildMarkImage: %s width must be %u", c_szFileName, WIDTH);
+		return false;
+	}
+	if (height != HEIGHT)
+	{
+		sys_err("CGuildMarkImage: %s height must be %u", c_szFileName, HEIGHT);
+		return false;
+	}
+	if (pixels.size() != sizeof(Pixel) * WIDTH * HEIGHT)
+		return false;
+
+	std::memcpy(m_apxImage, pixels.data(), pixels.size());
+	BuildAllBlocks();
+	return true;
+#else
 	ilBindImage(m_uImg);
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_UPPER_LEFT);
@@ -113,24 +166,52 @@ bool CGuildMarkImage::Load(const char * c_szFileName)
 
 	BuildAllBlocks();
 	return true;
+#endif
 }
 
 void CGuildMarkImage::PutData(uint32_t x, uint32_t y, uint32_t width, uint32_t height, void * data) const
 {
+#if defined(_WIN64)
+	if (!data || x + width > WIDTH || y + height > HEIGHT)
+		return;
+	auto * dstBase = const_cast<Pixel *>(m_apxImage);
+	const auto * src = static_cast<const uint8_t *>(data);
+	for (uint32_t row = 0; row < height; ++row)
+	{
+		std::memcpy(
+			&dstBase[(y + row) * WIDTH + x],
+			src + static_cast<size_t>(row) * width * sizeof(Pixel),
+			static_cast<size_t>(width) * sizeof(Pixel));
+	}
+#else
 	ilBindImage(m_uImg);
 	ilSetPixels(x, y, 0, width, height, 1, IL_BGRA, IL_UNSIGNED_BYTE, data);
+#endif
 }
 
 void CGuildMarkImage::GetData(uint32_t x, uint32_t y, uint32_t width, uint32_t height, void * data) const
 {
+#if defined(_WIN64)
+	if (!data || x + width > WIDTH || y + height > HEIGHT)
+		return;
+	auto * dst = static_cast<uint8_t *>(data);
+	for (uint32_t row = 0; row < height; ++row)
+	{
+		std::memcpy(
+			dst + static_cast<size_t>(row) * width * sizeof(Pixel),
+			&m_apxImage[(y + row) * WIDTH + x],
+			static_cast<size_t>(width) * sizeof(Pixel));
+	}
+#else
 	ilBindImage(m_uImg);
 	ilCopyPixels(x, y, 0, width, height, 1, IL_BGRA, IL_UNSIGNED_BYTE, data);
+#endif
 }
 
-// ÀÌ¹ÌÁö = 512x512
-//   ºí·° = ¸¶Å© 4 x 4
-//   ¸¶Å© = 16 x 12
-// ÇÑ ÀÌ¹ÌÁöÀÇ ºí·° = 8 x 10
+// ì´ë¯¸ì§€ = 512x512
+//   ë¸”ëŸ­ = ë§ˆí¬ 4 x 4
+//   ë§ˆí¬ = 16 x 12
+// í•œ ì´ë¯¸ì§€ì˜ ë¸”ëŸ­ = 8 x 10
 
 // SERVER
 bool CGuildMarkImage::SaveMark(uint32_t posMark, uint8_t * pbImage)
@@ -141,14 +222,14 @@ bool CGuildMarkImage::SaveMark(uint32_t posMark, uint8_t * pbImage)
 		return false;
 	}
 
-	// ¸¶Å©¸¦ ÀüÃ¼ ÀÌ¹ÌÁö¿¡ ±×¸°´Ù.
+	// ë§ˆí¬ë¥¼ ì „ì²´ ì´ë¯¸ì§€ì— ê·¸ë¦°ë‹¤.
 	uint32_t colMark = posMark % MARK_COL_COUNT;
 	uint32_t rowMark = posMark / MARK_COL_COUNT;
 
 	printf("PutMark pos %u %ux%u\n", posMark, colMark * SGuildMark::WIDTH, rowMark * SGuildMark::HEIGHT);
 	PutData(colMark * SGuildMark::WIDTH, rowMark * SGuildMark::HEIGHT, SGuildMark::WIDTH, SGuildMark::HEIGHT, pbImage);
 
-	// ±×·ÁÁø °÷ÀÇ ºí·°À» ¾÷µ¥ÀÌÆ®
+	// ê·¸ë ¤ì§„ ê³³ì˜ ë¸”ëŸ­ì„ ì—…ë°ì´íŠ¸
 	uint32_t rowBlock = rowMark / SGuildMarkBlock::MARK_PER_BLOCK_HEIGHT;
 	uint32_t colBlock = colMark / SGuildMarkBlock::MARK_PER_BLOCK_WIDTH;
 
@@ -197,7 +278,7 @@ bool CGuildMarkImage::SaveBlockFromCompressedData(uint32_t posBlock, const uint8
 	return true;
 }
 
-void CGuildMarkImage::BuildAllBlocks() // ÀÌ¹ÌÁö ÀüÃ¼¸¦ ºí·°È­
+void CGuildMarkImage::BuildAllBlocks() // ì´ë¯¸ì§€ ì „ì²´ë¥¼ ë¸”ëŸ­í™”
 {
 	Pixel apxBuf[SGuildMarkBlock::SIZE];
 	sys_log(0, "CGuildMarkImage::BuildAllBlocks");

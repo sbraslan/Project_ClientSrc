@@ -290,7 +290,11 @@ PyObject * appGetDefaultCodePage(PyObject * poSelf, PyObject * poArgs)
 	return Py_BuildValue("i", LocaleService_GetCodePage());
 }
 
+#if defined(_WIN64)
+#include "ImageCodec.h"
+#else
 #include <IL/il.h>
+#endif
 
 PyObject * appGetImageInfo(PyObject * poSelf, PyObject * poArgs)
 {
@@ -298,6 +302,12 @@ PyObject * appGetImageInfo(PyObject * poSelf, PyObject * poArgs)
 	if (!PyTuple_GetString(poArgs, 0, &szFileName))
 		return Py_BuildException();
 
+#if defined(_WIN64)
+	int width = 0;
+	int height = 0;
+	const BOOL canLoad = ImageCodec::GetInfo(szFileName, &width, &height) ? TRUE : FALSE;
+	return Py_BuildValue("iii", canLoad, width, height);
+#else
 	BOOL canLoad = FALSE;
 	ILuint uWidth = 0;
 	ILuint uHeight = 0;
@@ -315,6 +325,7 @@ PyObject * appGetImageInfo(PyObject * poSelf, PyObject * poArgs)
 	ilDeleteImages(1, &uImg);
 
 	return Py_BuildValue("iii", canLoad, uWidth, uHeight);
+#endif
 }
 
 #include "../EterPack/EterPackManager.h"
@@ -1435,7 +1446,7 @@ void initapp()
 	PyModule_AddIntConstant(poModule, "VK_DELETE", VK_DELETE);
 
 	PyModule_AddIntConstant(poModule, "DIK_ESCAPE", DIK_ESCAPE);
-	PyModule_AddIntConstant(poModule, "DIK_ESC", DIK_ESCAPE); // ÆíÀÇ¸¦ À§ÇØ
+	PyModule_AddIntConstant(poModule, "DIK_ESC", DIK_ESCAPE); // Ã†Ã­Ã€Ã‡Â¸Â¦ Ã€Â§Ã‡Ã˜
 	PyModule_AddIntConstant(poModule, "DIK_1", DIK_1);
 	PyModule_AddIntConstant(poModule, "DIK_2", DIK_2);
 	PyModule_AddIntConstant(poModule, "DIK_3", DIK_3);
