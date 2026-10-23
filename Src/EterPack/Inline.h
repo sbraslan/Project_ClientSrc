@@ -1,3 +1,4 @@
+#include "../EterBase/LegacyCRTCompat.h"
 #ifndef __INC_ETERPACK_INLINE_H__
 #define __INC_ETERPACK_INLINE_H__
 
@@ -11,7 +12,7 @@ inline void inlinePathCreate(const char * path)
 	while (nullptr != (k = strchr(p, '/')))
 	{
 		memset(dir, 0, sizeof(dir));
-		strncpy(dir, path, k - path);
+		m2::crt::copy_n(dir, path, k - path);
 		CreateDirectory(dir, nullptr);
 		p = k + 1;
 	}

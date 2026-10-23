@@ -45,14 +45,14 @@ const char * GetPropertyExtension(uint32_t dwType)
 const char * IntegerNumberToString(int iNumber)
 {
 	static char szString[16 + 1];
-	_snprintf(szString, sizeof(szString), "%d", iNumber);
+	snprintf(szString, sizeof(szString), "%d", iNumber);
 	return szString;
 }
 
 const char * FloatNumberToString(float fNumber)
 {
 	static char szString[16 + 1];
-	_snprintf(szString, sizeof(szString), "%f", fNumber);
+	snprintf(szString, sizeof(szString), "%f", fNumber);
 	return szString;
 }
 

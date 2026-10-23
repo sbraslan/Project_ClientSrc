@@ -110,8 +110,8 @@ BOOL CRaceData::LoadRaceData(const char * c_szFileName)
 #ifdef ENABLE_SKIN_EXTENDED
 				for (uint32_t i = 2; i <= 9; i++)
 				{
-					_snprintf(__szSkin1, sizeof(__szSkin1), "sourceskin%u", i);
-					_snprintf(__szSkin2, sizeof(__szSkin2), "targetskin%u", i);
+					snprintf(__szSkin1, sizeof(__szSkin1), "sourceskin%u", i);
+					snprintf(__szSkin2, sizeof(__szSkin2), "targetskin%u", i);
 					if (TextFileLoader.GetTokenString(__szSkin1, &strSourceSkin) &&
 						TextFileLoader.GetTokenString(__szSkin2, &strTargetSkin))
 						AppendShapeSkin(dwShapeIndex, 0, (strPathName + strSourceSkin).c_str(), (strPathName + strTargetSkin).c_str());

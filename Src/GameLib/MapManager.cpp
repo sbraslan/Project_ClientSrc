@@ -629,7 +629,7 @@ void CMapManager::__LoadMapInfoVector()
 	for (uint32_t uLineIndex = 0; uLineIndex < textFileLoader.GetLineCount(); ++uLineIndex)
 	{
 		const std::string & c_rstLine = textFileLoader.GetLineString(uLineIndex);
-		sscanf(c_rstLine.c_str(), "%s %d %d %d %d", szMapName, &x, &y, &width, &height);
+		sscanf_s(c_rstLine.c_str(), "%255s %d %d %d %d", szMapName, static_cast<unsigned>(_countof(szMapName)), &x, &y, &width, &height);
 
 		if ('\0' == szMapName[0])
 			continue;

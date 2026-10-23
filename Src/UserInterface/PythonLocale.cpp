@@ -143,7 +143,7 @@ void CPythonLocale::FormatString(char* c, size_t size) const
 	std::string sFormat{ c };
 	FormatString(sFormat);
 	
-	strncpy(c, sFormat.c_str(), size);
+	m2::crt::copy_n_s(c, size, sFormat.c_str(), size);
 	c[size - 1] = '\0';
 }
 

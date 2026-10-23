@@ -1,6 +1,8 @@
 #pragma once
 
-// NOTE : ItemÀÇ ÅëÇÕ °ü¸® Å¬·¡½º´Ù.
+#include "../EterBase/LegacyCRTCompat.h"
+
+// NOTE : Itemï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 //        Icon, Model (droped on ground), Game Data
 
 #include "../eterLib/GrpSubImage.h"
@@ -595,9 +597,9 @@ public:
 		APPLY_NONE,						// 0	- POINT_NONE,	0	Kein Bonus
 		APPLY_MAX_HP,					// 1	- POINT_MAX_HP,	6	Max TP
 		APPLY_MAX_SP,					// 2	- POINT_MAX_SP,	8	Max MP
-		APPLY_CON,						// 3	- POINT_HT,	13	Vitalität
+		APPLY_CON,						// 3	- POINT_HT,	13	Vitalitï¿½t
 		APPLY_INT,						// 4	- POINT_IQ,	15	Intelligenz
-		APPLY_STR,						// 5	- POINT_ST,	12		Stärke
+		APPLY_STR,						// 5	- POINT_ST,	12		Stï¿½rke
 		APPLY_DEX,						// 6	- POINT_DX,	14	Beweglichkeit
 		APPLY_ATT_SPEED,				// 7	- POINT_ATT_SPEED,	17	Angriffsgeschwindigkeit
 		APPLY_MOV_SPEED,				// 8	- POINT_MOV_SPEED,	19	Bewegungsgeschwindigkeit
@@ -625,7 +627,7 @@ public:
 		APPLY_RESIST_TWOHAND,			// 30	- POINT_RESIST_TWOHAND,	70	Zweihandverteidigung
 		APPLY_RESIST_DAGGER,			// 31	- POINT_RESIST_DAGGER,	71	Dolchverteidigung
 		APPLY_RESIST_BELL,				// 32	- POINT_RESIST_BELL,	72	Glockenverteidigung
-		APPLY_RESIST_FAN,				// 33	- POINT_RESIST_FAN,	73		Fächerverteidigung
+		APPLY_RESIST_FAN,				// 33	- POINT_RESIST_FAN,	73		Fï¿½cherverteidigung
 		APPLY_RESIST_BOW,				// 34	- POINT_RESIST_BOW,	74	Pfeilwiderstand
 		APPLY_RESIST_FIRE,				// 35	- POINT_RESIST_FIRE,	75	Feuerresistenz
 		APPLY_RESIST_ELEC,				// 36	- POINT_RESIST_ELEC,	76	Blitzresistenz
@@ -637,7 +639,7 @@ public:
 		APPLY_KILL_SP_RECOVER,			// 42	- POINT_KILL_SP_RECOVER,	82	Chance MP Wiederherzustellen
 		APPLY_EXP_DOUBLE_BONUS,			// 43	- POINT_EXP_DOUBLE_BONUS,	83	Chance auf Doppelte EXP
 		APPLY_GOLD_DOUBLE_BONUS,		// 44	- POINT_GOLD_DOUBLE_BONUS,	84		Chance auf Yangbonus
-		APPLY_ITEM_DROP_BONUS,			// 45	- POINT_ITEM_DROP_BONUS,	85	Chance mehr Gegenstände zu Droppen
+		APPLY_ITEM_DROP_BONUS,			// 45	- POINT_ITEM_DROP_BONUS,	85	Chance mehr Gegenstï¿½nde zu Droppen
 		APPLY_POTION_BONUS,				// 46	- POINT_POTION_BONUS,	86	x
 		APPLY_KILL_HP_RECOVER,			// 47	- POINT_KILL_HP_RECOVERY,	87	Chance TP Wiederherzustellen
 		APPLY_IMMUNE_STUN,				// 48	- POINT_IMMUNE_STUN,	88	Abwehr gegen Ohnmacht
@@ -1245,7 +1247,7 @@ public:
 		bool Any() const; //Checking if any shining is set for this item.
 	} TItemShiningTable;
 
-	void SetItemShiningTableData(uint8_t bIndex, const char* szEffectname) { sprintf(m_ItemShiningTable.szShinings[bIndex], szEffectname); }
+	void SetItemShiningTableData(uint8_t bIndex, const char* szEffectname) { m2::crt::copy(m_ItemShiningTable.szShinings[bIndex], szEffectname); }
 	CItemData::TItemShiningTable GetItemShiningTable() { return m_ItemShiningTable; }
 #endif
 

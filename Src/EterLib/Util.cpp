@@ -10,7 +10,7 @@ void PrintfTabs(FILE * File, int iTabCount, const char * c_szString, ...)
 	va_start(args, c_szString);
 
 	static char szBuf[1024];
-	_vsnprintf(szBuf, sizeof(szBuf), c_szString, args);
+	vsnprintf(szBuf, sizeof(szBuf), c_szString, args);
 	va_end(args);
 
 	for (int i = 0; i < iTabCount; ++i)
@@ -288,7 +288,7 @@ void __strcat1(char * str, int i)
 	char result[2];
 	result[0] = i;
 	result[1] = '\0';
-	strcat(str, result);
+	m2::crt::append_legacy(str, result);
 }
 
 void base64_decode(const char * str, char * resultStr)
@@ -297,11 +297,11 @@ void base64_decode(const char * str, char * resultStr)
 	const int length = m2::narrow<int>(strlen(str));
 	char szDest[5] = "";
 
-	strcpy(resultStr, "");
+	resultStr[0] = '\0';
 	while (nCount < length)
 	{
 		i = 0;
-		strcpy(szDest, "");
+		m2::crt::copy(szDest, "");
 		while (nCount < length && i < 4) // 4���� ����Ʈ�� ��´�.
 		{
 			r = str[nCount++];

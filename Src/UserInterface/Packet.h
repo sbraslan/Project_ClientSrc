@@ -4498,11 +4498,11 @@ typedef struct SPacketGCDungeonInfo
 
 typedef struct SPacketGCDungeonInfoRank
 {
-	SPacketGCDungeonInfoRank() { strncpy(szName, "", sizeof(szName)); }
+	SPacketGCDungeonInfoRank() { szName[0] = '\0'; }
 	SPacketGCDungeonInfoRank(const char* c_szName, const int c_iLevel, const uint32_t c_dwPoints) :
 		iLevel(c_iLevel), dwPoints(c_dwPoints)
 	{
-		strncpy(szName, c_szName, sizeof(szName));
+		strncpy_s(szName, sizeof(szName), c_szName, _TRUNCATE);
 	}
 
 	uint8_t byHeader = HEADER_GC_DUNGEON_RANKING;

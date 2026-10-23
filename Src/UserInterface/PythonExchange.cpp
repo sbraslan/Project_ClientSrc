@@ -3,12 +3,12 @@
 
 void CPythonExchange::SetSelfName(const char * name)
 {
-	strncpy(m_self.name, name, CHARACTER_NAME_MAX_LEN);
+	m2::crt::copy_n(m_self.name, name, CHARACTER_NAME_MAX_LEN);
 }
 
 void CPythonExchange::SetTargetName(const char * name)
 {
-	strncpy(m_victim.name, name, CHARACTER_NAME_MAX_LEN);
+	m2::crt::copy_n(m_victim.name, name, CHARACTER_NAME_MAX_LEN);
 }
 
 char * CPythonExchange::GetNameFromSelf()
@@ -520,8 +520,8 @@ CPythonExchange::CPythonExchange()
 	Clear();
 	m_isTrading = false;
 	m_elk_mode = false;
-	// Clear·Î ¿È°Ü³õÀ¸¸é ¾ÈµÊ.
-	// trade_start ÆäÅ¶ÀÌ ¿À¸é Clear¸¦ ½ÇÇàÇÏ´Âµ¥
-	// m_elk_mode´Â Å¬¸®¾î µÇ¼± ¾ÈµÊ.;
+	// Clearï¿½ï¿½ ï¿½È°Ü³ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Èµï¿½.
+	// trade_start ï¿½ï¿½Å¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Clearï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Âµï¿½
+	// m_elk_modeï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Ç¼ï¿½ ï¿½Èµï¿½.;
 }
 CPythonExchange::~CPythonExchange() = default;

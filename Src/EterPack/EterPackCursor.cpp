@@ -14,7 +14,7 @@ bool CEterPackCursor::Open(const char * filename)
 	assert(m_pPack != nullptr);
 
 	char tmpFilename[MAX_PATH + 1];
-	strncpy(tmpFilename, filename, MAX_PATH);
+	m2::crt::copy_n(tmpFilename, filename, MAX_PATH);
 	inlineConvertPackFilename(tmpFilename);
 
 	return m_pPack->Get(m_file, tmpFilename, &m_pData);

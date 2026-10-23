@@ -330,7 +330,7 @@ bool CIME::Initialize(HWND hWnd)
 
 	if (GetSystemDirectoryA(szPath, MAX_PATH + 1))
 	{
-		strcat(szPath, "\\imm32.dll");
+		m2::crt::append(szPath, "\\imm32.dll");
 		ms_hImm32Dll = LoadLibraryA(szPath);
 		if (ms_hImm32Dll)
 		{
@@ -534,7 +534,7 @@ const char * CIME::GetCodePageText()
 	const int outCodePage = ms_uOutputCodePage;
 
 	if (outCodePage != defCodePage)
-		sprintf(szCodePage, "@%04d", outCodePage);
+		m2::crt::format(szCodePage, "@%04d", outCodePage);
 	else
 		szCodePage[0] = 0;
 
@@ -833,7 +833,7 @@ void CIME::DelCurPos()
 	if (ms_curpos < ms_lastpos)
 	{
 		const int eraseCount = FindColorTagEndPosition(m_wText + ms_curpos, ms_lastpos - ms_curpos) + 1;
-		wcscpy(m_wText + ms_curpos, m_wText + ms_curpos + eraseCount);
+		wmemmove(m_wText + ms_curpos, m_wText + ms_curpos + eraseCount, static_cast<size_t>(ms_lastpos - ms_curpos - eraseCount + 1));
 		ms_lastpos -= eraseCount;
 		ms_curpos = std::min(ms_lastpos, ms_curpos);
 	}
@@ -1043,7 +1043,7 @@ void CIME::CandidateProcess(HIMC hImc)
 		//printf( "SEL: %d, START: %d, PAGED: %d\n", ms_dwCandidateSelection, iStartOfPage, ms_dwCandidatePageSize );
 		memset(&ms_wszCandidate, 0, sizeof(ms_wszCandidate));
 		for (uint32_t i = iStartOfPage, j = 0; (uint32_t) i < lpCandidateList->dwCount && j < ms_dwCandidatePageSize; i++, j++)
-			wcscpy(ms_wszCandidate[j], reinterpret_cast<LPWSTR>(reinterpret_cast<BYTE *>(lpCandidateList) + lpCandidateList->dwOffset[i]));
+			wcsncpy_s(ms_wszCandidate[j], _countof(ms_wszCandidate[j]), reinterpret_cast<LPWSTR>(reinterpret_cast<BYTE *>(lpCandidateList) + lpCandidateList->dwOffset[i]), _TRUNCATE);
 
 		// don't display selection in candidate list in case of Korean and old Chinese IME.
 		if (GETPRIMLANG() == LANG_KOREAN || GETLANG() == LANG_CHT && !GetImeId())
@@ -1231,8 +1231,8 @@ bool CIME::IsMax(const wchar_t * wInput, int len)
 	{
 		std::wstring str = GetTextTagOutputString(m_wText, ms_lastpos);
 		std::wstring input = GetTextTagOutputString(wInput, len);
-		const int textLen = WideCharToMultiByte(ms_uOutputCodePage, 0, str.c_str(), str.length(), nullptr, 0, nullptr, nullptr);
-		const int inputLen = WideCharToMultiByte(ms_uOutputCodePage, 0, input.c_str(), input.length(), nullptr, 0, nullptr, nullptr);
+		const int textLen = WideCharToMultiByte(ms_uOutputCodePage, 0, str.c_str(), m2::narrow<int>(str.length()), nullptr, 0, nullptr, nullptr);
+		const int inputLen = WideCharToMultiByte(ms_uOutputCodePage, 0, input.c_str(), m2::narrow<int>(input.length()), nullptr, 0, nullptr, nullptr);
 		return textLen + inputLen > m_userMax;
 	}
 	return false;
@@ -1331,8 +1331,8 @@ bool CIME::GetReadingWindowOrientation()
 		char szRegPath[MAX_PATH];
 		HKEY hKey;
 		const uint32_t dwVer = ms_adwId[0] & 0xFFFF0000;
-		strcpy(szRegPath, R"(software\microsoft\windows\currentversion\)");
-		strcat(szRegPath, (dwVer >= MAKEIMEVERSION(5, 1)) ? "MSTCIPH" : "TINTLGNT");
+		m2::crt::copy(szRegPath, R"(software\microsoft\windows\currentversion\)");
+		m2::crt::append(szRegPath, (dwVer >= MAKEIMEVERSION(5, 1)) ? "MSTCIPH" : "TINTLGNT");
 		LONG lRc = RegOpenKeyExA(HKEY_CURRENT_USER, szRegPath, 0, KEY_READ, &hKey);
 		if (lRc == ERROR_SUCCESS)
 		{
@@ -1879,7 +1879,7 @@ void CTsfUiLessMode::MakeCandidateStrings(ITfCandidateListUIElement * pcandidate
 		{
 			if (bstr)
 			{
-				wcscpy(CIME::ms_wszCandidate[j], bstr);
+				wcsncpy_s(CIME::ms_wszCandidate[j], _countof(CIME::ms_wszCandidate[j]), bstr, _TRUNCATE);
 				SysFreeString(bstr);
 			}
 		}

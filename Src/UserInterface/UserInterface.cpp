@@ -201,7 +201,7 @@ bool checkPyLibDir(const std::string szDirName)
 	bool HasHack = false;
 
 	char szDirNamePath[MAX_PATH];
-	sprintf(szDirNamePath, "%s\\*", szDirName.c_str());
+	m2::crt::format(szDirNamePath, "%s\\*", szDirName.c_str());
 
 	WIN32_FIND_DATA f;
 	HANDLE h = FindFirstFile(szDirNamePath, &f);
@@ -221,7 +221,7 @@ bool checkPyLibDir(const std::string szDirName)
 		if (f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			char filePath[MAX_PATH];
-			sprintf(filePath, "%s%s%s", szDirName.c_str(), "\\", name);
+			m2::crt::format(filePath, "%s%s%s", szDirName.c_str(), "\\", name);
 			PRINTME(1, "sub %s", filePath);
 			checkPyLibDir(filePath);
 		}
@@ -331,7 +331,7 @@ bool checkMilesDir(const std::string szDirName)
 	bool HasHack = false;
 
 	char szDirNamePath[MAX_PATH];
-	sprintf(szDirNamePath, "%s\\*", szDirName.c_str());
+	m2::crt::format(szDirNamePath, "%s\\*", szDirName.c_str());
 
 	WIN32_FIND_DATA f;
 	HANDLE h = FindFirstFile(szDirNamePath, &f);
@@ -437,7 +437,7 @@ char gs_szErrorString[512] = "";
 
 void ApplicationSetErrorString(const char * szErrorString) noexcept
 {
-	strcpy(gs_szErrorString, szErrorString);
+	m2::crt::copy(gs_szErrorString, szErrorString);
 }
 
 bool CheckPythonLibraryFilenames()
@@ -474,19 +474,19 @@ const std::string & ApplicationStringTable_GetString(uint32_t dwID, LPCSTR szKey
 
 	::GetCurrentDirectory(sizeof(szIniFileName), szIniFileName);
 	if (szIniFileName[lstrlen(szIniFileName) - 1] != '\\')
-		strcat(szIniFileName, "\\");
-	strcat(szIniFileName, "Anatolia2.dat");
+		m2::crt::append(szIniFileName, "\\");
+	m2::crt::append(szIniFileName, "Anatolia2.dat");
 
-	strcpy(szLocale, LocaleService_GetLocalePath());
+	m2::crt::copy(szLocale, LocaleService_GetLocalePath());
 	if (strnicmp(szLocale, "locale/", strlen("locale/")) == 0)
-		strcpy(szLocale, LocaleService_GetLocalePath() + strlen("locale/"));
+		m2::crt::copy(szLocale, LocaleService_GetLocalePath() + strlen("locale/"));
 	::GetPrivateProfileString(szLocale, szKey, nullptr, szBuffer, sizeof(szBuffer) - 1, szIniFileName);
 	if (szBuffer[0] == '\0')
 		LoadString(gs_kAppStrTable.m_hInstance, dwID, szBuffer, sizeof(szBuffer) - 1);
 	if (szBuffer[0] == '\0')
 		::GetPrivateProfileString("en", szKey, nullptr, szBuffer, sizeof(szBuffer) - 1, szIniFileName);
 	if (szBuffer[0] == '\0')
-		strcpy(szBuffer, szKey);
+		m2::crt::copy(szBuffer, szKey);
 
 	std::string & rstLocale = gs_kAppStrTable.m_kMap_dwID_stLocale[dwID];
 	rstLocale = szBuffer;
@@ -1035,7 +1035,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			char szModuleName[MAX_PATH];
 			char szVersionPath[MAX_PATH];
 			GetModuleFileName(nullptr, szModuleName, sizeof(szModuleName));
-			sprintf(szVersionPath, "%s.version", szModuleName);
+			m2::crt::format(szVersionPath, "%s.version", szModuleName);
 			msl::file_ptr fPtr(szVersionPath, "wt");
 			if (fPtr)
 				fprintf(fPtr.get(), "r%d\n", METIN2_GET_VERSION());

@@ -193,8 +193,7 @@ void CGraphicTextInstance::Update()
 
 	const char * begin = m_stText.c_str();
 	const char * end = begin + m_stText.length();
-
-	int wTextMax = (end - begin) * 2;
+	const int wTextMax = m2::narrow<int>(m_stText.length() * 2);
 	auto * wText = (wchar_t *) _alloca(sizeof(wchar_t) * wTextMax);
 
 	uint32_t dwColor = m_dwTextColor;
@@ -204,7 +203,7 @@ void CGraphicTextInstance::Update()
 	{
 		const char * token = FindToken(begin, end);
 
-		int wTextLen = MultiByteToWideChar(dataCodePage, 0, begin, token - begin, wText, wTextMax);
+		int wTextLen = MultiByteToWideChar(dataCodePage, 0, begin, m2::narrow<int>(token - begin), wText, wTextMax);
 
 		if (m_isSecret)
 		{
@@ -216,7 +215,7 @@ void CGraphicTextInstance::Update()
 			if (defCodePage == CP_ARABIC) // ARABIC
 			{
 				auto * wArabicText = (wchar_t *) _alloca(sizeof(wchar_t) * wTextLen);
-				int wArabicTextLen = Arabic_MakeShape(wText, wTextLen, wArabicText, wTextLen);
+				const int wArabicTextLen = m2::narrow<int>(Arabic_MakeShape(wText, static_cast<std::size_t>(wTextLen), wArabicText, static_cast<std::size_t>(wTextLen)));
 
 				bool isEnglish = true;
 				int nEnglishBase = wArabicTextLen - 1;

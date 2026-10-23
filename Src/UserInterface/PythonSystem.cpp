@@ -335,7 +335,7 @@ void CPythonSystem::SetSaveID(int iValue, const char * c_szSaveID)
 		return;
 
 	m_Config.isSaveID = iValue;
-	strncpy(m_Config.SaveID, c_szSaveID, sizeof(m_Config.SaveID) - 1);
+	m2::crt::copy_n(m_Config.SaveID, c_szSaveID, sizeof(m_Config.SaveID) - 1);
 }
 
 CPythonSystem::TConfig * CPythonSystem::GetConfig()
@@ -599,7 +599,7 @@ bool CPythonSystem::LoadConfig()
 
 	while (fgets(buf, 256, fPtr.get()))
 	{
-		if (sscanf(buf, " %s %s\n", command, value) == EOF)
+		if (sscanf_s(buf, " %255s %255s\n", command, static_cast<unsigned>(_countof(command)), value, static_cast<unsigned>(_countof(value))) == EOF)
 			break;
 
 		if (!stricmp(command, "WIDTH"))
@@ -634,7 +634,7 @@ bool CPythonSystem::LoadConfig()
 		else if (!stricmp(command, "IS_SAVE_ID"))
 			m_Config.isSaveID = atoi(value);
 		else if (!stricmp(command, "SAVE_ID"))
-			strncpy(m_Config.SaveID, value, 20);
+			m2::crt::copy_n(m_Config.SaveID, value, 20);
 		else if (!stricmp(command, "PRE_LOADING_DELAY_TIME"))
 			g_iLoadingDelayTime = atoi(value);
 		else if (!stricmp(command, "WINDOWED"))
@@ -1094,14 +1094,14 @@ const char* CPythonSystem::getMachineName() {
 const char* CPythonSystem::getBiosDate()
 {
 	static char buf[1024];
-	strncpy(buf, registry_read("HARDWARE\\DESCRIPTION\\System\\BIOS", "BIOSReleaseDate", REG_SZ), sizeof(buf));
+	m2::crt::copy_n(buf, registry_read("HARDWARE\\DESCRIPTION\\System\\BIOS", "BIOSReleaseDate", REG_SZ), sizeof(buf));
 	return buf;
 }
 
 const char* CPythonSystem::getMainboardName()
 {
 	static char buf[1024];
-	strncpy(buf, registry_read("HARDWARE\\DESCRIPTION\\System\\BIOS", "BaseBoardProduct", REG_SZ), sizeof(buf));
+	m2::crt::copy_n(buf, registry_read("HARDWARE\\DESCRIPTION\\System\\BIOS", "BaseBoardProduct", REG_SZ), sizeof(buf));
 	return buf;
 }
 
@@ -1116,7 +1116,7 @@ const char* CPythonSystem::getGPUName()
 		d8object->GetAdapterIdentifier(i, 0, &(adapters[i]));
 	}
 
-	strncpy(buf, adapters->Description, sizeof(buf));
+	m2::crt::copy_n(buf, adapters->Description, sizeof(buf));
 	return buf;
 }
 
@@ -1174,7 +1174,7 @@ const char* CPythonSystem::generateHash(const std::string& bytes) {
 		stream << chars[(ch >> 4) & 0x0F] << chars[ch & 0x0F];
 	}
 
-	strncpy(s_szHWIDBuffer, stream.str().c_str(), sizeof(s_szHWIDBuffer));
+	m2::crt::copy_n(s_szHWIDBuffer, stream.str().c_str(), sizeof(s_szHWIDBuffer));
 
 	return s_szHWIDBuffer;
 }

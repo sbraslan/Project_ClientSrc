@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/LegacyCRTCompat.h"
+
 #define WIN32_LEAN_AND_MEAN
 #ifndef _CRT_SECURE_NO_WARNINGS
 #	define _CRT_SECURE_NO_WARNINGS
@@ -8,7 +10,7 @@
 #define _WIN32_DCOM
 
 #pragma warning(disable : 4710) // not inlined
-#pragma warning(disable : 4786) // character 255 ³Ñ¾î°¡´Â°Å ²ô±â
+#pragma warning(disable : 4786) // character 255 ï¿½Ñ¾î°¡ï¿½Â°ï¿½ ï¿½ï¿½ï¿½
 #pragma warning(disable : 4244) // type conversion possible lose of data
 
 #pragma warning(disable : 4018)

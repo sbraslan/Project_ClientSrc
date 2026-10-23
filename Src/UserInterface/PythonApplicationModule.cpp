@@ -1086,11 +1086,11 @@ PyObject * appSetGuildMarkPath(PyObject * poSelf, PyObject * poArgs)
 	if (ext)
 	{
 		int extPos = ext - path;
-		strncpy(newPath, path, extPos);
+		m2::crt::copy_n(newPath, path, extPos);
 		newPath[extPos] = '\0';
 	}
 	else
-		strncpy(newPath, path, sizeof(newPath) - 1);
+		m2::crt::copy_n(newPath, path, sizeof(newPath) - 1);
 
 	CGuildMarkManager::Instance().SetMarkPathPrefix(newPath);
 	return Py_BuildNone();

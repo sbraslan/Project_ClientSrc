@@ -86,7 +86,7 @@ int jpeg_save(unsigned char * data, int width, int height, int quality, const ch
 
 	if (filename)
 	{
-		fi = fopen(filename, "wb");
+		fi = m2::crt::open_file(filename, "wb");
 		if (fi == nullptr)
 			return 0;
 	}

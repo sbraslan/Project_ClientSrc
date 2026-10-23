@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 //	Preprocessor
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 
 #include <windows.h>
 #include "../EterBase/Random.h"
@@ -143,7 +144,7 @@ bool CBoundaryShapeManager::PointInShape(SBoundaryShape & sShape, float fX, floa
 
 	for (auto & m_vContour : sShape.m_vContours)
 	{
-		for (uint32_t i = 0, j = m_vContour.size() - 1; i < m_vContour.size(); j = i++)
+		for (std::size_t i = 0, j = m_vContour.size() - 1; i < m_vContour.size(); j = i++)
 		{
 			if ((((m_vContour[i][1] <= fY) && (fY < m_vContour[j][1])) || ((m_vContour[j][1] <= fY) && (fY < m_vContour[i][1]))) &&
 				(fX < (m_vContour[i][0] - m_vContour[i][0]) * (fY - m_vContour[i][1]) / (m_vContour[j][1] - m_vContour[i][1]) +
@@ -166,7 +167,7 @@ bool CBoundaryShapeManager::RandomPoint(float & fX, float & fY)
 	if (!m_vBoundaries.empty())
 	{
 		// pick a random boundary shape
-		int nIndex = random_range(0, m_vBoundaries.size() - 1);
+		const int nIndex = random_range(0, m2::narrow<long>(m_vBoundaries.size() - 1));
 		SBoundaryShape & sShape = m_vBoundaries[nIndex];
 
 		// pick a point at random within its extents

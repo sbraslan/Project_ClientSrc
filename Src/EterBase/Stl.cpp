@@ -65,7 +65,7 @@ int split_string(const std::string & input, const std::string & delimiter, std::
 			s = input.substr(i, positions[i]);
 		else
 		{
-			uint32_t offset = positions[i - 1] + sizeS2;
+			const std::string::size_type offset = positions[i - 1] + sizeS2;
 
 			if (offset < isize)
 			{

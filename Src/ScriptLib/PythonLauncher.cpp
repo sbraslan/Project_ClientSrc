@@ -182,7 +182,7 @@ int TraceFunc(PyObject* obj, PyFrameObject* frame, int what, PyObject* arg)
 
         funcname = PyString_AsString(frame->f_code->co_name);
 
-        _snprintf(szTraceBuffer, sizeof(szTraceBuffer), "Call: File \"%s\", line %d, in %s",
+        snprintf(szTraceBuffer, sizeof(szTraceBuffer), "Call: File \"%s\", line %d, in %s",
                   PyString_AsString(frame->f_code->co_filename), frame->f_lineno, funcname);
 
         g_stTraceBuffer[g_nCurTraceN++] = szTraceBuffer;
@@ -197,7 +197,7 @@ int TraceFunc(PyObject* obj, PyFrameObject* frame, int what, PyObject* arg)
         if (g_nCurTraceN >= 512)
             return 0;
 
-        _snprintf(szTraceBuffer, sizeof(szTraceBuffer), "Exception: File \"%s\", line %d, in %s",
+        snprintf(szTraceBuffer, sizeof(szTraceBuffer), "Exception: File \"%s\", line %d, in %s",
                   PyString_AS_STRING(frame->f_code->co_filename), frame->f_lineno, PyString_AS_STRING(frame->f_code->co_name));
 
         g_stTraceBuffer[g_nCurTraceN++] = szTraceBuffer;

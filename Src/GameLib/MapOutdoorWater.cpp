@@ -11,7 +11,7 @@ void CMapOutdoor::LoadWaterTexture()
 	char buf[256];
 	for (int i = 0; i < WATER_INSTANCE_MAX_NUM; ++i)
 	{
-		sprintf(buf, "d:/ymir Work/special/water/%02d.dds", i + 1);
+		m2::crt::format(buf, "d:/ymir Work/special/water/%02d.dds", i + 1);
 #ifdef ENABLE_WATER_OUTPUT_RENDER	//@custom011
 		if (!CResourceManager::Instance().IsFileExist(buf)) {
 			TraceError("Failed to load: %s", buf);
@@ -82,14 +82,14 @@ void CMapOutdoor::RenderWater()
 	// RenderState
 	//////////////////////////////////////////////////////////////////////////
 
-	// ¹° À§ ¾Æ·¡ ¾Ö´Ï½ÃÅ°±â...
+	// ï¿½ï¿½ ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½Ö´Ï½ï¿½Å°ï¿½ï¿½...
 	static float s_fWaterHeightCurrent = 0;
 	static float s_fWaterHeightBegin = 0;
 	static float s_fWaterHeightEnd = 0;
 	static uint32_t s_dwLastHeightChangeTime = CTimer::Instance().GetCurrentMillisecond();
 	static uint32_t s_dwBlendtime = 300;
 
-	// 1.5ÃÊ ¸¶´Ù º¯°æ
+	// 1.5ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if ((CTimer::Instance().GetCurrentMillisecond() - s_dwLastHeightChangeTime) > s_dwBlendtime)
 	{
 		s_dwBlendtime = random_range(1000, 3000);
@@ -131,7 +131,7 @@ void CMapOutdoor::RenderWater()
 			DrawWater(i->second);
 	}
 
-	// ·»´õ¸µ ÇÑ ÈÄ¿¡´Â ¹° z À§Ä¡¸¦ º¹±¸
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ä¿ï¿½ï¿½ï¿½ ï¿½ï¿½ z ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	m_matWorldForCommonUse._43 = 0.0f;
 
 	//////////////////////////////////////////////////////////////////////////

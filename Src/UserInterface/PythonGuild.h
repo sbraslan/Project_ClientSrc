@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/LegacyCRTCompat.h"
+
 #include "Packet.h"
 
 class CPythonGuild : public CSingleton<CPythonGuild>
@@ -217,8 +219,8 @@ public:
 		entry.itemCount = itemCount;
 		entry.itemAction = itemAction;
 
-		strncpy(entry.szName, name, sizeof(entry.szName));
-		strncpy(entry.szItemName, itemName, sizeof(entry.szItemName));
+		m2::crt::copy_n(entry.szName, name, sizeof(entry.szName));
+		m2::crt::copy_n(entry.szItemName, itemName, sizeof(entry.szItemName));
 		//m_GuildInfo.log.emplace(std::pair<int, BankLog>(index, entry));
 		log[index] = entry;
 	}

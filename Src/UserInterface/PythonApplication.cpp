@@ -111,7 +111,7 @@ void CPythonApplication::NotifyHack(const char * c_szFormat, ...)
 
 	va_list args;
 	va_start(args, c_szFormat);
-	_vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
 	va_end(args);
 	m_pyNetworkStream.NotifyHack(szBuf);
 }
@@ -863,7 +863,7 @@ bool LoadLocaleData(const char * localePath)
 		char szEmpireTextConvFile[256];
 		for (uint32_t dwEmpireID = 1; dwEmpireID <= 3; ++dwEmpireID)
 		{
-			sprintf(szEmpireTextConvFile, "%s/lang%u.cvt", localePath, dwEmpireID);
+			m2::crt::format(szEmpireTextConvFile, "%s/lang%u.cvt", localePath, dwEmpireID);
 			if (!rkNetStream.LoadConvertTable(dwEmpireID, szEmpireTextConvFile))
 				TraceError("LoadLocaleData - CPythonNetworkStream::LoadConvertTable(%d, %s) FAILURE", dwEmpireID, szEmpireTextConvFile);
 		}

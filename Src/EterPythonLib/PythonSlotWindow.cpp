@@ -540,7 +540,7 @@ void CSlotWindow::GetValue(uint8_t dwIndex, char* number)
 		return;
 
 	char szCount[16 + 1];
-	_snprintf(szCount, sizeof(szCount), "+ %s", number);
+	snprintf(szCount, sizeof(szCount), "+ %s", number);
 
 	if (!pSlot->pNumberLine)
 	{
@@ -605,7 +605,7 @@ void CSlotWindow::SetSlotCount(uint32_t dwIndex, uint32_t dwCount)
 	else
 	{
 		char szCount[16 + 1];
-		_snprintf(szCount, sizeof(szCount), "%d", dwCount);
+		snprintf(szCount, sizeof(szCount), "%d", dwCount);
 
 		if (!pSlot->pNumberLine)
 		{
@@ -640,16 +640,16 @@ void CSlotWindow::SetSlotCountNew(uint32_t dwIndex, uint32_t dwGrade, uint32_t d
 		switch (dwGrade)
 		{
 		case 0:
-			_snprintf(szCount, sizeof(szCount), "%d", dwCount);
+			snprintf(szCount, sizeof(szCount), "%d", dwCount);
 			break;
 		case 1:
-			_snprintf(szCount, sizeof(szCount), "m%d", dwCount);
+			snprintf(szCount, sizeof(szCount), "m%d", dwCount);
 			break;
 		case 2:
-			_snprintf(szCount, sizeof(szCount), "g%d", dwCount);
+			snprintf(szCount, sizeof(szCount), "g%d", dwCount);
 			break;
 		case 3:
-			_snprintf(szCount, sizeof(szCount), "p");
+			snprintf(szCount, sizeof(szCount), "p");
 			break;
 		}
 

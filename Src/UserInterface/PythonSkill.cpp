@@ -236,7 +236,7 @@ void CPythonSkill::__RegisterGradeIconImage(TSkillData & rData, const char * c_s
 		TGradeData & rGradeData = rData.GradeData[j];
 
 		char szCount[8 + 1];
-		_snprintf(szCount, sizeof(szCount), "_%02d", j + 1);
+		snprintf(szCount, sizeof(szCount), "_%02d", j + 1);
 
 		std::string strFileName;
 		strFileName += c_szHeader;
@@ -393,14 +393,14 @@ bool CPythonSkill::RegisterSkillDesc(const char * c_szFileName)
 			if (c_iSkillIndex_Riding == iSkillIndex)
 			{
 				char szIconFileNameHeader[64 + 1];
-				_snprintf(szIconFileNameHeader, sizeof(szIconFileNameHeader), "%sskill/common/support/", g_strImagePath.c_str());
+				snprintf(szIconFileNameHeader, sizeof(szIconFileNameHeader), "%sskill/common/support/", g_strImagePath.c_str());
 
 				__RegisterGradeIconImage(rSkillData, szIconFileNameHeader, c_rstrIconName.c_str());
 			}
 			else if (m_PathNameMap.end() != m_PathNameMap.find(c_rstrJob))
 			{
 				char szIconFileNameHeader[64 + 1];
-				_snprintf(szIconFileNameHeader, sizeof(szIconFileNameHeader), "%sskill/%s/", g_strImagePath.c_str(),
+				snprintf(szIconFileNameHeader, sizeof(szIconFileNameHeader), "%sskill/%s/", g_strImagePath.c_str(),
 						  m_PathNameMap[c_rstrJob].c_str());
 
 				switch (rSkillData.byType)
@@ -594,7 +594,7 @@ bool CPythonSkill::RegisterSkill(uint32_t dwSkillIndex, const char * c_szFileNam
 
 	{
 		char szName[256];
-		sprintf(szName, "%dname", LocaleService_GetCodePage());
+		m2::crt::format(szName, "%dname", LocaleService_GetCodePage());
 		if (!TextFileLoader.GetTokenString(szName, &SkillData.strName))
 			if (!TextFileLoader.GetTokenString("name", &SkillData.strName))
 			{
@@ -606,7 +606,7 @@ bool CPythonSkill::RegisterSkill(uint32_t dwSkillIndex, const char * c_szFileNam
 
 	{
 		char szName[256];
-		sprintf(szName, "%ddescription", LocaleService_GetCodePage());
+		m2::crt::format(szName, "%ddescription", LocaleService_GetCodePage());
 		if (!TextFileLoader.GetTokenString(szName, &SkillData.strDescription))
 			TextFileLoader.GetTokenString("description", &SkillData.strDescription);
 	}
@@ -622,7 +622,7 @@ bool CPythonSkill::RegisterSkill(uint32_t dwSkillIndex, const char * c_szFileNam
 		CTokenVector * pConditionDataVector;
 
 		char szConditionData[256];
-		sprintf(szConditionData, "%dconditiondata", LocaleService_GetCodePage());
+		m2::crt::format(szConditionData, "%dconditiondata", LocaleService_GetCodePage());
 
 		bool isConditionData = true;
 		if (!TextFileLoader.GetTokenVector(szConditionData, &pConditionDataVector))
@@ -643,7 +643,7 @@ bool CPythonSkill::RegisterSkill(uint32_t dwSkillIndex, const char * c_szFileNam
 		CTokenVector * pAffectDataVector;
 
 		char szAffectData[256];
-		sprintf(szAffectData, "%daffectdata", LocaleService_GetCodePage());
+		m2::crt::format(szAffectData, "%daffectdata", LocaleService_GetCodePage());
 
 		bool isAffectData = true;
 		if (!TextFileLoader.GetTokenVector(szAffectData, &pAffectDataVector))
@@ -668,7 +668,7 @@ bool CPythonSkill::RegisterSkill(uint32_t dwSkillIndex, const char * c_szFileNam
 		CTokenVector * pGradeDataVector;
 
 		char szGradeData[256];
-		sprintf(szGradeData, "%dgradedata", LocaleService_GetCodePage());
+		m2::crt::format(szGradeData, "%dgradedata", LocaleService_GetCodePage());
 
 		if (TextFileLoader.GetTokenVector(szGradeData, &pGradeDataVector))
 		{
@@ -1193,7 +1193,7 @@ const char * CPythonSkill::SSkillData::GetAffectDescription(uint32_t dwIndex, fl
 			fMinValue = floorf(fMinValue);
 
 			char szMinValue[256];
-			_snprintf(szMinValue, sizeof(szMinValue), "%.0f", fMinValue);
+			snprintf(szMinValue, sizeof(szMinValue), "%.0f", fMinValue);
 			strDescription.replace(first, 4, szMinValue);
 
 			const auto second = strDescription.find("%.0f", first);
@@ -1202,7 +1202,7 @@ const char * CPythonSkill::SSkillData::GetAffectDescription(uint32_t dwIndex, fl
 				fMaxValue = floorf(fMaxValue);
 
 				char szMaxValue[256];
-				_snprintf(szMaxValue, sizeof(szMaxValue), "%.0f", fMaxValue);
+				snprintf(szMaxValue, sizeof(szMaxValue), "%.0f", fMaxValue);
 				strDescription.replace(second, 4, szMaxValue);
 			}
 		}
@@ -1215,7 +1215,7 @@ const char * CPythonSkill::SSkillData::GetAffectDescription(uint32_t dwIndex, fl
 	}
 
 	static char szDescription[64 + 1];
-	_snprintf(szDescription, sizeof(szDescription), c_rstrAffectDescription.c_str(), fMinValue, fMaxValue);
+	snprintf(szDescription, sizeof(szDescription), c_rstrAffectDescription.c_str(), fMinValue, fMaxValue);
 
 	return szDescription;
 }
@@ -1393,7 +1393,7 @@ bool CPythonSkillPet::RegisterSkillPet(const char* c_szFileName)
 		rSkillData.strName = TokenVector[DESCPET_TOKEN_TYPE_NAME];
 
 		char szIconFileNameHeader[64 + 1];
-		_snprintf(szIconFileNameHeader, sizeof(szIconFileNameHeader), "%sskill/pet/%s.sub", g_strImagePath.c_str(), TokenVector[DESCPET_TOKEN_TYPE_ICON_NAME].c_str());
+		snprintf(szIconFileNameHeader, sizeof(szIconFileNameHeader), "%sskill/pet/%s.sub", g_strImagePath.c_str(), TokenVector[DESCPET_TOKEN_TYPE_ICON_NAME].c_str());
 
 		rSkillData.strIconFileName = szIconFileNameHeader;
 
@@ -2239,7 +2239,7 @@ PyObject* skillGetPetEmptySkill(PyObject* poSelf, PyObject* poArgs)
 {
 	CGraphicImage* noskillbtn;
 	char szIconFileNameHeader[64 + 1];
-	_snprintf(szIconFileNameHeader, sizeof(szIconFileNameHeader), "d:/ymir work/ui/pet/skill_button/skill_enable_button.sub");
+	snprintf(szIconFileNameHeader, sizeof(szIconFileNameHeader), "d:/ymir work/ui/pet/skill_button/skill_enable_button.sub");
 	noskillbtn = (CGraphicImage*)CResourceManager::Instance().GetResourcePointer(szIconFileNameHeader);
 	return Py_BuildValue("i", noskillbtn);
 }

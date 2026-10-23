@@ -57,7 +57,7 @@ bool CTextureSet::Load(const char * c_szTextureSetFileName, float fTerrainTexCoo
 
 	for (long i = 0; i < lCount; ++i)
 	{
-		_snprintf(szTextureName, sizeof(szTextureName), "texture%03d", i + 1);
+		snprintf(szTextureName, sizeof(szTextureName), "texture%03d", i + 1);
 
 		if (stTokenVectorMap.end() == stTokenVectorMap.find(szTextureName))
 			continue;
@@ -109,7 +109,7 @@ void CTextureSet::AddEmptyTexture()
 
 unsigned long CTextureSet::GetTextureCount()
 {
-	return m_Textures.size();
+	return m2::narrow<unsigned long>(m_Textures.size());
 }
 
 TTerrainTexture & CTextureSet::GetTexture(unsigned long ulIndex)
@@ -203,7 +203,7 @@ bool CTextureSet::AddTexture(const char * c_szFileName, float fuScale, float fvS
 
 	// @fixme003
 	AddEmptyTexture();
-	SetTexture(m_Textures.size() - 1, c_szFileName, fuScale, fvScale, fuOffset, fvOffset, bSplat, usBegin, usEnd, fTerrainTexCoordBase);
+	SetTexture(m2::narrow<unsigned long>(m_Textures.size() - 1), c_szFileName, fuScale, fvScale, fuOffset, fvOffset, bSplat, usBegin, usEnd, fTerrainTexCoordBase);
 
 	return true;
 }

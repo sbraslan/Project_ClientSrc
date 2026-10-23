@@ -1,4 +1,4 @@
-﻿#include "StdAfx.h"
+#include "StdAfx.h"
 #include "../EterLib/NetPacketHeaderMap.h"
 
 #include "PythonNetworkStream.h"
@@ -611,7 +611,7 @@ const char * CPythonNetworkStream::GetAccountCharacterSlotDataz(uint32_t iSlot, 
 
 
 			static char s_szAddr[256];
-			sprintf(s_szAddr, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+			m2::crt::format(s_szAddr, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 			return s_szAddr;
 		}
 		case ACCOUNT_CHARACTER_SLOT_NAME:

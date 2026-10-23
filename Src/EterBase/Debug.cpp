@@ -38,7 +38,8 @@ public:
 			return;
 
 		time_t ct = time(nullptr);
-		struct tm ctm = *localtime(&ct);
+		struct tm ctm{};
+	localtime_s(&ctm, &ct);
 
 		fprintf(m_fPtr.get(), "%02d%02d %02d:%02d:%05u :: %s", ctm.tm_mon + 1, ctm.tm_mday, ctm.tm_hour, ctm.tm_min,
 				ELTimer_GetMSec() % 60000, c_pszMsg);
@@ -79,7 +80,7 @@ void Logf(uint32_t uLevel, const char * c_szFormat, ...)
 
 	va_list args;
 	va_start(args, c_szFormat);
-	_vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
 	va_end(args);
 #ifdef _DEBUG
 	OutputDebugString(szBuf);
@@ -99,7 +100,7 @@ void Lognf(uint32_t uLevel, const char * c_szFormat, ...)
 	va_start(args, c_szFormat);
 
 	char szBuf[DEBUG_STRING_MAX_LEN + 2];
-	int len = _vsnprintf(szBuf, sizeof(szBuf) - 1, c_szFormat, args);
+	int len = vsnprintf(szBuf, sizeof(szBuf) - 1, c_szFormat, args);
 
 	if (len > 0)
 	{
@@ -132,7 +133,7 @@ void Tracen(const char * c_szMsg)
 {
 #ifdef _DEBUG
 	char szBuf[DEBUG_STRING_MAX_LEN + 1];
-	_snprintf(szBuf, sizeof(szBuf), "%s\n", c_szMsg);
+	snprintf(szBuf, sizeof(szBuf), "%s\n", c_szMsg);
 	OutputDebugString(szBuf);
 	puts(c_szMsg);
 
@@ -157,7 +158,7 @@ void Tracenf(const char * c_szFormat, ...)
 	va_start(args, c_szFormat);
 
 	char szBuf[DEBUG_STRING_MAX_LEN + 2];
-	int len = _vsnprintf(szBuf, sizeof(szBuf) - 1, c_szFormat, args);
+	int len = vsnprintf(szBuf, sizeof(szBuf) - 1, c_szFormat, args);
 
 	if (len > 0)
 	{
@@ -181,7 +182,7 @@ void Tracef(const char * c_szFormat, ...)
 
 	va_list args;
 	va_start(args, c_szFormat);
-	_vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
 	va_end(args);
 
 #ifdef _DEBUG
@@ -203,7 +204,8 @@ void TraceError(const char * c_szFormat, ...)
 	va_end(args);
 
 	time_t ct = time(nullptr);
-	struct tm ctm = *localtime(&ct);
+	struct tm ctm{};
+	localtime_s(&ctm, &ct);
 
 	fprintf(
 		stderr,
@@ -241,7 +243,8 @@ void TraceErrorWithoutEnter(const char * c_szFormat, ...)
 	va_end(args);
 
 	time_t ct = time(nullptr);
-	struct tm ctm = *localtime(&ct);
+	struct tm ctm{};
+	localtime_s(&ctm, &ct);
 
 	fprintf(
 		stderr,
@@ -269,7 +272,7 @@ void LogBoxf(const char * c_szFormat, ...)
 	va_start(args, c_szFormat);
 
 	char szBuf[2048];
-	_vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
 
 	LogBox(szBuf);
 }
@@ -293,7 +296,7 @@ void LogFilef(const char * c_szMessage, ...)
 	va_list args;
 	va_start(args, c_szMessage);
 	char szBuf[DEBUG_STRING_MAX_LEN + 1];
-	_vsnprintf(szBuf, sizeof(szBuf), c_szMessage, args);
+	vsnprintf(szBuf, sizeof(szBuf), c_szMessage, args);
 
 	CLogFile::Instance().Write(szBuf);
 }
@@ -304,7 +307,9 @@ void OpenLogFile(bool bUseLogFIle)
 
 	time_t rawtime;
 	time(&rawtime);
-	struct tm * timeinfo = localtime(&rawtime);
+	struct tm timeinfoStorage{};
+	localtime_s(&timeinfoStorage, &rawtime);
+	struct tm * timeinfo = &timeinfoStorage;
 
 	char szSyserrPath[128] = {};
 	strftime(
@@ -313,7 +318,8 @@ void OpenLogFile(bool bUseLogFIle)
 		"./syserr/%d-%m-%Y-%H-%M-%S-syserr.txt",
 		timeinfo);
 
-	if (freopen(szSyserrPath, "w", stderr) == nullptr)
+	FILE* redirectedStderr = nullptr;
+	if (freopen_s(&redirectedStderr, szSyserrPath, "w", stderr) != 0 || redirectedStderr == nullptr)
 		OutputDebugStringA("OpenLogFile: could not open timestamped syserr file.\n");
 
 	if (bUseLogFIle)
@@ -684,6 +690,9 @@ void OpenConsoleWindow()
 {
 	AllocConsole();
 
-	freopen("CONOUT$", "a", stdout);
-	freopen("CONIN$", "r", stdin);
+	FILE* consoleOut = nullptr;
+	FILE* consoleIn = nullptr;
+
+	freopen_s(&consoleOut, "CONOUT$", "a", stdout);
+	freopen_s(&consoleIn, "CONIN$", "r", stdin);
 }

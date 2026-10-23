@@ -165,15 +165,17 @@ void GetOldIndexingName(char * szName, int Index)
 	int dec, sign;
 	char Temp[512];
 
-	strcpy(Temp, _ecvt(Index, 256, &dec, &sign));
+	_ecvt_s(Temp, sizeof(Temp), static_cast<double>(Index), 256, &dec, &sign);
 	Temp[dec] = '\0';
 
-	strcat(szName, Temp);
+	m2::crt::append_legacy(szName, Temp);
 }
 
 void GetIndexingName(char * szName, uint32_t Index)
 {
-	sprintf(szName + strlen(szName), "%u", Index);
+	char indexBuffer[16];
+m2::crt::format(indexBuffer, "%u", Index);
+m2::crt::append_legacy(szName, indexBuffer);
 }
 
 void GetOnlyFileName(const char * sz_Name, std::string & strFileName)
@@ -263,7 +265,7 @@ void GetWorkingFolder(std::string & strFileName)
 {
 	char buf[128 + 1];
 	_getcwd(buf, 128);
-	strcat(buf, "/");
+	m2::crt::append(buf, "/");
 	strFileName = buf;
 }
 
@@ -434,7 +436,7 @@ void MyCreateDirectory(const char * path)
 		if (*p == '/' || *p == '\\')
 		{
 			msl::refill(dir);
-			strncpy(dir.data(), path, p - path);
+			m2::crt::copy_n_s(dir.data(), dir.size(), path, static_cast<std::size_t>(p - path));
 			CreateDirectory(dir.data(), nullptr);
 		}
 
@@ -578,7 +580,7 @@ const char * _getf(const char * c_szFormat, ...)
 
 	va_list args;
 	va_start(args, c_szFormat);
-	_vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
 	va_end(args);
 
 	return szBuf;

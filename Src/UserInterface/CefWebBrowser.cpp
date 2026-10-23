@@ -88,7 +88,7 @@ int CefWebBrowser_Show(HWND hParent, const char* addr, const RECT* rc)
 	settings.no_sandbox = true;
 
 	char szHostName[255];
-	sprintf(szHostName, "C:/Users/%s/AppData/Local/Temp/m2CefBrowser", getenv("USERNAME"));
+	m2::crt::format(szHostName, "C:/Users/%s/AppData/Local/Temp/m2CefBrowser", getenv("USERNAME"));
 	CefString(&settings.cache_path).FromASCII(szHostName);
 
 	CefInitialize(main_args, settings, app.get(), NULL);

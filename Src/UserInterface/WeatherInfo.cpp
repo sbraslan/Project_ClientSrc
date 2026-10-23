@@ -18,7 +18,7 @@ bool IWeatherInfo::IsWinter(int Month)	// 0 = Summer, 1 = Winter
 uint8_t GetWeatherDayMode(int Hour)
 {
 	if (Hour >= DailyWeather::MIDNIGHT && Hour < DailyWeather::SUNRISE)
-		return IWeatherInfo::DayMode::NIGHT;		//Nacht [Früh]
+		return IWeatherInfo::DayMode::NIGHT;		//Nacht [Frï¿½h]
 	else if (Hour >= DailyWeather::SUNRISE && Hour < DailyWeather::NOON)
 		return IWeatherInfo::DayMode::MORNING;	// Morgens
 	else if (Hour >= DailyWeather::NOON && Hour < DailyWeather::SUNSET)
@@ -83,7 +83,8 @@ bool GetMapEnvData(std::string strMapName)
 void IWeatherInfo::WeatherRefresh(uint8_t byDayMode, bool season, uint8_t bRain)
 {
 	time_t ct = time(nullptr);
-	struct tm tm = *localtime(&ct);
+	struct tm tm{};
+	localtime_s(&tm, &ct);
 
 	CPythonBackground& rkBG = CPythonBackground::Instance();
 	CPythonSystem& rkSystem = CPythonSystem::Instance();

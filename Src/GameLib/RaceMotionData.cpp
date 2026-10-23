@@ -560,7 +560,7 @@ bool CRaceMotionData::SaveMotionData(const char * c_szFileName)
 	{
 		fprintf(fPtr.get(), "Group MotionEventData\n");
 		fprintf(fPtr.get(), "{\n");
-		fprintf(fPtr.get(), "    MotionEventDataCount     %d\n", m_MotionEventDataVector.size());
+		fprintf(fPtr.get(), "    MotionEventDataCount     %zu\n", m_MotionEventDataVector.size());
 
 		for (uint32_t j = 0; j < m_MotionEventDataVector.size(); ++j)
 		{

@@ -5,7 +5,7 @@
 #include "../GameLib/RaceManager.h"
 
 //////////////////////////////////////////////////////////////////////////
-// RaceData °ü·Ã ½ÃÀÛ
+// RaceData ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 //////////////////////////////////////////////////////////////////////////
 
 PyObject * chrmgrSetEmpireNameMode(PyObject * poSelf, PyObject * poArgs)
@@ -103,12 +103,12 @@ PyObject * chrmgrGetVIDInfo(PyObject * poSelf, PyObject * poArgs)
 
 		CPythonBackground & rkBG = CPythonBackground::Instance();
 		rkBG.LocalPositionToGlobalPosition(xInst, yInst);
-		sprintf(szDetail, "pos=(%ld, %ld)", xInst, yInst);
+		m2::crt::format(szDetail, "pos=(%ld, %ld)", xInst, yInst);
 	}
 
 
 	char szInfo[1024];
-	sprintf(szInfo, "VID %d (isRegistered=%d, isAlive=%d, isDead=%d) %s", nVID, rkChrMgr.IsRegisteredVID(nVID), rkChrMgr.IsAliveVID(nVID),
+	m2::crt::format(szInfo, "VID %d (isRegistered=%d, isAlive=%d, isDead=%d) %s", nVID, rkChrMgr.IsRegisteredVID(nVID), rkChrMgr.IsAliveVID(nVID),
 			rkChrMgr.IsDeadVID(nVID), szDetail);
 
 	return Py_BuildValue("s", szInfo);
@@ -224,7 +224,7 @@ PyObject * chrmgrRegisterNormalAttack(PyObject * poSelf, PyObject * poArgs)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// ¾ø¾îÁú ÇÔ¼öµé
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½
 PyObject * chrmgrReserveComboAttack(PyObject * poSelf, PyObject * poArgs)
 {
 	int iMode;
@@ -264,7 +264,7 @@ PyObject * chrmgrRegisterComboAttack(PyObject * poSelf, PyObject * poArgs)
 	pRaceData->RegisterComboAttack(iMode, 0, iComboIndex, iMotionIndex);
 	return Py_BuildNone();
 }
-// ¾ø¾îÁú ÇÔ¼öµé
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 PyObject * chrmgrReserveComboAttackNew(PyObject * poSelf, PyObject * poArgs)
@@ -510,7 +510,7 @@ PyObject * chrmgrAppendShapeSkin(PyObject * poSelf, PyObject * poArgs)
 	return Py_BuildNone();
 }
 //////////////////////////////////////////////////////////////////////////
-// RaceData °ü·Ã ³¡
+// RaceData ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 //////////////////////////////////////////////////////////////////////////
 
 PyObject * chrmgrSetMovingSpeed(PyObject * poSelf, PyObject * poArgs)
@@ -817,7 +817,7 @@ PyObject* chrmgrGetPartyMatchOff(PyObject* poSelf, PyObject* poArgs)
 
 void initchrmgr()
 {
-	static PyMethodDef s_methods[] = {// RaceData °ü·Ã
+	static PyMethodDef s_methods[] = {// RaceData ï¿½ï¿½ï¿½ï¿½
 									  {"SetEmpireNameMode", chrmgrSetEmpireNameMode, METH_VARARGS},
 									  {"GetVIDInfo", chrmgrGetVIDInfo, METH_VARARGS},
 									  {"GetPickedVID", chrmgrGetPickedVID, METH_VARARGS},

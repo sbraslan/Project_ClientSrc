@@ -11,7 +11,7 @@ CTempFile::~CTempFile()
 
 CTempFile::CTempFile(const char * c_pszPrefix)
 {
-	strncpy(m_szFileName, CreateTempFileName(c_pszPrefix), MAX_PATH);
+	m2::crt::copy_n(m_szFileName, CreateTempFileName(c_pszPrefix), MAX_PATH);
 
 	if (!Create(m_szFileName, FILEMODE_WRITE))
 	{

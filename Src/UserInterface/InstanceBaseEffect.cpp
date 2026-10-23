@@ -205,7 +205,7 @@ bool CInstanceBase::ProcessDamage()
 		textures.emplace_back("d:/ymir work/effect/affect/damagevalue/"+strDamageType+std::to_string(num) + ".dds");
 #else
 		char numBuf[MAX_PATH];
-		sprintf(numBuf, "%u.dds", num);
+		m2::crt::format(numBuf, "%u.dds", num);
 		textures.emplace_back("d:/ymir work/effect/affect/damagevalue/" + strDamageType + numBuf);
 #endif
 
@@ -908,7 +908,7 @@ void CInstanceBase::UpdateTextTailLevel(uint32_t level)
 #endif
 
 	char szText[256];
-	sprintf(szText, "Lv %d ", level);
+	m2::crt::format(szText, "Lv %d ", level);
 
 #if defined(ENABLE_PREMIUM_PRIVATE_SHOP) && defined(ENABLE_PREMIUM_PRIVATE_SHOP_TEXTTAIL)
 	if (IsPC() || IsShop())
@@ -918,7 +918,7 @@ void CInstanceBase::UpdateTextTailLevel(uint32_t level)
 	{
 #ifdef ENABLE_VIP_SYSTEM
 		if (IsVIP()) { // VIP
-			sprintf(szText, "|cffffcc00[VIP]|r Lv %d ", level);
+			m2::crt::format(szText, "|cffffcc00[VIP]|r Lv %d ", level);
 			CPythonTextTail::Instance().AttachLevel(GetVirtualID(), szText, s_kVIPColor, outline);
 		}
 #endif
@@ -930,9 +930,9 @@ void CInstanceBase::UpdateTextTailLevel(uint32_t level)
 #	endif
 		{
 			if (GetDefaultCodePage() == CP_ARABIC)
-				sprintf(szText, "|h|r[���� ������]|cffff0000|h ");
+				m2::crt::format(szText, "|h|r[���� ������]|cffff0000|h ");
 			else
-				sprintf(szText, "|cffff0000[Team] ");
+				m2::crt::format(szText, "|cffff0000[Team] ");
 			CPythonTextTail::Instance().AttachLevel(GetVirtualID(), szText, s_kGameMasterColor, outline);
 		}
 #endif

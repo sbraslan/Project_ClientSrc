@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/LegacyCRTCompat.h"
+
 #pragma warning(disable : 4702)
 #pragma warning(disable : 4100)
 #pragma warning(disable : 4201)

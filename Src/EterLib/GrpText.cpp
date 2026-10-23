@@ -37,14 +37,14 @@ bool CGraphicText::OnLoad(int /*iSize*/, const void * /*c_pvBuf*/)
 #endif
 
 	// format
-	// ±¼¸².fnt		"±¼¸²" ÆùÆ® ±âº» »çÀÌÁî 12 ·Î ·Îµù
-	// ±¼¸²:18.fnt  "±¼¸²" ÆùÆ® »çÀÌÁî 18 ·Î ·Îµù
-	// ±¼¸²:14i.fnt "±¼¸²" ÆùÆ® »çÀÌÁî 14 & ÀÌÅÅ¸¯À¸·Î ·Îµù
+	// ï¿½ï¿½ï¿½ï¿½.fnt		"ï¿½ï¿½ï¿½ï¿½" ï¿½ï¿½Æ® ï¿½âº» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 12 ï¿½ï¿½ ï¿½Îµï¿½
+	// ï¿½ï¿½ï¿½ï¿½:18.fnt  "ï¿½ï¿½ï¿½ï¿½" ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 18 ï¿½ï¿½ ï¿½Îµï¿½
+	// ï¿½ï¿½ï¿½ï¿½:14i.fnt "ï¿½ï¿½ï¿½ï¿½" ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 14 & ï¿½ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
 	const char * p = strrchr(GetFileName(), ':');
 
 	if (p)
 	{
-		strncpy(strName, GetFileName(), MIN(31, p - GetFileName()));
+		m2::crt::copy_n(strName, GetFileName(), MIN(31, p - GetFileName()));
 		++p;
 
 		static char num[8];
@@ -72,7 +72,7 @@ bool CGraphicText::OnLoad(int /*iSize*/, const void * /*c_pvBuf*/)
 			strName[0] = '\0';
 		}
 		else
-			strncpy(strName, GetFileName(), MIN(31, p - GetFileName()));
+			m2::crt::copy_n(strName, GetFileName(), MIN(31, p - GetFileName()));
 
 		size = 12;
 	}

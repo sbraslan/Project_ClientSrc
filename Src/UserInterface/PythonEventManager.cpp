@@ -134,7 +134,7 @@ int CPythonEventManager::RegisterEventSet(const char * c_szFileName)
 
 	pEventSet->iTotalLineCount = iScriptGroup;
 
-	strncpy(pEventSet->szFileName, c_szFileName, 32);
+	m2::crt::copy_n(pEventSet->szFileName, c_szFileName, 32);
 
 	pEventSet->pCurrentTextLine = nullptr;
 	pEventSet->poEventHandler = nullptr;

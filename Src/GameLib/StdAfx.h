@@ -1,4 +1,5 @@
-﻿#ifndef __INC_YMIR_GAMELIB__
+#include "../EterBase/LegacyCRTCompat.h"
+#ifndef __INC_YMIR_GAMELIB__
 #define __INC_YMIR_GAMELIB__
 
 #include <algorithm>

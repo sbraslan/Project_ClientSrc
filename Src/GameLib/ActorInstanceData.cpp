@@ -187,7 +187,7 @@ void CActorInstance::SetShape(uint32_t eShape, float fSpecular)
 			char szLODModelFileNameEnd[256];
 			for (uint32_t uLODIndex = 1; uLODIndex <= 3; ++uLODIndex)
 			{
-				sprintf(szLODModelFileNameEnd, "_lod_%.2d.gr2", uLODIndex);
+				m2::crt::format(szLODModelFileNameEnd, "_lod_%.2d.gr2", uLODIndex);
 				stLODModelFileName = CFileNameHelper::NoExtension(pkShape->m_stModelFileName) + szLODModelFileNameEnd;
 				if (!rkResMgr.IsFileExist(stLODModelFileName.c_str()))
 					break;

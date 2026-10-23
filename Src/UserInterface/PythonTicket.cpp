@@ -17,18 +17,18 @@ enum
 	TICKET_MAX_LOGS_GENERAL = 10,
 	TICKET_MAX_LOGS_FROM_REPLY = 40,
 	TICKET_LOGS_PER_PAGE = 20,
-	TICKET_MAX_PAGE_LOGS = 10,	
+	TICKET_MAX_PAGE_LOGS = 10,
 	TICKET_MAX_PAGE_LOGS_ADMIN = 500,
 	TICKET_UNKNOWN_LOG = 999,
 };
 
-CPythonTicketLogs* CPythonTicketLogs::curInstance_A = NULL; 
+CPythonTicketLogs* CPythonTicketLogs::curInstance_A = NULL;
 CPythonTicketLogs::CPythonTicketLogs(void)
 {}
 CPythonTicketLogs::~CPythonTicketLogs(void)
 {}
 
-CPythonTicketLogsReply* CPythonTicketLogsReply::curInstance_B = NULL; 
+CPythonTicketLogsReply* CPythonTicketLogsReply::curInstance_B = NULL;
 CPythonTicketLogsReply::CPythonTicketLogsReply(void)
 {}
 CPythonTicketLogsReply::~CPythonTicketLogsReply(void)
@@ -50,7 +50,7 @@ CPythonTicketLogsReply* CPythonTicketLogsReply::instance()
 
 void CPythonTicketLogs::AddLogDetails(TSubPacketTicketLogsData p)
 {
-	m_vecData_A.clear();	
+	m_vecData_A.clear();
 
 	for(int i = 0; i < TICKET_MAX_LOGS_GENERAL; i++)
 	{
@@ -74,12 +74,12 @@ TSubPacketTicketLogs CPythonTicketLogs::Request(int id)
 	if(m_vecData_A.size() < id)
 	{
 		TSubPacketTicketLogs log;
-		strncpy(log.ticked_id, "NULL", sizeof(log.ticked_id));					
-		strncpy(log.title, "NULL", sizeof(log.title));				
-		strncpy(log.content, "NULL", sizeof(log.content));		
+		m2::crt::copy_n(log.ticked_id, "NULL", sizeof(log.ticked_id));
+		m2::crt::copy_n(log.title, "NULL", sizeof(log.title));
+		m2::crt::copy_n(log.content, "NULL", sizeof(log.content));
 		log.priority = 999;
-		strncpy(log.create_date, "NULL", sizeof(log.create_date) - 1);
-		log.status = 999;		
+		m2::crt::copy_n(log.create_date, "NULL", sizeof(log.create_date) - 1);
+		log.status = 999;
 		return log;
 	}
 	return m_vecData_A[id];
@@ -90,9 +90,9 @@ TSubPacketTicketLogsReply CPythonTicketLogsReply::Request(int id)
 	if(m_vecData_B.size() < id)
 	{
 		TSubPacketTicketLogsReply log;
-		strncpy(log.reply_from, "NULL", sizeof(log.reply_from));					
-		strncpy(log.reply_content, "NULL", sizeof(log.reply_content));						
-		strncpy(log.reply_date, "NULL", sizeof(log.reply_date) - 1);	
+		m2::crt::copy_n(log.reply_from, "NULL", sizeof(log.reply_from));
+		m2::crt::copy_n(log.reply_content, "NULL", sizeof(log.reply_content));
+		m2::crt::copy_n(log.reply_date, "NULL", sizeof(log.reply_date) - 1);
 		return log;
 	}
 	return m_vecData_B[id];
@@ -105,9 +105,9 @@ PyObject * ticketLoadLogs(PyObject* poSelf, PyObject* poArgs)
 
 	if (!PyTuple_GetInteger(poArgs, 0, &id))
 		return Py_BuildException();
-	
+
 	TSubPacketTicketLogs p = CPythonTicketLogs::instance()->Request(id);
-	
+
 	PyTuple_SetItem(dwRes, 0, Py_BuildValue("s", p.ticked_id));
 	PyTuple_SetItem(dwRes, 1, Py_BuildValue("s", p.title));
 	PyTuple_SetItem(dwRes, 2, Py_BuildValue("s", p.content));
@@ -124,9 +124,9 @@ PyObject * ticketLoadLogsReply(PyObject* poSelf, PyObject* poArgs)
 
 	if (!PyTuple_GetInteger(poArgs, 0, &id))
 		return Py_BuildException();
-	
+
 	TSubPacketTicketLogsReply p = CPythonTicketLogsReply::instance()->Request(id);
-	
+
 	PyTuple_SetItem(dwRes, 0, Py_BuildValue("s", p.reply_from));
 	PyTuple_SetItem(dwRes, 1, Py_BuildValue("s", p.reply_content));
 	PyTuple_SetItem(dwRes, 2, Py_BuildValue("s", p.reply_date));
@@ -137,11 +137,11 @@ PyObject * ticketIsAdmin(PyObject * poSelf, PyObject * poArgs)
 {
 	static const char* currentName = CPythonPlayer::Instance().GetName();
 	CInstanceBase * ch = CPythonPlayer::Instance().NEW_GetMainActorPtr();
-	
+
 	const char* arListMembers[] = {
 		"x", "y", "z"
 	};
-	
+
 	for(unsigned int i=0; i<_countof(arListMembers); i++){
 		if ((!strcmp(arListMembers[i], currentName)) && ch->IsGameMaster()){
 			return Py_BuildValue("i", TRUE);
@@ -179,7 +179,7 @@ PyObject* netSendTicketPacketCreate(PyObject* poSelf, PyObject* poArgs)
 
 	if (!PyTuple_GetString(poArgs, 1, &szContent))
 		return Py_BuildException();
-	
+
 	if (!PyTuple_GetInteger(poArgs, 2, &szPriority))
 		return Py_BuildException();
 
@@ -219,7 +219,7 @@ PyObject* netSendTicketPacketAdmin(PyObject* poSelf, PyObject* poArgs)
 
 	if (!PyTuple_GetString(poArgs, 2, &szName))
 		return Py_BuildException();
-	
+
 	if (!PyTuple_GetString(poArgs, 3, &szReason))
 		return Py_BuildException();
 
@@ -256,15 +256,15 @@ void initTicket()
 	};
 
 	PyObject* poModule = Py_InitModule("ticket", s_methods);
-	
+
 	PyModule_AddIntConstant(poModule, "TICKET_MAX_LENGTH_TITLE",					TICKET_MAX_LENGTH_TITLE);
-	PyModule_AddIntConstant(poModule, "TICKET_MAX_LENGTH_CONTENT",					TICKET_MAX_LENGTH_CONTENT);	
+	PyModule_AddIntConstant(poModule, "TICKET_MAX_LENGTH_CONTENT",					TICKET_MAX_LENGTH_CONTENT);
 	PyModule_AddIntConstant(poModule, "TICKET_MAX_LENGTH_REPLY",					TICKET_MAX_LENGTH_REPLY);
-	PyModule_AddIntConstant(poModule, "TICKET_MAX_LOGS_GENERAL",					TICKET_MAX_LOGS_GENERAL);	
-	PyModule_AddIntConstant(poModule, "TICKET_MAX_LOGS_FROM_REPLY",					TICKET_MAX_LOGS_FROM_REPLY);	
-	PyModule_AddIntConstant(poModule, "TICKET_LOGS_PER_PAGE",						TICKET_LOGS_PER_PAGE);	
+	PyModule_AddIntConstant(poModule, "TICKET_MAX_LOGS_GENERAL",					TICKET_MAX_LOGS_GENERAL);
+	PyModule_AddIntConstant(poModule, "TICKET_MAX_LOGS_FROM_REPLY",					TICKET_MAX_LOGS_FROM_REPLY);
+	PyModule_AddIntConstant(poModule, "TICKET_LOGS_PER_PAGE",						TICKET_LOGS_PER_PAGE);
 	PyModule_AddIntConstant(poModule, "TICKET_MAX_PAGE_LOGS",						TICKET_MAX_PAGE_LOGS);
 	PyModule_AddIntConstant(poModule, "TICKET_MAX_PAGE_LOGS_ADMIN",					TICKET_MAX_PAGE_LOGS_ADMIN);
-	PyModule_AddIntConstant(poModule, "TICKET_UNKNOWN_LOG",							TICKET_UNKNOWN_LOG);	
+	PyModule_AddIntConstant(poModule, "TICKET_UNKNOWN_LOG",							TICKET_UNKNOWN_LOG);
 }
 #endif

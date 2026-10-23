@@ -46,7 +46,7 @@ bool CGuildMarkManager::LoadMarkIndex()
 
 	while (fgets(line, sizeof(line) - 1, fPtr.get()))
 	{
-		sscanf(line, "%u %u", &guildID, &markID);
+		sscanf_s(line, "%u %u", &guildID, &markID);
 		line[0] = '\0';
 		AddMarkIDByGuildID(guildID, markID);
 	}

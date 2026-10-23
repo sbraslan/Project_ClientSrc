@@ -364,7 +364,7 @@ bool CItemManager::LoadItemTable(const char * c_szFileName)
 
 		if (auto f = m_ItemMap.find(dwVnum); m_ItemMap.end() == f)
 		{
-			_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", dwVnum);
+			snprintf(szName, sizeof(szName), "icon/item/%05d.tga", dwVnum);
 #ifdef ENABLE_INGAME_WIKI
 			pItemData = CItemData::New();
 #endif
@@ -377,9 +377,9 @@ bool CItemManager::LoadItemTable(const char * c_szFileName)
 				auto itVnum = itemNameMap.find(GetHashCode(table->szName));
 
 				if (itVnum != itemNameMap.end())
-					_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", itVnum->second);
+					snprintf(szName, sizeof(szName), "icon/item/%05d.tga", itVnum->second);
 				else
-					_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", dwVnum - dwVnum % 10);
+					snprintf(szName, sizeof(szName), "icon/item/%05d.tga", dwVnum - dwVnum % 10);
 
 				if (CResourceManager::Instance().IsFileExist(szName) == false)
 				{
@@ -387,7 +387,7 @@ bool CItemManager::LoadItemTable(const char * c_szFileName)
 					TraceError("%16s(#%-5d) cannot find icon file. setting to default.", table->szName, dwVnum);
 #endif
 					const uint32_t EmptyBowl = 27995;
-					_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", EmptyBowl);
+					snprintf(szName, sizeof(szName), "icon/item/%05d.tga", EmptyBowl);
 				}
 			}
 

@@ -215,7 +215,7 @@ void CPythonChat::UpdateViewMode(uint32_t dwID)
 		return;
 
 	TChatLineList * pLineList = &(pChatSet->m_ShowingChatLineList);
-	const int iLineIndex = m2::narrow<int>(pLineList->size());
+	int iLineIndex = m2::narrow<int>(pLineList->size());
 	int iHeight = -(int(pLineList->size() + 1) * pChatSet->m_iStep);
 
 	for (auto itor = pLineList->begin(); itor != pLineList->end();)

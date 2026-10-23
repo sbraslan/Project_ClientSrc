@@ -251,12 +251,12 @@ const char* CPythonNetworkStream::GetLoadingTipVnum(long lMapIndex)
 	if (it == m_kMap_dwMapIndex_vecTipList.end())
 	{
 		std::uniform_int_distribution<std::mt19937::result_type> dist(0, m2::narrow<std::mt19937::result_type>(m_kMap_dwMapIndex_vecTipList.begin()->second.size() - 1));
-		sprintf(s_szTip, "%s", m_kMap_dwID_strTipString.find(m_kMap_dwMapIndex_vecTipList.begin()->second.at(dist(rd)))->second.c_str());
+		m2::crt::format(s_szTip, "%s", m_kMap_dwID_strTipString.find(m_kMap_dwMapIndex_vecTipList.begin()->second.at(dist(rd)))->second.c_str());
 	}
 	else
 	{
 		std::uniform_int_distribution<std::mt19937::result_type> dist(0, m2::narrow<std::mt19937::result_type>(it->second.size() - 1));
-		sprintf(s_szTip, "%s", m_kMap_dwID_strTipString.find(it->second.at(dist(rd)))->second.c_str());
+		m2::crt::format(s_szTip, "%s", m_kMap_dwID_strTipString.find(it->second.at(dist(rd)))->second.c_str());
 	}
 
 	return s_szTip;

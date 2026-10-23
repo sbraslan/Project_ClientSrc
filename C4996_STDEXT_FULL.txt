@@ -1,0 +1,11 @@
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\boost\multiprecision\cpp_int\add.hpp:68: std::copy(pa, pa + (pr_end - pr), stdext::checked_array_iterator<limb_type*>(pr, result.size()));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\boost\multiprecision\cpp_int\add.hpp:205: std::copy(pa + i, pa + x, stdext::checked_array_iterator<limb_type*>(pr + i, result.size() - i));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\boost\multiprecision\cpp_int\add.hpp:237: std::copy(pa + 1, pa + a.size(), stdext::checked_array_iterator<limb_type*>(pr + 1, result.size() - 1));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\boost\multiprecision\cpp_int\add.hpp:267: std::copy(pa + i, pa + a.size(), stdext::checked_array_iterator<limb_type*>(pr + i, result.size() - i));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\boost\multiprecision\cpp_int\comparison.hpp:34: stdext::checked_array_iterator<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>::const_limb_pointer>(b.limbs(), b.size()));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\boost\multiprecision\cpp_int\comparison.hpp:52: && std::equal(a.limbs(), a.limbs() + a.size(), stdext::checked_array_iterator<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>::const_limb_pointer>(b.limbs(), b.size()));
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\boost\regex\v4\regex_workaround.hpp:143: return stdext::unchecked_copy(first, last, dest);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\boost\regex\v4\regex_workaround.hpp:152: return stdext::unchecked_equal(first, last, with);
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\cryptopp\stdcpp.h:35: // make_unchecked_array_iterator
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\extern\include\fmt\format.h:384: template <typename T> using checked_ptr = stdext::checked_array_iterator<T*>;
+C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\vcpkg_installed\x64-windows-static\include\cryptopp\stdcpp.h:45: // make_unchecked_array_iterator

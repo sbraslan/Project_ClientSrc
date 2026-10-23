@@ -51,8 +51,8 @@ bool CPropertyManager::Initialize(const char * c_pszPackFileName)
 	else
 	{
 		m_isFileMode = true;
-		// NOTE : ¿©±â¼­ Property¸¦ µî·Ï½ÃÅ°¸é WorldEditor¿¡¼­ ÀÌ»óÀÌ »ý±è ;
-		//        ¶ÇÇÑ, Property Tree List¿¡µµ µî·ÏÀ» ½ÃÄÑ¾ß µÇ±â ¶§¹®¿¡ ¹Ù±ùÂÊ¿¡¼­.. - [levites]
+		// NOTE : ï¿½ï¿½ï¿½â¼­ Propertyï¿½ï¿½ ï¿½ï¿½Ï½ï¿½Å°ï¿½ï¿½ WorldEditorï¿½ï¿½ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ;
+		//        ï¿½ï¿½ï¿½ï¿½, Property Tree Listï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ¾ï¿½ ï¿½Ç±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù±ï¿½ï¿½Ê¿ï¿½ï¿½ï¿½.. - [levites]
 	}
 
 	return true;
@@ -75,7 +75,7 @@ bool CPropertyManager::BuildPack()
 			continue;
 
 		char szSourceFileName[256 + 1];
-		_snprintf(szSourceFileName, sizeof(szSourceFileName), "property\\%s", fdata.cFileName);
+		snprintf(szSourceFileName, sizeof(szSourceFileName), "property\\%s", fdata.cFileName);
 
 		m_pack.Put(fdata.cFileName, szSourceFileName, COMPRESSED_TYPE_NONE, "");
 	} while (FindNextFile(hFind, &fdata));
@@ -125,7 +125,7 @@ uint32_t CPropertyManager::GetUniqueCRC(const char * c_szSeed)
 			return dwCRC;
 
 		char szAdd[2];
-		_snprintf(szAdd, sizeof(szAdd), "%d", random() % 10);
+		snprintf(szAdd, sizeof(szAdd), "%d", random() % 10);
 		stTmp += szAdd;
 	}
 }
@@ -187,7 +187,7 @@ bool CPropertyManager::Put(const char * c_pszFileName, const char * c_pszSourceF
 	if (!CopyFile(c_pszSourceFileName, c_pszFileName, FALSE))
 		return false;
 
-	if (!m_isFileMode) // ÆÑ ÆÄÀÏ¿¡µµ ³ÖÀ½
+	if (!m_isFileMode) // ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	{
 		if (!m_pack.Put(c_pszFileName, nullptr, COMPRESSED_TYPE_NONE, ""))
 		{
@@ -213,7 +213,7 @@ bool CPropertyManager::Erase(uint32_t dwCRC)
 	DeleteFile(pProperty->GetFileName());
 	ReserveCRC(pProperty->GetCRC());
 
-	if (!m_isFileMode) // ÆÄÀÏ ¸ðµå°¡ ¾Æ´Ï¸é ÆÑ¿¡¼­µµ Áö¿ò
+	if (!m_isFileMode) // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å°¡ ï¿½Æ´Ï¸ï¿½ ï¿½Ñ¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		m_pack.Delete(pProperty->GetFileName());
 
 	msl::file_ptr fPtr("property/reserve", "a+");
@@ -222,7 +222,7 @@ bool CPropertyManager::Erase(uint32_t dwCRC)
 	else
 	{
 		char szCRC[64 + 1];
-		_snprintf(szCRC, sizeof(szCRC), "%u\r\n", pProperty->GetCRC());
+		snprintf(szCRC, sizeof(szCRC), "%u\r\n", pProperty->GetCRC());
 		fputs(szCRC, fPtr.get());
 	}
 

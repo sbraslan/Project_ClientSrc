@@ -196,7 +196,7 @@ CGraphicImage * CGrannyMaterial::__GetImagePointer(const char * fileName)
 		size_t localFileName_len = modelLocalPath.length() + 1 + fileName_len;
 		if (localFileName_len < sizeof(localFileName) - 1)
 		{
-			_snprintf(localFileName, sizeof(localFileName), "%s%s", GetModelLocalPath().c_str(), fileName);
+			snprintf(localFileName, sizeof(localFileName), "%s%s", GetModelLocalPath().c_str(), fileName);
 			CResource * pResource = rkResMgr.GetResourcePointer(localFileName);
 			return msl::inherit_cast<CGraphicImage *>(pResource);
 		}

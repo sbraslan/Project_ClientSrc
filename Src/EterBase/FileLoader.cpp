@@ -247,7 +247,7 @@ bool CDiskFileLoader::Open(const char * c_szFileName)
 	if (!c_szFileName[0])
 		return false;
 
-	m_fp = fopen(c_szFileName, "rb");
+	m_fp = m2::crt::open_file(c_szFileName, "rb");
 
 	if (!m_fp)
 		return false;

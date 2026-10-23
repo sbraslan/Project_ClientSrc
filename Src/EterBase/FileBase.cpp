@@ -32,7 +32,7 @@ BOOL CFileBase::Create(const char * filename, EFileMode mode)
 {
 	Destroy();
 
-	strncpy(m_filename, filename, MAX_PATH);
+	m2::crt::copy_n(m_filename, filename, MAX_PATH);
 
 	uint32_t dwMode, dwShareMode = FILE_SHARE_READ;
 

@@ -11,7 +11,7 @@ void CEffectManager::GetInfo(std::string * pstInfo) const
 {
 	char szInfo[256];
 
-	sprintf(szInfo, "Effect: Inst - ED %zu, EI %zu Pool - PSI %u, MI %u, LI %u, PI %u, EI %u, ED %u, PSD %u, EM %u, LD %u",
+	m2::crt::format(szInfo, "Effect: Inst - ED %zu, EI %zu Pool - PSI %u, MI %u, LI %u, PI %u, EI %u, ED %u, PSD %u, EM %u, LD %u",
 			m_kEftDataMap.size(), m_kEftInstMap.size(), CParticleSystemInstance::ms_kPool.GetCapacity(),
 			CEffectMeshInstance::ms_kPool.GetCapacity(), CLightInstance::ms_kPool.GetCapacity(), CParticleInstance::ms_kPool.GetCapacity(),
 			CEffectInstance::ms_kPool.GetCapacity(), CEffectData::ms_kPool.GetCapacity(), CParticleSystemData::ms_kPool.GetCapacity(),

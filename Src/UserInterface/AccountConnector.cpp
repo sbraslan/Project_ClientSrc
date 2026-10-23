@@ -175,13 +175,13 @@ bool CAccountConnector::__AuthState_RecvPhase()
 		TPacketCGLogin3 LoginPacket;
 		LoginPacket.header = HEADER_CG_LOGIN3;
 
-		strncpy(LoginPacket.name, m_strID.c_str(), ID_MAX_NUM);
-		strncpy(LoginPacket.pwd, m_strPassword.c_str(), PASS_MAX_NUM);
+		m2::crt::copy_n(LoginPacket.name, m_strID.c_str(), ID_MAX_NUM);
+		m2::crt::copy_n(LoginPacket.pwd, m_strPassword.c_str(), PASS_MAX_NUM);
 #ifdef ENABLE_HWID_BAN
 #	ifdef _DEBUG
-		strcpy(LoginPacket.hwid, HWID);
+		m2::crt::copy(LoginPacket.hwid, HWID);
 #	else
-		strcpy(LoginPacket.hwid, CPythonSystem::Instance().GetHWID());
+		m2::crt::copy(LoginPacket.hwid, CPythonSystem::Instance().GetHWID());
 #	endif
 #endif
 		LoginPacket.name[ID_MAX_NUM] = '\0';
@@ -369,7 +369,7 @@ bool CAccountConnector::__AuthState_RecvKeyAgreement()
 	size_t agreedLength = Prepare(packetToSend.data, &dataLength);
 	if (agreedLength == 0)
 	{
-		// ÃÊ±âÈ­ ½ÇÆÐ
+		// ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½
 		Disconnect();
 		return false;
 	}
@@ -377,7 +377,7 @@ bool CAccountConnector::__AuthState_RecvKeyAgreement()
 
 	if (Activate(packet.wAgreedLength, packet.data, packet.wDataLength))
 	{
-		// Key agreement ¼º°ø, ÀÀ´ä Àü¼Û
+		// Key agreement ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		packetToSend.bHeader = HEADER_CG_KEY_AGREEMENT;
 		packetToSend.wAgreedLength = static_cast<uint16_t>(agreedLength);
 		packetToSend.wDataLength = static_cast<uint16_t>(dataLength);
@@ -391,7 +391,7 @@ bool CAccountConnector::__AuthState_RecvKeyAgreement()
 	}
 	else
 	{
-		// Å° Çù»ó ½ÇÆÐ
+		// Å° ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		Disconnect();
 		return false;
 	}
@@ -478,7 +478,7 @@ void CAccountConnector::OnConnectSuccess()
 
 void CAccountConnector::OnRemoteDisconnect()
 {
-	// Matrix Card Number ¸¦ º¸³» ³õ¾Ò´Âµ¥ close µÇ¸é ÇÁ·Î±×·¥À» Á¾·á ÇÑ´Ù.
+	// Matrix Card Number ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò´Âµï¿½ close ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½Î±×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
 	if (m_isWaitKey)
 	{
 		if (m_poHandler)

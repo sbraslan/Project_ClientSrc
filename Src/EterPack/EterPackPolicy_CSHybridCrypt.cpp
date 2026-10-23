@@ -98,7 +98,7 @@ bool EterPackPolicy_CSHybridCrypt::GetPerFileCryptKey(std::string & rfileName, e
 
 	std::string extName = GetFileExt(fileNamelower);
 
-	TCSHybridCryptKeyMap::const_iterator cit = m_mapHybridCryptKey.find(stringhash::GetHash(extName));
+	TCSHybridCryptKeyMap::const_iterator cit = m_mapHybridCryptKey.find(m2::narrow<uint32_t>(stringhash::GetHash(extName)));
 
 	if (cit == m_mapHybridCryptKey.end())
 	{

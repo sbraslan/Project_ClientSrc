@@ -22,7 +22,7 @@ void CPythonExceptionSender::Send()
 
 	//char szServerAddr[256];
 	//int  nServerPort;
-	//strncpy(szServerAddr, "211.105.222.20", sizeof(szServerAddr)-1);
+	//m2::crt::copy_n(szServerAddr, "211.105.222.20", sizeof(szServerAddr)-1);
 
 	//nServerPort=LocaleService_GetPythonErrorReportPort();
 	//

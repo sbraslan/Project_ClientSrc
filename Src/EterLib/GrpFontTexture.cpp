@@ -76,7 +76,7 @@ bool CGraphicFontTexture::Create(const char * c_szFontName, int fontSize, bool b
 {
 	Destroy();
 
-	strncpy(m_fontName, c_szFontName, sizeof(m_fontName) - 1);
+	m2::crt::copy_n(m_fontName, c_szFontName, sizeof(m_fontName) - 1);
 	m_fontSize = fontSize;
 	m_bItalic = bItalic;
 #ifdef ENABLE_MINI_GAME_YUTNORI
@@ -138,7 +138,7 @@ HFONT CGraphicFontTexture::GetFont(uint16_t codePage)
 		logFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 		logFont.lfQuality = ANTIALIASED_QUALITY;
 		logFont.lfPitchAndFamily = DEFAULT_PITCH;
-		strcpy(logFont.lfFaceName, m_fontName); //GetFontFaceFromCodePage(codePage));
+		m2::crt::copy(logFont.lfFaceName, m_fontName); //GetFontFaceFromCodePage(codePage));
 
 		hFont = CreateFontIndirect(&logFont);
 

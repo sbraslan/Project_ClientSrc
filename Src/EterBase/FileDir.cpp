@@ -67,8 +67,8 @@ bool CDir::Create(const char * c_szFilter, const char * c_szPath, BOOL bCheckedE
 			if (bCheckedExtension)
 			{
 				std::string strFilter = c_szFilter;
-				int iPos = strFilter.find_first_of(';', 0);
-				if (iPos > 0)
+				const auto iPos = strFilter.find_first_of(';', 0);
+				if (iPos != std::string::npos && iPos > 0)
 				{
 					std::string strFirstFilter = std::string(c_szFilter).substr(0, iPos);
 					std::string strSecondFilter = std::string(c_szFilter).substr(iPos + 1, strlen(c_szFilter));

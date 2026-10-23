@@ -37,7 +37,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64' and '$(Metin2VcpkgReady)'=='true'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(Metin2VcpkgRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>METIN2_X64_MODERN_DEPS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>METIN2_X64_MODERN_DEPS=1;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
 

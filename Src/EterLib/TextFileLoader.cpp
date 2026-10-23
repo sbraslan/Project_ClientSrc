@@ -347,7 +347,7 @@ BOOL CTextFileLoader::SetChildNode(const char * c_szKey)
 BOOL CTextFileLoader::SetChildNode(const std::string & c_rstrKeyHead, uint32_t dwIndex)
 {
 	char szKey[32 + 1];
-	_snprintf(szKey, sizeof(szKey), "%s%02u", c_rstrKeyHead.c_str(), dwIndex);
+	snprintf(szKey, sizeof(szKey), "%s%02u", c_rstrKeyHead.c_str(), dwIndex);
 
 	return SetChildNode(szKey);
 }

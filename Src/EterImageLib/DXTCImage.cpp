@@ -86,8 +86,8 @@ bool CDXTCImage::LoadFromFile(const char * filename)
 
 	static char fileupper[MAX_PATH + 1];
 
-	strncpy(fileupper, filename, MAX_PATH);
-	_strupr(fileupper);
+	strncpy_s(fileupper, sizeof(fileupper), filename, _TRUNCATE);
+	_strupr_s(fileupper, sizeof(fileupper));
 
 	bool knownformat = false;
 
@@ -802,38 +802,38 @@ void CDXTCImage::DecodePixelFormat(CHAR * strPixelFormat, XDDPIXELFORMAT * pxddp
 		uint16_t g = GetNumberOfBits(pxddpf->dwGBitMask);
 		uint16_t b = GetNumberOfBits(pxddpf->dwBBitMask);
 
-		_snprintf(strPixelFormat, 31, "ARGB-%d%d%d%d%s", a, r, g, b, pxddpf->dwBBitMask & DDPF_ALPHAPREMULT ? "-premul" : "");
+		snprintf(strPixelFormat, 31, "ARGB-%d%d%d%d%s", a, r, g, b, pxddpf->dwBBitMask & DDPF_ALPHAPREMULT ? "-premul" : "");
 		m_CompFormat = PF_ARGB;
 	}
 	break;
 
 	case MAKEFOURCC('D', 'X', 'T', '1'):
-		strncpy(strPixelFormat, "DXT1", 31);
+		strcpy_s(strPixelFormat, 32, "DXT1");
 		m_CompFormat = PF_DXT1;
 		break;
 
 	case MAKEFOURCC('D', 'X', 'T', '2'):
-		strncpy(strPixelFormat, "DXT2", 31);
+		strcpy_s(strPixelFormat, 32, "DXT2");
 		m_CompFormat = PF_DXT2;
 		break;
 
 	case MAKEFOURCC('D', 'X', 'T', '3'):
-		strncpy(strPixelFormat, "DXT3", 31);
+		strcpy_s(strPixelFormat, 32, "DXT3");
 		m_CompFormat = PF_DXT3;
 		break;
 
 	case MAKEFOURCC('D', 'X', 'T', '4'):
-		strncpy(strPixelFormat, "DXT4", 31);
+		strcpy_s(strPixelFormat, 32, "DXT4");
 		m_CompFormat = PF_DXT4;
 		break;
 
 	case MAKEFOURCC('D', 'X', 'T', '5'):
-		strncpy(strPixelFormat, "DXT5", 31);
+		strcpy_s(strPixelFormat, 32, "DXT5");
 		m_CompFormat = PF_DXT5;
 		break;
 
 	default:
-		strcpy(strPixelFormat, "Format Unknown");
+		strcpy_s(strPixelFormat, 32, "Format Unknown");
 		m_CompFormat = PF_UNKNOWN;
 		break;
 	}

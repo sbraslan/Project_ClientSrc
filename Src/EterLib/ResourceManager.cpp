@@ -251,7 +251,7 @@ CResource * CResourceManager::GetTypeResourcePointer(const char * c_szFileName, 
 		if (pcFileExt)
 		{
 			static char s_szFileExt[8 + 1];
-			strncpy(s_szFileExt, pcFileExt + 1, 8);
+			m2::crt::copy_n(s_szFileExt, pcFileExt + 1, 8);
 
 			auto f = m_pResNewFuncMap.find(s_szFileExt);
 
@@ -300,7 +300,7 @@ CResource * CResourceManager::GetResourcePointer(const char * c_szFileName)
 	if (pcFileExt)
 	{
 		static char s_szFileExt[8 + 1];
-		strncpy(s_szFileExt, pcFileExt + 1, 8);
+		m2::crt::copy_n(s_szFileExt, pcFileExt + 1, 8);
 
 		auto f = m_pResNewFuncMap.find(s_szFileExt);
 

@@ -73,7 +73,7 @@ void __GetRaceResourcePathes(unsigned race, std::vector<std::string> & vec_stPat
 			vec_stPathes.emplace_back("d:/ymir work/guild/");
 		}
 	}
-	// ¸¸¿ìÀý ÀÌº¥Æ®¿ë ¿¹¿Ü ¸ó½ºÅÍ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	else if (8507 == race || 8510 == race)
 	{
 		vec_stPathes.emplace_back("d:/ymir work/monster2/");
@@ -149,8 +149,8 @@ CRaceData * CRaceManager::__LoadRaceData(uint32_t dwRaceIndex)
 		const char * pathName = c_rstRaceName.c_str() + 1;
 		char shapeFileName[256];
 		char motionListFileName[256];
-		_snprintf(shapeFileName, sizeof(shapeFileName), "%sshape.msm", pathName);
-		_snprintf(motionListFileName, sizeof(motionListFileName), "%smotlist.txt", pathName);
+		snprintf(shapeFileName, sizeof(shapeFileName), "%sshape.msm", pathName);
+		snprintf(motionListFileName, sizeof(motionListFileName), "%smotlist.txt", pathName);
 
 		CRaceData * pRaceData = CRaceData::New();
 		pRaceData->SetRace(dwRaceIndex);
@@ -320,14 +320,14 @@ bool CRaceManager::__LoadRaceMotionList(CRaceData & rkRaceData, const char * pat
 		uint32_t motionType = CRaceMotionData::NAME_NONE;
 
 		const std::string & c_rstLine = kTextFileLoader.GetLineString(uLineIndex);
-		sscanf(c_rstLine.c_str(), "%s %s %s %d", szMode, szType, szFile, &nPercent);
+		sscanf_s(c_rstLine.c_str(), "%255s %255s %255s %d", szMode, static_cast<unsigned>(_countof(szMode)), szType, static_cast<unsigned>(_countof(szType)), szFile, static_cast<unsigned>(_countof(szFile)), &nPercent);
 
 		auto fTypeIndex = s_kMap_stType_dwIndex.find(szType);
 
 		if (s_kMap_stType_dwIndex.end() == fTypeIndex)
 		{
-			// ¸ð¼Ç ¸ñ·Ï¿¡ WAIT, WAIT4, WAIT20  ÀÌ·± ½ÄÀ¸·Î µî·ÏµÇ¾î ÀÖÀ» ¶§,
-			// WAIT4, WAIT20À» WAIT·Î ÀÎ½ÄÇÒ ¼ö ÀÖµµ·Ï Ã³¸®
+			// ï¿½ï¿½ï¿½ ï¿½ï¿½Ï¿ï¿½ WAIT, WAIT4, WAIT20  ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ÏµÇ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½,
+			// WAIT4, WAIT20ï¿½ï¿½ WAITï¿½ï¿½ ï¿½Î½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 			const size_t c_cutLengthLimit = 2;
 			bool bFound = false;
 

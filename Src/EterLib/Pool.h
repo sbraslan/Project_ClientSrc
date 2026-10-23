@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/LegacyCRTCompat.h"
+
 #include "../EterBase/X64Compat.h"
 
 #include <cstddef>
@@ -103,7 +105,7 @@ public:
 
 #ifdef _DEBUG
 		char szText[256];
-		sprintf(szText, "--------------------------------------------------------------------- %s Pool Capacity %d\n", typeid(T).name(),
+		m2::crt::format(szText, "--------------------------------------------------------------------- %s Pool Capacity %d\n", typeid(T).name(),
 				m_uUsedCapacity);
 		OutputDebugString(szText);
 		printf(szText);
@@ -118,7 +120,7 @@ public:
 		if (!m_kVct_pkData.empty())
 		{
 			char szText[256];
-			sprintf(szText, "--------------------------------------------------------------------- %s Pool Destroy\n", typeid(T).name());
+			m2::crt::format(szText, "--------------------------------------------------------------------- %s Pool Destroy\n", typeid(T).name());
 			OutputDebugString(szText);
 			printf(szText);
 		}

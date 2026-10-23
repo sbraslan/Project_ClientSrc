@@ -165,7 +165,7 @@ bool CPythonNetworkStream::SendDestroyCharacterPacket(uint8_t index, const char 
 
 	DestroyCharacterPacket.header = HEADER_CG_PLAYER_DESTROY;
 	DestroyCharacterPacket.index = index;
-	strncpy(DestroyCharacterPacket.szPrivateCode, szPrivateCode, PRIVATE_CODE_LENGTH - 1);
+	m2::crt::copy_n(DestroyCharacterPacket.szPrivateCode, szPrivateCode, PRIVATE_CODE_LENGTH - 1);
 
 	if (!Send(sizeof(TPacketCGDestroyCharacter), &DestroyCharacterPacket))
 	{
@@ -183,7 +183,7 @@ bool CPythonNetworkStream::SendCreateCharacterPacket(uint8_t index, const char *
 
 	createCharacterPacket.header = HEADER_CG_PLAYER_CREATE;
 	createCharacterPacket.index = index;
-	strncpy(createCharacterPacket.name, name, CHARACTER_NAME_MAX_LEN);
+	m2::crt::copy_n(createCharacterPacket.name, name, CHARACTER_NAME_MAX_LEN);
 	createCharacterPacket.job = job;
 	createCharacterPacket.shape = shape;
 	createCharacterPacket.CON = byCON;
@@ -205,7 +205,7 @@ bool CPythonNetworkStream::SendChangeNamePacket(uint8_t index, const char * name
 	TPacketCGChangeName ChangeNamePacket;
 	ChangeNamePacket.header = HEADER_CG_CHANGE_NAME;
 	ChangeNamePacket.index = index;
-	strncpy(ChangeNamePacket.name, name, CHARACTER_NAME_MAX_LEN);
+	m2::crt::copy_n(ChangeNamePacket.name, name, CHARACTER_NAME_MAX_LEN);
 
 	if (!Send(sizeof(TPacketCGChangeName), &ChangeNamePacket))
 	{
@@ -290,7 +290,7 @@ bool CPythonNetworkStream::__RecvChangeName()
 		if (ChangeNamePacket.pid == m_akSimplePlayerInfo[i].dwID)
 		{
 			m_akSimplePlayerInfo[i].bChangeName = FALSE;
-			strncpy(m_akSimplePlayerInfo[i].szName, ChangeNamePacket.name, CHARACTER_NAME_MAX_LEN);
+			m2::crt::copy_n(m_akSimplePlayerInfo[i].szName, ChangeNamePacket.name, CHARACTER_NAME_MAX_LEN);
 
 			PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_SELECT], "OnChangeName", Py_BuildValue("(is)", i, ChangeNamePacket.name));
 			return true;

@@ -207,7 +207,7 @@ LPDIRECT3DDEVICE9 CGraphicDevice::GetDevice()
 
 BOOL EL3D_ConfirmDevice(D3DCAPS9 & rkD3DCaps, uint32_t uBehavior, D3DFORMAT /*eD3DFmt*/)
 {
-	// PUREDEVICE´Â GetTransform / GetViewport µîÀÌ µÇÁö ¾Ê´Â´Ù.
+	// PUREDEVICEï¿½ï¿½ GetTransform / GetViewport ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 	if (uBehavior & D3DCREATE_PUREDEVICE)
 		return FALSE;
 
@@ -256,7 +256,7 @@ bool CGraphicDevice::__IsInDriverBlackList(D3D_CAdapterInfo & rkD3DAdapterInfo)
 	D3DADAPTER_IDENTIFIER9 & rkD3DAdapterIdentifier = rkD3DAdapterInfo.GetIdentifier();
 
 	char szSrcDriver[256];
-	strncpy(szSrcDriver, rkD3DAdapterIdentifier.Driver, sizeof(szSrcDriver) - 1);
+	m2::crt::copy_n(szSrcDriver, rkD3DAdapterIdentifier.Driver, sizeof(szSrcDriver) - 1);
 	uint32_t dwSrcHighVersion = rkD3DAdapterIdentifier.DriverVersion.QuadPart >> 32;
 	uint32_t dwSrcLowVersion = rkD3DAdapterIdentifier.DriverVersion.QuadPart & 0xffffffff;
 
@@ -273,7 +273,7 @@ bool CGraphicDevice::__IsInDriverBlackList(D3D_CAdapterInfo & rkD3DAdapterInfo)
 		char szLine[256];
 		while (fgets(szLine, sizeof(szLine) - 1, fPtr.get()))
 		{
-			sscanf(szLine, "%s %x %x", szChkDriver, &dwChkHighVersion, &dwChkLowVersion);
+			sscanf_s(szLine, "%255s %x %x", szChkDriver, static_cast<unsigned>(_countof(szChkDriver)), &dwChkHighVersion, &dwChkLowVersion);
 
 			if (strcmp(szSrcDriver, szChkDriver) == 0)
 				if (dwSrcHighVersion == dwChkHighVersion)
@@ -377,7 +377,7 @@ RETRY:
 	ms_dwD3DBehavior = pkD3DModeInfo->m_dwD3DBehavior;
 
 	if (FAILED(ms_hLastResult = ms_lpd3d->CreateDevice(ms_iD3DAdapterInfo, D3DDEVTYPE_HAL, hWnd,
-													   // 2004. 1. 9 myevan ¹öÅØ½º ÇÁ·Î¼¼½Ì ¹æ½Ä ÀÚµ¿ ¼±ÅÃ Ãß°¡
+													   // 2004. 1. 9 myevan ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 													   pkD3DModeInfo->m_dwD3DBehavior, &ms_d3dPresentParameter, &ms_lpd3dDevice)))
 	{
 		switch (ms_hLastResult)
@@ -401,7 +401,7 @@ RETRY:
 		if (ErrorCorrection)
 			return CREATE_DEVICE;
 
-		// 2004. 1. 9 myevan Å«ÀÇ¹Ì ¾ø´Â ÄÚµåÀÎµí.. ¿¡·¯³ª¸é Ç¥½ÃÇÏ°í Á¾·áÇÏÀÚ
+		// 2004. 1. 9 myevan Å«ï¿½Ç¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½Îµï¿½.. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		iReflashRate = 0;
 		++ErrorCorrection;
 		iRet = CREATE_REFRESHRATE;

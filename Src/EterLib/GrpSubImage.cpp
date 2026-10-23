@@ -58,7 +58,7 @@ void CGraphicSubImage::SetRectReference(const RECT & c_rRect)
 
 void CGraphicSubImage::SetSearchPath(const char * c_szFileName)
 {
-	strncpy(m_SearchPath, c_szFileName, sizeof(m_SearchPath) - 1);
+	m2::crt::copy_n(m_SearchPath, c_szFileName, sizeof(m_SearchPath) - 1);
 }
 
 bool CGraphicSubImage::OnLoad(int iSize, const void * c_pvBuf)
@@ -115,7 +115,7 @@ bool CGraphicSubImage::OnLoad(int iSize, const void * c_pvBuf)
 			memcpy(szFileName, c_rstImage.c_str(), c_rstImage.length());
 	}
 	else
-		_snprintf(szFileName, sizeof(szFileName), "%s%s", m_SearchPath, c_rstImage.c_str());
+		snprintf(szFileName, sizeof(szFileName), "%s%s", m_SearchPath, c_rstImage.c_str());
 
 	SetImageFileName(szFileName);
 

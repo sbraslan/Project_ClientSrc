@@ -104,10 +104,10 @@ void CProperty::PutVector(const char * c_pszKey, const CTokenVector & c_rTokenVe
 
 void GetTimeString(char * str, time_t ct)
 {
-	struct tm tm;
-	tm = *localtime(&ct);
+	struct tm tm{};
+	localtime_s(&tm, &ct);
 
-	_snprintf(str, 15, "%04d%02d%02d%02d%02d%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+	snprintf(str, 15, "%04d%02d%02d%02d%02d%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 }
 
 bool CProperty::Save(const char * c_pszFileName)
@@ -123,10 +123,10 @@ bool CProperty::Save(const char * c_pszFileName)
 		char szCRC[MAX_PATH + 16 + 1];
 
 		GetTimeString(szCRC, time(nullptr));
-		strcpy(szCRC + strlen(szCRC), c_pszFileName);
+		m2::crt::append(szCRC, c_pszFileName);
 
 		m_dwCRC = CPropertyManager::Instance().GetUniqueCRC(szCRC);
-		_snprintf(szCRC, sizeof(szCRC), "%u", m_dwCRC);
+		snprintf(szCRC, sizeof(szCRC), "%u", m_dwCRC);
 
 		m_stCRC.assign(szCRC);
 	}
@@ -141,12 +141,12 @@ bool CProperty::Save(const char * c_pszFileName)
 	{
 		CTokenVector & tokenVector = itor->second;
 
-		int len = _snprintf(buf, sizeof(buf), "%s\t", itor->first.c_str());
+		int len = snprintf(buf, sizeof(buf), "%s\t", itor->first.c_str());
 		file.Write(buf, len);
 
 		for (auto & i : tokenVector)
 		{
-			len = _snprintf(buf, sizeof(buf), "\t\"%s\"", i.c_str());
+			len = snprintf(buf, sizeof(buf), "\t\"%s\"", i.c_str());
 			file.Write(buf, len);
 		}
 
@@ -192,11 +192,11 @@ bool CProperty::ReadFromMemory(const void * c_pvData, int iLen, const char * c_p
 
 		m_stTimeStamp = szTimeStamp;
 
-		int iTimeStampLen = 14 + _snprintf(szTimeStamp + 14, 64 - 14, "%s", mc_pFileName);
+		int iTimeStampLen = 14 + snprintf(szTimeStamp + 14, 64 - 14, "%s", mc_pFileName);
 		m_dwCRC = GetCRC32(szTimeStamp, iTimeStampLen);
 
 		char tmp[64];
-		sprintf(tmp, "%u", m_dwCRC);
+		m2::crt::format(tmp, "%u", m_dwCRC);
 		m_stCRC.assign(tmp);
 
 		CMemoryTextFileLoader textFileLoader;

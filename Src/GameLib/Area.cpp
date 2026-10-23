@@ -899,7 +899,7 @@ void CArea::__SetObjectInstance_SetBuilding(TObjectInstance * pObjectInstance, c
 		char szLODModelFileNameEnd[256];
 		for (uint32_t uLODIndex = 1; uLODIndex <= 3; ++uLODIndex)
 		{
-			sprintf(szLODModelFileNameEnd, "_lod_%.2d.gr2", uLODIndex);
+			m2::crt::format(szLODModelFileNameEnd, "_lod_%.2d.gr2", uLODIndex);
 			stLODModelFileName = CFileNameHelper::NoExtension(stSrcModelFileName) + szLODModelFileNameEnd;
 			if (!rkResMgr.IsFileExist(stLODModelFileName.c_str()))
 				break;
@@ -1002,7 +1002,7 @@ void CArea::__LoadAttribute(TObjectInstance * pObjectInstance, const char * c_sz
 				CStaticCollisionData collision;
 				collision.dwType = COLLISION_TYPE_OBB;
 				D3DXQuaternionRotationYawPitchRoll(&collision.quatRotation, object->GetYaw(), object->GetPitch(), object->GetRoll());
-				strcpy(collision.szName, "DummyCollisionOBB");
+				m2::crt::copy(collision.szName, "DummyCollisionOBB");
 				collision.v3Position = (v3Min + v3Max) * 0.5f;
 
 				D3DXVECTOR3 vDelta = (v3Max - v3Min);
@@ -1052,7 +1052,7 @@ void CArea::__LoadAttribute(TObjectInstance * pObjectInstance, const char * c_sz
 				CStaticCollisionData collision;
 				collision.dwType = COLLISION_TYPE_AABB;
 				collision.quatRotation = D3DXQUATERNION(0.0f, 0.0f, 0.0f, 1.0f);
-				strcpy(collision.szName, "DummyCollisionAABB");
+				m2::crt::copy(collision.szName, "DummyCollisionAABB");
 				collision.v3Position = (v3Min + v3Max) * 0.5f;
 
 				D3DXVECTOR3 vDelta = (v3Max - v3Min);
@@ -1105,7 +1105,7 @@ void CArea::__LoadAttribute(TObjectInstance * pObjectInstance, const char * c_sz
 				CStaticCollisionData collision;
 				collision.dwType = COLLISION_TYPE_SPHERE;
 				collision.quatRotation = D3DXQUATERNION(0.0f, 0.0f, 0.0f, 1.0f);
-				strcpy(collision.szName, "DummyCollisionSphere");
+				m2::crt::copy(collision.szName, "DummyCollisionSphere");
 				collision.fDimensions[0] = fRadius * 0.25;
 				collision.v3Position = v3Center;
 
@@ -1171,7 +1171,7 @@ bool CArea::__Load_LoadObject(const char * c_szFileName)
 
 	for (uint32_t i = 0; i < dwCount; ++i)
 	{
-		_snprintf(szObjectName, sizeof(szObjectName), "object%03d", i);
+		snprintf(szObjectName, sizeof(szObjectName), "object%03d", i);
 
 		if (stTokenVectorMap.end() == stTokenVectorMap.find(szObjectName))
 			continue;
@@ -1265,7 +1265,7 @@ bool CArea::__Load_LoadAmbience(const char * c_szFileName)
 
 	for (uint32_t i = 0; i < dwCount; ++i)
 	{
-		_snprintf(szObjectName, sizeof(szObjectName), "object%03d", i);
+		snprintf(szObjectName, sizeof(szObjectName), "object%03d", i);
 
 		if (stTokenVectorMap.end() == stTokenVectorMap.find(szObjectName))
 			continue;

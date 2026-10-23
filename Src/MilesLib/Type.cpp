@@ -45,7 +45,7 @@ bool NSound::LoadSoundInformationPiece(const char * c_szFileName, NSound::TSound
 	char szSoundDataHeader[32 + 1];
 	for (std::size_t i = 0; i < rSoundDataVector.size(); ++i)
 	{
-		_snprintf(szSoundDataHeader, sizeof(szSoundDataHeader), "sounddata%02zu", i);
+		snprintf(szSoundDataHeader, sizeof(szSoundDataHeader), "sounddata%02zu", i);
 		CTokenVector * pTokenVector;
 		if (!rkTextFileLoader.GetTokenVector(szSoundDataHeader, &pTokenVector))
 		{
@@ -92,7 +92,7 @@ bool NSound::SaveSoundInformationPiece(const char * c_szFileName, NSound::TSound
 	if (!fPtr)
 	{
 		char szErrorText[256 + 1];
-		_snprintf(szErrorText, sizeof(szErrorText),
+		snprintf(szErrorText, sizeof(szErrorText),
 				  "Failed to save file (%s).\nPlease check if it is read-only or you have no space on the disk.\n", c_szFileName);
 		LogBox(szErrorText, "Error");
 		SetResultString((strResult + " Cannot open file for writing").c_str());

@@ -60,7 +60,8 @@ bool CMapOutdoor::Load(float x, float y, float z)
 	if (GetMapEnvData(c_rstrMapName))
 	{
 		time_t ct = time(nullptr);
-		struct tm tm = *localtime(&ct);
+		struct tm tm{};
+		localtime_s(&tm, &ct);
 		//TraceError("LOAD DayMode: %d", iBG.GetWeatherDayMode(tm.tm_hour));
 
 		m_envDataName = c_rstrEnvironmentRoot + GetEnvironment(GetWeatherDayMode(tm.tm_hour));
@@ -192,7 +193,7 @@ bool CMapOutdoor::LoadArea(uint16_t wAreaCoordX, uint16_t wAreaCoordY, uint16_t 
 #endif
 	unsigned long ulID = (unsigned long) (wAreaCoordX) *1000L + (unsigned long) (wAreaCoordY);
 	char szAreaPathName[64 + 1];
-	_snprintf(szAreaPathName, sizeof(szAreaPathName), "%s\\%06u\\", GetMapDataDirectory().c_str(), ulID);
+	snprintf(szAreaPathName, sizeof(szAreaPathName), "%s\\%06u\\", GetMapDataDirectory().c_str(), ulID);
 
 	CArea * pArea = CArea::New();
 	pArea->SetMapOutDoor(this);
@@ -229,7 +230,7 @@ bool CMapOutdoor::LoadTerrain(uint16_t wTerrainCoordX, uint16_t wTerrainCoordY, 
 
 	unsigned long ulID = (unsigned long) (wTerrainCoordX) *1000L + (unsigned long) (wTerrainCoordY);
 	char filename[256];
-	sprintf(filename, "%s\\%06lu\\AreaProperty.txt", GetMapDataDirectory().c_str(), ulID);
+	m2::crt::format(filename, "%s\\%06lu\\AreaProperty.txt", GetMapDataDirectory().c_str(), ulID);
 
 	CTokenVectorMap stTokenVectorMap;
 
@@ -277,24 +278,24 @@ bool CMapOutdoor::LoadTerrain(uint16_t wTerrainCoordX, uint16_t wTerrainCoordY, 
 	char szMiniMapTexName[64 + 1];
 	char szSplatName[64 + 1];
 
-	_snprintf(szRawHeightFieldname, sizeof(szRawHeightFieldname), "%s\\%06u\\height.raw", GetMapDataDirectory().c_str(), ulID);
-	_snprintf(szSplatName, sizeof(szSplatName), "%s\\%06u\\tile.raw", GetMapDataDirectory().c_str(), ulID);
-	_snprintf(szAttrMapName, sizeof(szAttrMapName), "%s\\%06u\\attr.atr", GetMapDataDirectory().c_str(), ulID);
-	_snprintf(szWaterMapName, sizeof(szWaterMapName), "%s\\%06u\\water.wtr", GetMapDataDirectory().c_str(), ulID);
-	_snprintf(szShadowTexName, sizeof(szShadowTexName), "%s\\%06u\\shadowmap.dds", GetMapDataDirectory().c_str(), ulID);
-	_snprintf(szShadowMapName, sizeof(szShadowMapName), "%s\\%06u\\shadowmap.raw", GetMapDataDirectory().c_str(), ulID);
+	snprintf(szRawHeightFieldname, sizeof(szRawHeightFieldname), "%s\\%06u\\height.raw", GetMapDataDirectory().c_str(), ulID);
+	snprintf(szSplatName, sizeof(szSplatName), "%s\\%06u\\tile.raw", GetMapDataDirectory().c_str(), ulID);
+	snprintf(szAttrMapName, sizeof(szAttrMapName), "%s\\%06u\\attr.atr", GetMapDataDirectory().c_str(), ulID);
+	snprintf(szWaterMapName, sizeof(szWaterMapName), "%s\\%06u\\water.wtr", GetMapDataDirectory().c_str(), ulID);
+	snprintf(szShadowTexName, sizeof(szShadowTexName), "%s\\%06u\\shadowmap.dds", GetMapDataDirectory().c_str(), ulID);
+	snprintf(szShadowMapName, sizeof(szShadowMapName), "%s\\%06u\\shadowmap.raw", GetMapDataDirectory().c_str(), ulID);
 #ifdef ENABLE_ENVIRONMENT_EFFECT_OPTION
 	if (IsSnowTextureMode())
 	{
-		_snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap_snow.dds", GetMapDataDirectory().c_str(), ulID);
+		snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap_snow.dds", GetMapDataDirectory().c_str(), ulID);
 
 		if (!CEterPackManager::Instance().isExist(szMiniMapTexName))
-			_snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
+			snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
 	}
 	else
-		_snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
+		snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
 #else
-	_snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
+	snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
 #endif
 
 	if (!pTerrain->LoadWaterMap(szWaterMapName))
@@ -499,7 +500,7 @@ bool CMapOutdoor::LoadSetting(const char * c_szFileName)
 bool CMapOutdoor::LoadSungmaSetting()
 {
 	char c_szFileName[256];
-	sprintf(c_szFileName, "%s\\sungma_attr.txt", GetMapDataDirectory().c_str());
+	m2::crt::format(c_szFileName, "%s\\sungma_attr.txt", GetMapDataDirectory().c_str());
 
 	LPCVOID pData;
 	CMappedFile kFile;
@@ -522,7 +523,7 @@ bool CMapOutdoor::LoadSungmaSetting()
 	for (uint32_t uLineIndex = 0; uLineIndex < textFileLoader.GetLineCount(); ++uLineIndex)
 	{
 		const std::string& c_rstLine = textFileLoader.GetLineString(uLineIndex);
-		sscanf(c_rstLine.c_str(), "%s %d", szSungmaName, &iSungmaAttr);
+		sscanf_s(c_rstLine.c_str(), "%255s %d", szSungmaName, static_cast<unsigned>(_countof(szSungmaName)), &iSungmaAttr);
 
 		if ('\0' == szSungmaName[0])
 			continue;
@@ -543,7 +544,7 @@ bool CMapOutdoor::LoadMonsterAreaInfo()
 	RemoveAllMonsterAreaInfo();
 
 	char c_szFileName[256];
-	sprintf(c_szFileName, "%s\\regen.txt", GetMapDataDirectory().c_str());
+	m2::crt::format(c_szFileName, "%s\\regen.txt", GetMapDataDirectory().c_str());
 
 	LPCVOID pModelData;
 	CMappedFile File;
@@ -644,13 +645,13 @@ bool CMapOutdoor::ReloadMinimapTexture(bool bSnowTexture)
 			char szMiniMapTexName[64 + 1];
 			if (bSnowTexture)
 			{
-				_snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap_snow.dds", GetMapDataDirectory().c_str(), ulID);
+				snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap_snow.dds", GetMapDataDirectory().c_str(), ulID);
 
 				if (!CEterPackManager::Instance().isExist(szMiniMapTexName))
-					_snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
+					snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
 			}
 			else
-				_snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
+				snprintf(szMiniMapTexName, sizeof(szMiniMapTexName), "%s\\%06u\\minimap.dds", GetMapDataDirectory().c_str(), ulID);
 
 			pTerrain->LoadMiniMapTexture(szMiniMapTexName);
 		}
@@ -662,7 +663,7 @@ bool CMapOutdoor::ReloadMinimapTexture(bool bSnowTexture)
 bool CMapOutdoor::ReloadSetting(bool bSnowTexture)
 {
 	char szFileName[64 + 1];
-	_snprintf(szFileName, sizeof(szFileName), "%s\\Setting.txt", GetMapDataDirectory().c_str());
+	snprintf(szFileName, sizeof(szFileName), "%s\\Setting.txt", GetMapDataDirectory().c_str());
 	CTokenVectorMap stTokenVectorMap;
 	if (!LoadMultipleTextData(szFileName, stTokenVectorMap))
 	{

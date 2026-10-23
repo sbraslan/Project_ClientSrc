@@ -154,7 +154,7 @@ void GenScreenShotTag(const char * src, uint32_t crc32, char * leaf, size_t leaf
 	while ((n = strchr(p, '\\')))
 		p = n + 1;
 
-	_snprintf(leaf, leafLen, "YMIR_METIN2:%s:0x%.8x", p, crc32);
+	snprintf(leaf, leafLen, "YMIR_METIN2:%s:0x%.8x", p, crc32);
 }
 
 bool CPythonGraphic::SaveJPEG(const char * pszFileName, LPBYTE pbyBuffer, uint32_t uWidth, uint32_t uHeight)

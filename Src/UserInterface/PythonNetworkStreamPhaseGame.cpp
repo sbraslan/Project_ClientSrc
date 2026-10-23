@@ -1445,7 +1445,7 @@ bool CPythonNetworkStream::__SendHack(const char * c_szMsg)
 
 	TPacketCGHack kPacketHack{};
 	kPacketHack.bHeader = HEADER_CG_HACK;
-	strncpy(kPacketHack.szBuf, c_szMsg, sizeof(kPacketHack.szBuf) - 1);
+	m2::crt::copy_n(kPacketHack.szBuf, c_szMsg, sizeof(kPacketHack.szBuf) - 1);
 
 	if (!Send(sizeof(kPacketHack), &kPacketHack))
 		return false;
@@ -1473,7 +1473,7 @@ bool CPythonNetworkStream::SendMessengerAddByNamePacket(const char * c_szName)
 	if (!Send(sizeof(packet), &packet))
 		return false;
 	char szName[CHARACTER_NAME_MAX_LEN];
-	strncpy(szName, c_szName, CHARACTER_NAME_MAX_LEN - 1);
+	m2::crt::copy_n(szName, c_szName, CHARACTER_NAME_MAX_LEN - 1);
 	szName[CHARACTER_NAME_MAX_LEN - 1] = '\0';
 
 	if (!Send(sizeof(szName), &szName))
@@ -1491,7 +1491,7 @@ bool CPythonNetworkStream::SendMessengerRemovePacket(const char * c_szKey, const
 	if (!Send(sizeof(packet), &packet))
 		return false;
 	char szKey[CHARACTER_NAME_MAX_LEN];
-	strncpy(szKey, c_szKey, CHARACTER_NAME_MAX_LEN - 1);
+	m2::crt::copy_n(szKey, c_szKey, CHARACTER_NAME_MAX_LEN - 1);
 	if (!Send(sizeof(szKey), &szKey))
 		return false;
 	__RefreshTargetBoardByName(c_szName);
@@ -1523,7 +1523,7 @@ bool CPythonNetworkStream::SendMessengerBlockAddByNamePacket(const char* c_szNam
 		return false;
 
 	char szName[CHARACTER_NAME_MAX_LEN];
-	strncpy(szName, c_szName, CHARACTER_NAME_MAX_LEN - 1);
+	m2::crt::copy_n(szName, c_szName, CHARACTER_NAME_MAX_LEN - 1);
 	szName[CHARACTER_NAME_MAX_LEN - 1] = '\0';
 
 	if (!Send(sizeof(szName), &szName))
@@ -1543,7 +1543,7 @@ bool CPythonNetworkStream::SendMessengerBlockRemovePacket(const char* c_szKey, c
 		return false;
 
 	char szKey[CHARACTER_NAME_MAX_LEN];
-	strncpy(szKey, c_szKey, CHARACTER_NAME_MAX_LEN - 1);
+	m2::crt::copy_n(szKey, c_szKey, CHARACTER_NAME_MAX_LEN - 1);
 	if (!Send(sizeof(szKey), &szKey))
 		return false;
 
@@ -1564,7 +1564,7 @@ bool CPythonNetworkStream::SendMessengerBlockRemoveByVIDPacket(uint32_t vid)	//t
 	CInstanceBase* pInstance = CPythonCharacterManager::Instance().GetInstancePtr(vid);
 
 	char szKey[CHARACTER_NAME_MAX_LEN];
-	strncpy(szKey, pInstance->GetNameString(), CHARACTER_NAME_MAX_LEN - 1);
+	m2::crt::copy_n(szKey, pInstance->GetNameString(), CHARACTER_NAME_MAX_LEN - 1);
 	if (!Send(sizeof(szKey), &szKey))
 		return false;
 
@@ -1748,7 +1748,7 @@ bool CPythonNetworkStream::RecvChatPacket()
 	if (kChat.bCanFormat && CHAT_TYPE_SHOUT != kChat.type) {
 		std::string sFormat{ buf };
 		CPythonLocale::Instance().FormatString(sFormat);
-		strncpy(buf, sFormat.c_str(), sizeof(buf));
+		m2::crt::copy_n(buf, sFormat.c_str(), sizeof(buf));
 		buf[sizeof(buf) - 1] = '\0';
 
 		CPythonLocale::Instance().MultiLineSplit(sFormat, vecMultiLine);
@@ -1824,7 +1824,7 @@ bool CPythonNetworkStream::RecvChatPacket()
 						__FilterInsult(p, m2::narrow<uint32_t>(strlen(p)));
 				}
 
-				_snprintf(line, sizeof(line), "%s", p);
+				snprintf(line, sizeof(line), "%s", p);
 			}
 		}
 		break;
@@ -1851,7 +1851,7 @@ bool CPythonNetworkStream::RecvChatPacket()
 #endif
 		case CHAT_TYPE_MAX_NUM:
 		default:
-			_snprintf(line, sizeof(line), "%s", buf);
+			snprintf(line, sizeof(line), "%s", buf);
 			break;
 		}
 
@@ -2005,7 +2005,7 @@ bool CPythonNetworkStream::RecvWhisperPacket()
 	static char line[256];
 	if (CPythonChat::WHISPER_TYPE_CHAT == whisperPacket.bType || CPythonChat::WHISPER_TYPE_GM == whisperPacket.bType)
 	{
-		_snprintf(line, sizeof(line), "%s : %s", whisperPacket.szNameFrom, buf);
+		snprintf(line, sizeof(line), "%s : %s", whisperPacket.szNameFrom, buf);
 		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OnRecvWhisper", Py_BuildValue("(iss)", static_cast<int>(whisperPacket.bType), whisperPacket.szNameFrom, line));
 	}
 	else if (CPythonChat::WHISPER_TYPE_SYSTEM == whisperPacket.bType || CPythonChat::WHISPER_TYPE_ERROR == whisperPacket.bType)
@@ -2026,7 +2026,7 @@ bool CPythonNetworkStream::SendWhisperPacket(const char * name, const char * c_s
 	WhisperPacket.bHeader = HEADER_CG_WHISPER;
 	WhisperPacket.wSize = m2::narrow<uint16_t>(sizeof(WhisperPacket) + static_cast<std::size_t>(iTextLen));
 
-	strncpy(WhisperPacket.szNameTo, name, sizeof(WhisperPacket.szNameTo) - 1);
+	m2::crt::copy_n(WhisperPacket.szNameTo, name, sizeof(WhisperPacket.szNameTo) - 1);
 
 	if (!Send(sizeof(WhisperPacket), &WhisperPacket))
 		return false;
@@ -3190,7 +3190,7 @@ bool CPythonNetworkStream::SendTargetLanguageRequestPacket(const char* c_szName)
 {
 	TPacketCGTargetLanguageRequest packet;
 	packet.bHeader = HEADER_CG_TARGET_LANGUAGE_REQUEST;
-	strncpy(packet.szName, c_szName, sizeof(packet.szName));
+	m2::crt::copy_n(packet.szName, c_szName, sizeof(packet.szName));
 
 	if (!Send(sizeof(packet), &packet))
 		return false;
@@ -3783,7 +3783,7 @@ bool CPythonNetworkStream::SendAnswerMakeGuildPacket(const char * c_szName)
 	TPacketCGAnswerMakeGuild Packet{};
 
 	Packet.header = HEADER_CG_ANSWER_MAKE_GUILD;
-	strncpy(Packet.guild_name, c_szName, GUILD_NAME_MAX_LEN);
+	m2::crt::copy_n(Packet.guild_name, c_szName, GUILD_NAME_MAX_LEN);
 	Packet.guild_name[GUILD_NAME_MAX_LEN] = '\0';
 
 	if (!Send(sizeof(Packet), &Packet))
@@ -3799,7 +3799,7 @@ bool CPythonNetworkStream::SendQuestInputStringPacket(const char * c_szString)
 {
 	TPacketCGQuestInputString Packet{};
 	Packet.bHeader = HEADER_CG_QUEST_INPUT_STRING;
-	strncpy(Packet.szString, c_szString, QUEST_INPUT_STRING_MAX_NUM);
+	m2::crt::copy_n(Packet.szString, c_szString, QUEST_INPUT_STRING_MAX_NUM);
 
 	if (!Send(sizeof(Packet), &Packet))
 	{
@@ -3815,7 +3815,7 @@ bool CPythonNetworkStream::SendQuestInputStringLongPacket(const char * c_szStrin
 {
 	TPacketCGQuestInputLongString Packet{};
 	Packet.bHeader = HEADER_CG_QUEST_INPUT_LONG_STRING;
-	strncpy(Packet.szString, c_szString, QUEST_INPUT_LONG_STRING_MAX_NUM);
+	m2::crt::copy_n(Packet.szString, c_szString, QUEST_INPUT_LONG_STRING_MAX_NUM);
 
 	if (!Send(sizeof(Packet), &Packet))
 	{
@@ -4812,7 +4812,7 @@ bool CPythonNetworkStream::SendGuildChangeGradeNamePacket(uint8_t byGradeNumber,
 		return false;
 
 	char szName[GUILD_GRADE_NAME_MAX_LEN + 1];
-	strncpy(szName, c_szName, GUILD_GRADE_NAME_MAX_LEN);
+	m2::crt::copy_n(szName, c_szName, GUILD_GRADE_NAME_MAX_LEN);
 	szName[GUILD_GRADE_NAME_MAX_LEN] = '\0';
 
 	if (!Send(sizeof(szName), &szName))
@@ -5114,7 +5114,7 @@ bool CPythonNetworkStream::RecvGuild()
 				{
 					CPythonGuild::TGuildMemberData * pMemberData;
 					if (CPythonGuild::Instance().GetMemberDataPtrByPID(memberPacket.pid, &pMemberData))
-						strncpy(szName, pMemberData->strName.c_str(), CHARACTER_NAME_MAX_LEN);
+						m2::crt::copy_n(szName, pMemberData->strName.c_str(), CHARACTER_NAME_MAX_LEN);
 				}
 
 				CPythonGuild::SGuildMemberData GuildMemberData;
@@ -5215,7 +5215,7 @@ bool CPythonNetworkStream::RecvGuild()
 
 			CPythonGuild::Instance().EnableGuild();
 			CPythonGuild::TGuildInfo & rGuildInfo = CPythonGuild::Instance().GetGuildInfoRef();
-			strncpy(rGuildInfo.szGuildName, GuildInfo.name, GUILD_NAME_MAX_LEN);
+			m2::crt::copy_n(rGuildInfo.szGuildName, GuildInfo.name, GUILD_NAME_MAX_LEN);
 			rGuildInfo.szGuildName[GUILD_NAME_MAX_LEN] = '\0';
 
 			rGuildInfo.dwGuildID = GuildInfo.guild_id;
@@ -5227,10 +5227,10 @@ bool CPythonNetworkStream::RecvGuild()
 			rGuildInfo.dwGuildMoney = GuildInfo.gold;
 			rGuildInfo.bHasLand = GuildInfo.hasLand;
 #if defined(ENABLE_GUILDRENEWAL_SYSTEM) && defined(ENABLE_GUILDSTORAGE_SYSTEM)
-			strncpy(rGuildInfo.goldCheckout, GuildInfo.goldCheckout, 48);
+			m2::crt::copy_n(rGuildInfo.goldCheckout, GuildInfo.goldCheckout, 48);
 			rGuildInfo.goldCheckout[48] = '\0';
 
-			strncpy(rGuildInfo.itemCheckout, GuildInfo.itemCheckout, 48);
+			m2::crt::copy_n(rGuildInfo.itemCheckout, GuildInfo.itemCheckout, 48);
 			rGuildInfo.itemCheckout[48] = '\0';
 #endif
 
@@ -5779,7 +5779,7 @@ bool CPythonNetworkStream::SendBuildPrivateShopPacket(const char * c_szName, con
 {
 	TPacketCGMyShop packet{};
 	packet.bHeader = HEADER_CG_MYSHOP;
-	strncpy(packet.szSign, c_szName, SHOP_SIGN_MAX_LEN);
+	m2::crt::copy_n(packet.szSign, c_szName, SHOP_SIGN_MAX_LEN);
 	packet.bCount = msl::truncate_cast<uint8_t>(c_rSellingItemStock.size());
 	if (!Send(sizeof(packet), &packet))
 		return false;
@@ -6023,8 +6023,8 @@ bool CPythonNetworkStream::SendClientVersionPacket()
 	{
 		TPacketCGClientVersion2 kVersionPacket{};
 		kVersionPacket.header = HEADER_CG_CLIENT_VERSION2;
-		strncpy(kVersionPacket.filename, filename.c_str(), sizeof(kVersionPacket.filename) - 1);
-		strncpy(kVersionPacket.timestamp, "1215955205", sizeof(kVersionPacket.timestamp) - 1); // # python time.time ���ڸ�
+		m2::crt::copy_n(kVersionPacket.filename, filename.c_str(), sizeof(kVersionPacket.filename) - 1);
+		m2::crt::copy_n(kVersionPacket.timestamp, "1215955205", sizeof(kVersionPacket.timestamp) - 1); // # python time.time ���ڸ�
 
 		if (!Send(sizeof(kVersionPacket), &kVersionPacket))
 			Tracef("SendClientReportPacket Error");
@@ -6033,8 +6033,8 @@ bool CPythonNetworkStream::SendClientVersionPacket()
 	{
 		TPacketCGClientVersion kVersionPacket{};
 		kVersionPacket.header = HEADER_CG_CLIENT_VERSION;
-		strncpy(kVersionPacket.filename, filename.c_str(), sizeof(kVersionPacket.filename) - 1);
-		strncpy(kVersionPacket.timestamp, __TIMESTAMP__, sizeof(kVersionPacket.timestamp) - 1);
+		m2::crt::copy_n(kVersionPacket.filename, filename.c_str(), sizeof(kVersionPacket.filename) - 1);
+		m2::crt::copy_n(kVersionPacket.timestamp, __TIMESTAMP__, sizeof(kVersionPacket.timestamp) - 1);
 
 		if (!Send(sizeof(kVersionPacket), &kVersionPacket))
 			Tracef("SendClientReportPacket Error");
@@ -6393,7 +6393,7 @@ bool CPythonNetworkStream::SendPetHatchingPacket(char* sGrowthPetName, uint8_t b
 	pPacket.bHeader = HEADER_CG_GROWTH_PET_HATCHING;
 	pPacket.bPos = bPos;
 
-	strncpy(pPacket.sGrowthPetName, sGrowthPetName, CItemData::PET_NAME_MAX_SIZE);
+	m2::crt::copy_n(pPacket.sGrowthPetName, sGrowthPetName, CItemData::PET_NAME_MAX_SIZE);
 	pPacket.sGrowthPetName[CItemData::PET_NAME_MAX_SIZE] = '\0';
 
 	if (!Send(sizeof(pPacket), &pPacket))
@@ -6523,7 +6523,7 @@ bool CPythonNetworkStream::SendPetNameChange(char* sPetName, uint8_t bItemWindow
 
 	pPacket.bHeader = HEADER_CG_GROWTH_PET_NAME_CHANGE;
 
-	strncpy(pPacket.sPetName, sPetName, CItemData::PET_NAME_MAX_SIZE);
+	m2::crt::copy_n(pPacket.sPetName, sPetName, CItemData::PET_NAME_MAX_SIZE);
 	pPacket.sPetName[CItemData::PET_NAME_MAX_SIZE] = '\0';
 
 	pPacket.bItemWindowType = bItemWindowType;
@@ -6612,7 +6612,7 @@ bool CPythonNetworkStream::RecvGrowthPetInfoPacket()
 		petInfo.pet_level = kGrowthPetInfo.pet_level;
 		petInfo.evol_level = kGrowthPetInfo.evol_level;
 		petInfo.pet_birthday = kGrowthPetInfo.pet_birthday;
-		strncpy(petInfo.pet_nick, kGrowthPetInfo.pet_nick, sizeof(petInfo.pet_nick));
+		m2::crt::copy_n(petInfo.pet_nick, kGrowthPetInfo.pet_nick, sizeof(petInfo.pet_nick));
 		petInfo.pet_hp = kGrowthPetInfo.pet_hp;
 		petInfo.pet_def = kGrowthPetInfo.pet_def;
 		petInfo.pet_sp = kGrowthPetInfo.pet_sp;
@@ -7468,8 +7468,8 @@ bool CPythonNetworkStream::SendHwidBanPacket(int mode, const char* c_szPlayer, c
 	TPacketCGHwidBan pack{};
 	pack.header = HEADER_CG_HWID_SYSTEM;
 	pack.mode = mode;
-	strncpy(pack.szPlayer, c_szPlayer, sizeof(pack.szPlayer));
-	strncpy(pack.szReason, c_szReason, sizeof(pack.szReason));
+	m2::crt::copy_n(pack.szPlayer, c_szPlayer, sizeof(pack.szPlayer));
+	m2::crt::copy_n(pack.szReason, c_szReason, sizeof(pack.szReason));
 
 	if (!Send(sizeof(pack), &pack))
 		return false;
@@ -7670,7 +7670,7 @@ bool CPythonNetworkStream::RecvTicketSystemPacket()
 void SendTicketErrorSize()
 {
 	char szBuf[256 + 1];
-	_snprintf(szBuf, sizeof(szBuf), "<<Ticket>> Error size characters.");
+	snprintf(szBuf, sizeof(szBuf), "<<Ticket>> Error size characters.");
 	CPythonChat::Instance().AppendChat(CHAT_TYPE_NOTICE, szBuf);
 }
 
@@ -7685,7 +7685,7 @@ bool CPythonNetworkStream::SendTicketPacketOpen(int szAction, int szMode, const 
 	kTicketSystemPacket.bSubHeader = TICKET_SUBHEADER_CG_OPEN;
 	kTicketSystemSubPacket.action = szAction;
 	kTicketSystemSubPacket.mode = szMode;
-	strncpy(kTicketSystemSubPacket.ticked_id, szTicketID, sizeof(kTicketSystemSubPacket.ticked_id));
+	m2::crt::copy_n(kTicketSystemSubPacket.ticked_id, szTicketID, sizeof(kTicketSystemSubPacket.ticked_id));
 
 	if (!Send(sizeof(TPacketCGTicketSystem), &kTicketSystemPacket))
 		return false;
@@ -7708,8 +7708,8 @@ bool CPythonNetworkStream::SendTicketPacketCreate(const char* szTitle, const cha
 	TSubPacketCGTicketCreate kTicketSystemSubPacket;
 	kTicketSystemPacket.wSize = sizeof(TPacketCGTicketSystem) + sizeof(TSubPacketCGTicketCreate);
 	kTicketSystemPacket.bSubHeader = TICKET_SUBHEADER_CG_CREATE;
-	strncpy(kTicketSystemSubPacket.title, szTitle, sizeof(kTicketSystemSubPacket.title));
-	strncpy(kTicketSystemSubPacket.content, szContent, sizeof(kTicketSystemSubPacket.content));
+	m2::crt::copy_n(kTicketSystemSubPacket.title, szTitle, sizeof(kTicketSystemSubPacket.title));
+	m2::crt::copy_n(kTicketSystemSubPacket.content, szContent, sizeof(kTicketSystemSubPacket.content));
 	kTicketSystemSubPacket.priority = szPriority;
 
 	if (!Send(sizeof(TPacketCGTicketSystem), &kTicketSystemPacket))
@@ -7733,8 +7733,8 @@ bool CPythonNetworkStream::SendTicketPacketReply(const char* szTicketID, const c
 	TSubPacketCGTicketReply kTicketSystemSubPacket;
 	kTicketSystemPacket.wSize = sizeof(TPacketCGTicketSystem) + sizeof(TSubPacketCGTicketReply);
 	kTicketSystemPacket.bSubHeader = TICKET_SUBHEADER_CG_REPLY;
-	strncpy(kTicketSystemSubPacket.ticked_id, szTicketID, sizeof(kTicketSystemSubPacket.ticked_id));
-	strncpy(kTicketSystemSubPacket.reply, szReply, sizeof(kTicketSystemSubPacket.reply));
+	m2::crt::copy_n(kTicketSystemSubPacket.ticked_id, szTicketID, sizeof(kTicketSystemSubPacket.ticked_id));
+	m2::crt::copy_n(kTicketSystemSubPacket.reply, szReply, sizeof(kTicketSystemSubPacket.reply));
 
 	if (!Send(sizeof(TPacketCGTicketSystem), &kTicketSystemPacket))
 		return false;
@@ -7758,9 +7758,9 @@ bool CPythonNetworkStream::SendTicketPacketAdmin(int szAction, const char* szTic
 	kTicketSystemPacket.wSize = sizeof(TPacketCGTicketSystem) + sizeof(TSubPacketCGTicketAdmin);
 	kTicketSystemPacket.bSubHeader = TICKET_SUBHEADER_CG_ADMIN;
 	kTicketSystemSubPacket.action = szAction;
-	strncpy(kTicketSystemSubPacket.ticked_id, szTicketID, sizeof(kTicketSystemSubPacket.ticked_id));
-	strncpy(kTicketSystemSubPacket.char_name, szName, sizeof(kTicketSystemSubPacket.char_name));
-	strncpy(kTicketSystemSubPacket.reason, szReason, sizeof(kTicketSystemSubPacket.reason));
+	m2::crt::copy_n(kTicketSystemSubPacket.ticked_id, szTicketID, sizeof(kTicketSystemSubPacket.ticked_id));
+	m2::crt::copy_n(kTicketSystemSubPacket.char_name, szName, sizeof(kTicketSystemSubPacket.char_name));
+	m2::crt::copy_n(kTicketSystemSubPacket.reason, szReason, sizeof(kTicketSystemSubPacket.reason));
 
 	if (!Send(sizeof(TPacketCGTicketSystem), &kTicketSystemPacket))
 		return false;
@@ -7942,7 +7942,7 @@ bool CPythonNetworkStream::SendPostWriteConfirm(const char* szName)
 {
 	TPacketCGMailboxWriteConfirm p{};
 	p.bHeader = HEADER_CG_MAILBOX_WRITE_CONFIRM;
-	std::strcpy(p.szName, szName);
+	m2::crt::copy(p.szName, szName);
 
 	if (!Send(sizeof(p), &p))
 	{
@@ -8051,9 +8051,9 @@ bool CPythonNetworkStream::SendPostWrite(const char* szName, const char* szTitle
 {
 	TPacketCGMailboxWrite p;
 	p.bHeader = HEADER_CG_MAILBOX_WRITE;
-	std::strcpy(p.szName, szName);
-	std::strcpy(p.szTitle, szTitle);
-	std::strcpy(p.szMessage, szMessage);
+	m2::crt::copy(p.szName, szName);
+	m2::crt::copy(p.szTitle, szTitle);
+	m2::crt::copy(p.szMessage, szMessage);
 	p.pos = pos;
 	p.iYang = iYang;
 	p.iWon = iWon;
@@ -8934,7 +8934,7 @@ bool CPythonNetworkStream::SendRequestEventQuest(const char* c_szString)
 {
 	TPacketCGRequestEventQuest Packet{};
 	Packet.bHeader = HEADER_CG_REQUEST_EVENT_QUEST;
-	strncpy(Packet.szName, c_szString, QUEST_NAME_MAX_NUM);
+	m2::crt::copy_n(Packet.szName, c_szString, QUEST_NAME_MAX_NUM);
 
 	if (!Send(sizeof(Packet), &Packet))
 	{

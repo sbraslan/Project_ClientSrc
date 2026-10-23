@@ -1,3 +1,4 @@
+#include "../EterBase/LegacyCRTCompat.h"
 // stdafx.h : include file for standard system include files,
 //  or project specific include files that are used frequently, but
 //      are changed infrequently
@@ -28,7 +29,7 @@ inline void _TraceForImage(const char * c_szFormat, ...)
 	va_start(args, c_szFormat);
 
 	static char szBuf[1024];
-	_vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
 #	ifdef _DEBUG
 	OutputDebugString(szBuf);
 #	endif

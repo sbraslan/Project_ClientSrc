@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/LegacyCRTCompat.h"
+
 #pragma warning(disable : 4786) // character 255 ³Ñ¾î°¡´Â°Å ²ô±â
 
 #if defined(_WIN64) && __has_include("../../Extern/Granny/2.11.10.0/x64/include/granny2/granny.h")

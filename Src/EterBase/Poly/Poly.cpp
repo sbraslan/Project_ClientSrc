@@ -580,7 +580,7 @@ int CPoly::SetVar(const std::string & strName, double dVar)
 
 int CPoly::GetVarCount()
 {
-	return lSymbol.size() - MathSymbolCount;
+	return m2::narrow<int>(lSymbol.size() - MathSymbolCount);
 }
 
 const char * CPoly::GetVarName(unsigned int dwIndex)

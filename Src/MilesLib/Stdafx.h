@@ -1,3 +1,4 @@
+#include "../EterBase/LegacyCRTCompat.h"
 #ifndef __INC_MILESLIB_STDAFX_H__
 #define __INC_MILESLIB_STDAFX_H__
 

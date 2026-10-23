@@ -3066,16 +3066,16 @@ PyObject* playerGetPetItem(PyObject* poSelf, PyObject* poArgs)
 		return Py_BadArgument();
 
 	char szPetName[CItemData::PET_NAME_MAX_SIZE + 1];
-	strncpy(szPetName, petInfo.pet_nick, sizeof(szPetName));
+	m2::crt::copy_n(szPetName, petInfo.pet_nick, sizeof(szPetName));
 
 	char szPetHP[10];
-	sprintf(szPetHP, "%.1f", petInfo.pet_hp);
+	m2::crt::format(szPetHP, "%.1f", petInfo.pet_hp);
 
 	char szPetDEF[10];
-	sprintf(szPetDEF, "%.1f", petInfo.pet_def);
+	m2::crt::format(szPetDEF, "%.1f", petInfo.pet_def);
 
 	char szPetSP[10];
-	sprintf(szPetSP, "%.1f", petInfo.pet_sp);
+	m2::crt::format(szPetSP, "%.1f", petInfo.pet_sp);
 
 	return Py_BuildValue("iiisssss", petInfo.pet_level, petInfo.evol_level, petInfo.pet_birthday,
 		szPetName, szPetHP, szPetDEF, szPetSP, "");

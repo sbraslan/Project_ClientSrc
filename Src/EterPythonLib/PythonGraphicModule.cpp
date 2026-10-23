@@ -813,7 +813,9 @@ PyObject * grpSaveScreenShotToPath(PyObject * poSelf, PyObject * poArgs)
 	time_t ct;
 
 	ct = time(nullptr);
-	struct tm * tmNow = localtime(&ct);
+	struct tm tmNowStorage{};
+	localtime_s(&tmNowStorage, &ct);
+	struct tm * tmNow = &tmNowStorage;
 
 	char szPath[MAX_PATH + 256];
 	snprintf(szPath, sizeof(szPath), "%s%02d%02d_%02d%02d%02d.jpg", szBasePath, tmNow->tm_mon + 1, tmNow->tm_mday, tmNow->tm_hour,
@@ -829,12 +831,14 @@ PyObject * grpSaveScreenShot(PyObject * poSelf, PyObject * poArgs)
 	time_t ct;
 
 	ct = time(nullptr);
-	struct tm * tmNow = localtime(&ct);
+	struct tm tmNowStorage{};
+	localtime_s(&tmNowStorage, &ct);
+	struct tm * tmNow = &tmNowStorage;
 
 	char szPath[MAX_PATH + 256];
 	SHGetSpecialFolderPath(nullptr, szPath, CSIDL_PERSONAL, TRUE);
 	//GetTempPath();
-	strcat(szPath, "\\METIN2\\");
+	m2::crt::append(szPath, "\\METIN2\\");
 
 	if (-1 == _access(szPath, 0))
 	{
@@ -845,7 +849,7 @@ PyObject * grpSaveScreenShot(PyObject * poSelf, PyObject * poArgs)
 		}
 	}
 
-	sprintf(szPath + strlen(szPath), "%02d%02d_%02d%02d%02d.jpg", tmNow->tm_mon + 1, tmNow->tm_mday, tmNow->tm_hour, tmNow->tm_min,
+	m2::crt::format_at(szPath, strlen(szPath), "%02d%02d_%02d%02d%02d.jpg", tmNow->tm_mon + 1, tmNow->tm_mday, tmNow->tm_hour, tmNow->tm_min,
 			tmNow->tm_sec);
 
 	BOOL bResult = CPythonGraphic::Instance().SaveScreenShot(szPath);

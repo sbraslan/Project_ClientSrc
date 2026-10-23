@@ -233,7 +233,7 @@ bool CPythonNetworkStream::RecvCharacterAdditionalInfo()
 
 				case CActorInstance::TYPE_PET_PAY:
 					char szPetName[1024];
-					sprintf(szPetName, "%s - %s", chrInfoPacket.name, c_szName);
+					m2::crt::format(szPetName, "%s - %s", chrInfoPacket.name, c_szName);
 					kNetActorData.m_stName = szPetName;
 					break;
 

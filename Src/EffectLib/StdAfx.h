@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../EterBase/LegacyCRTCompat.h"
+
 #include "../EterBase/StdAfx.h"
 
 #include "../EterBase/Utils.h"

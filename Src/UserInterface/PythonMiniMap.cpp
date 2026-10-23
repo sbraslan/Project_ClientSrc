@@ -665,21 +665,21 @@ bool CPythonMiniMap::Create()
 	char buf[256];
 	for (int i = 0; i < MINI_WAYPOINT_IMAGE_COUNT; ++i)
 	{
-		sprintf(buf, "%sminimap/mini_waypoint%02d.sub", strImageRoot.c_str(), i + 1);
+		m2::crt::format(buf, "%sminimap/mini_waypoint%02d.sub", strImageRoot.c_str(), i + 1);
 		m_MiniWayPointGraphicImageInstances[i].SetImagePointer(
 			msl::inherit_cast<CGraphicSubImage *>(CResourceManager::Instance().GetResourcePointer(buf)));
 		m_MiniWayPointGraphicImageInstances[i].SetRenderingMode(CGraphicExpandedImageInstance::RENDERING_MODE_SCREEN);
 	}
 	for (int j = 0; j < WAYPOINT_IMAGE_COUNT; ++j)
 	{
-		sprintf(buf, "%sminimap/waypoint%02d.sub", strImageRoot.c_str(), j + 1);
+		m2::crt::format(buf, "%sminimap/waypoint%02d.sub", strImageRoot.c_str(), j + 1);
 		m_WayPointGraphicImageInstances[j].SetImagePointer(
 			msl::inherit_cast<CGraphicSubImage *>(CResourceManager::Instance().GetResourcePointer(buf)));
 		m_WayPointGraphicImageInstances[j].SetRenderingMode(CGraphicExpandedImageInstance::RENDERING_MODE_SCREEN);
 	}
 	for (int k = 0; k < TARGET_MARK_IMAGE_COUNT; ++k)
 	{
-		sprintf(buf, "%sminimap/targetmark%02d.sub", strImageRoot.c_str(), k + 1);
+		m2::crt::format(buf, "%sminimap/targetmark%02d.sub", strImageRoot.c_str(), k + 1);
 		m_TargetMarkGraphicImageInstances[k].SetImagePointer(
 			msl::inherit_cast<CGraphicSubImage *>(CResourceManager::Instance().GetResourcePointer(buf)));
 		m_TargetMarkGraphicImageInstances[k].SetRenderingMode(CGraphicExpandedImageInstance::RENDERING_MODE_SCREEN);
@@ -945,7 +945,7 @@ void CPythonMiniMap::__LoadAtlasMarkInfo()
 
 	// LOCALE
 	char szAtlasMarkInfoFileName[64 + 1];
-	_snprintf(szAtlasMarkInfoFileName, sizeof(szAtlasMarkInfoFileName), "%s/map/%s_point.txt", LocaleService_GetLocalePath(),
+	snprintf(szAtlasMarkInfoFileName, sizeof(szAtlasMarkInfoFileName), "%s/map/%s_point.txt", LocaleService_GetLocalePath(),
 			  rkMap.GetName().c_str());
 	// END_OF_LOCALE
 
@@ -962,7 +962,7 @@ void CPythonMiniMap::__LoadAtlasMarkInfo()
 	for (uint32_t i = 0; i < stTokenVectorMap.size(); ++i)
 	{
 		char szMarkInfoName[32 + 1];
-		_snprintf(szMarkInfoName, sizeof(szMarkInfoName), "%d", i);
+		snprintf(szMarkInfoName, sizeof(szMarkInfoName), "%d", i);
 
 		if (stTokenVectorMap.end() == stTokenVectorMap.find(szMarkInfoName))
 			continue;

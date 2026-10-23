@@ -83,7 +83,7 @@ void CPythonNetworkStream::SetLoginPhase()
 		else
 			SendLoginPacket(m_stID.c_str(), m_stPassword.c_str());
 
-		// ºñ¹Ð¹øÈ£¸¦ ¸Þ¸ð¸®¿¡ °è¼Ó °®°í ÀÖ´Â ¹®Á¦°¡ ÀÖ¾î¼­, »ç¿ë Áï½Ã ³¯¸®´Â °ÍÀ¸·Î º¯°æ
+		// ï¿½ï¿½Ð¹ï¿½È£ï¿½ï¿½ ï¿½Þ¸ð¸®¿ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾î¼­, ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		ClearLoginInfo();
 		CAccountConnector & rkAccountConnector = CAccountConnector::Instance();
 		rkAccountConnector.ClearLoginInfo();
@@ -95,7 +95,7 @@ void CPythonNetworkStream::SetLoginPhase()
 		else
 			SendLoginPacket(m_stID.c_str(), m_stPassword.c_str());
 
-		// ºñ¹Ð¹øÈ£¸¦ ¸Þ¸ð¸®¿¡ °è¼Ó °®°í ÀÖ´Â ¹®Á¦°¡ ÀÖ¾î¼­, »ç¿ë Áï½Ã ³¯¸®´Â °ÍÀ¸·Î º¯°æ
+		// ï¿½ï¿½Ð¹ï¿½È£ï¿½ï¿½ ï¿½Þ¸ð¸®¿ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾î¼­, ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		ClearLoginInfo();
 		CAccountConnector & rkAccountConnector = CAccountConnector::Instance();
 		rkAccountConnector.ClearLoginInfo();
@@ -170,8 +170,8 @@ bool CPythonNetworkStream::SendLoginPacket(const char * c_szName, const char * c
 	TPacketCGLogin LoginPacket;
 	LoginPacket.header = HEADER_CG_LOGIN;
 
-	strncpy(LoginPacket.name, c_szName, sizeof(LoginPacket.name) - 1);
-	strncpy(LoginPacket.pwd, c_szPassword, sizeof(LoginPacket.pwd) - 1);
+	m2::crt::copy_n(LoginPacket.name, c_szName, sizeof(LoginPacket.name) - 1);
+	m2::crt::copy_n(LoginPacket.pwd, c_szPassword, sizeof(LoginPacket.pwd) - 1);
 
 	LoginPacket.name[ID_MAX_NUM] = '\0';
 	LoginPacket.pwd[PASS_MAX_NUM] = '\0';
@@ -191,7 +191,7 @@ bool CPythonNetworkStream::SendLoginPacketNew(const char * c_szName, const char 
 	LoginPacket.header = HEADER_CG_LOGIN2;
 	LoginPacket.login_key = m_dwLoginKey;
 
-	strncpy(LoginPacket.name, c_szName, sizeof(LoginPacket.name) - 1);
+	m2::crt::copy_n(LoginPacket.name, c_szName, sizeof(LoginPacket.name) - 1);
 	LoginPacket.name[ID_MAX_NUM] = '\0';
 
 	extern uint32_t g_adwEncryptKey[4];

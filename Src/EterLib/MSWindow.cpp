@@ -185,7 +185,7 @@ void CMSWindow::SetSize(int width, int height)
 const char * CMSWindow::RegisterWindowClass(uint32_t style, int brush, WNDPROC pfnWndProc, HICON hIcon, int iCursorResource)
 {
 	char szClassName[1024];
-	sprintf(szClassName, "eter - s%x:b%x:p:%llx", style, brush, static_cast<unsigned long long>(reinterpret_cast<std::uintptr_t>(pfnWndProc)));
+	m2::crt::format(szClassName, "eter - s%x:b%x:p:%llx", style, brush, static_cast<unsigned long long>(reinterpret_cast<std::uintptr_t>(pfnWndProc)));
 
 	auto f = ms_stWCSet.find((char *) szClassName);
 

@@ -60,20 +60,20 @@ void LocaleService_LoadConfig(const char * fileName)
 			line[sizeof(line) - 1] = '\0';
 #ifdef ENABLE_MULTI_LANGUAGE_SYSTEM
 			if (bMultiLocale)
-				sscanf(line, "%d %s", &code, name);
+				sscanf_s(line, "%d %255s", &code, name, static_cast<unsigned>(_countof(name)));
 			else
 			{
-				sscanf(line, "%d %d %s", &id, &code, name);
+				sscanf_s(line, "%d %d %255s", &id, &code, name, static_cast<unsigned>(_countof(name)));
 				MULTI_LOCALE_REPORT_PORT = id;
 			}
 #else
-			sscanf(line, "%d %d %s", &id, &code, name);
+			sscanf_s(line, "%d %d %255s", &id, &code, name, static_cast<unsigned>(_countof(name)));
 
 			MULTI_LOCALE_REPORT_PORT = id;
 #endif
 			MULTI_LOCALE_CODE = code;
-			strcpy(MULTI_LOCALE_NAME, name);
-			sprintf(MULTI_LOCALE_PATH, "locale/country/%s", MULTI_LOCALE_NAME);	//@custom016
+			m2::crt::copy(MULTI_LOCALE_NAME, name);
+			m2::crt::format(MULTI_LOCALE_PATH, "locale/country/%s", MULTI_LOCALE_NAME);	//@custom016
 		}
 	}
 	NANOEND
@@ -263,10 +263,10 @@ const char * LocaleService_GetLocalePath()
 
 void LocaleService_ForceSetLocale(const char * name, const char * localePath)
 {
-	strcpy(MULTI_LOCALE_NAME, name);
-	strcpy(MULTI_LOCALE_PATH, localePath);
+	m2::crt::copy(MULTI_LOCALE_NAME, name);
+	m2::crt::copy(MULTI_LOCALE_PATH, localePath);
 
-	// ±âÁ¸ Ãµ¸¶ ¼­¹ö·Î Á¢¼Ó½Ã¿¡´Â security key º¯°æ (WE ¹öÀü Å¬¶ó·Î Ãµ¸¶¼­¹ö Á¢¼ÓÇÏ±â À§ÇÔ)
+	// ï¿½ï¿½ï¿½ï¿½ Ãµï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ó½Ã¿ï¿½ï¿½ï¿½ security key ï¿½ï¿½ï¿½ï¿½ (WE ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½)
 	if (0 == stricmp(name, "ymir"))
 		__SECURITY_KEY_STRING__ = "testtesttesttest";
 	if (0 == stricmp(name, "we_korea"))
@@ -369,7 +369,7 @@ std::string GetLanguageIconPath(uint8_t bLanguage)
 		return "";
 
 	char szFilePath[256];
-	sprintf(szFilePath, "d:/ymir work/ui/intro/login/server_flag_%s.sub", c_szLocale.c_str());
+	m2::crt::format(szFilePath, "d:/ymir work/ui/intro/login/server_flag_%s.sub", c_szLocale.c_str());
 
 	return std::string(szFilePath);
 }
@@ -377,17 +377,17 @@ std::string GetLanguageIconPath(uint8_t bLanguage)
 void UpdateLanguageLocale(uint8_t bLanguage)
 {
 	MULTI_LOCALE_CODE = GetLanguageCodePage(bLanguage);
-	strcpy(MULTI_LOCALE_NAME, GetLanguageLocale(bLanguage).c_str());
-	sprintf(MULTI_LOCALE_PATH, "locale/%s", MULTI_LOCALE_NAME);
+	m2::crt::copy(MULTI_LOCALE_NAME, GetLanguageLocale(bLanguage).c_str());
+	m2::crt::format(MULTI_LOCALE_PATH, "locale/%s", MULTI_LOCALE_NAME);
 
-	if (FILE* fp = fopen("loca.cfg", "wt"))
+	if (FILE* fp = m2::crt::open_file("loca.cfg", "wt"))
 	{
 		fprintf(fp, "%d %s\n", MULTI_LOCALE_CODE, MULTI_LOCALE_NAME);
 		fclose(fp);
 	}
 	else
 	{
-		if (FILE* fp2 = fopen("locale.cfg", "wt"))
+		if (FILE* fp2 = m2::crt::open_file("locale.cfg", "wt"))
 		{
 			fprintf(fp, "%d %s\n", MULTI_LOCALE_CODE, MULTI_LOCALE_NAME);
 			fclose(fp);
@@ -411,7 +411,7 @@ std::string GetEmpireIconPath(uint8_t bEmpire)
 		c_szLocale = "jinno";
 
 	char szFilePath[256];
-	sprintf(szFilePath, "d:/ymir work/ui/game/flag/empire/%s.tga", c_szLocale.c_str());
+	m2::crt::format(szFilePath, "d:/ymir work/ui/game/flag/empire/%s.tga", c_szLocale.c_str());
 
 	return std::string(szFilePath);
 }

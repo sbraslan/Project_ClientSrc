@@ -49,7 +49,7 @@ bool CSoundManager3D::Initialize()
 	{
 		//		assert(!"AIL_open_3D_provider error");
 		//		char buf[64];
-		//		sprintf(buf, "Error AIL_open_3D_provider: %s\n", AIL_last_error());
+		//		m2::crt::format(buf, "Error AIL_open_3D_provider: %s\n", AIL_last_error());
 		//		OutputDebugString(buf);
 
 		CSoundBase::Destroy();
@@ -146,7 +146,7 @@ int CSoundManager3D::SetInstance(const char * c_pszFileName)
 			if (!pkInst->SetSound(pkSoundData))
 			{
 				TraceError("CSoundManager3D::GetInstance (filename: %s)", c_pszFileName);
-				// NOTE : »ç¿îµå°¡ ¾øÀ» °æ¿ì Failed to set. return nullptr. - [levites]
+				// NOTE : ï¿½ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Failed to set. return nullptr. - [levites]
 				return -1;
 			}
 
@@ -155,7 +155,7 @@ int CSoundManager3D::SetInstance(const char * c_pszFileName)
 
 		++start;
 
-		// ¼³¸¶ uint32_t ÇÑ°è°ªÀ» ³Ñ¾î°¥¸®¾ß ¾ø°ÚÁö¸¸.. ±×·¡µµ.. È¤½Ã³ª.. - [levites]
+		// ï¿½ï¿½ï¿½ï¿½ uint32_t ï¿½Ñ°è°ªï¿½ï¿½ ï¿½Ñ¾î°¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.. ï¿½×·ï¿½ï¿½ï¿½.. È¤ï¿½Ã³ï¿½.. - [levites]
 		if (start > 50000)
 		{
 			start = 0;

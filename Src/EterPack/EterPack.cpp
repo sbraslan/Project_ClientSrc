@@ -79,7 +79,7 @@ void CMakePackLog::Writef(const char * c_szFormat, ...)
 	va_start(args, c_szFormat);
 
 	char szBuf[1024];
-	int nBufLen = _vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	int nBufLen = vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
 	szBuf[nBufLen] = '\0';
 	__Write(szBuf, nBufLen);
 }
@@ -93,7 +93,7 @@ void CMakePackLog::Writenf(const char * c_szFormat, ...)
 	va_start(args, c_szFormat);
 
 	char szBuf[1024 + 1];
-	int nBufLen = _vsnprintf(szBuf, sizeof(szBuf) - 1, c_szFormat, args);
+	int nBufLen = vsnprintf(szBuf, sizeof(szBuf) - 1, c_szFormat, args);
 	if (nBufLen > 0)
 	{
 		szBuf[nBufLen++] = '\n';
@@ -107,7 +107,7 @@ void CMakePackLog::Write(const char * c_szBuf)
 	if (!__IsLogMode())
 		return;
 
-	__Write(c_szBuf, strlen(c_szBuf) + 1);
+	__Write(c_szBuf, m2::narrow<int>(strlen(c_szBuf) + 1));
 }
 
 void CMakePackLog::__Write(const char * c_szBuf, int nBufLen)
@@ -116,7 +116,7 @@ void CMakePackLog::__Write(const char * c_szBuf, int nBufLen)
 		return;
 
 	if (nullptr == m_fp)
-		m_fp = fopen(m_stFileName.c_str(), "w");
+		m_fp = m2::crt::open_file(m_stFileName.c_str(), "w");
 
 	fwrite(c_szBuf, nBufLen, 1, m_fp);
 
@@ -133,7 +133,7 @@ void CMakePackLog::WriteErrorf(const char * c_szFormat, ...)
 	va_start(args, c_szFormat);
 
 	char szBuf[1024];
-	int nBufLen = _vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	int nBufLen = vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
 	szBuf[nBufLen] = '\0';
 	__WriteError(szBuf, nBufLen);
 }
@@ -147,7 +147,7 @@ void CMakePackLog::WriteErrornf(const char * c_szFormat, ...)
 	va_start(args, c_szFormat);
 
 	char szBuf[1024 + 1];
-	int nBufLen = _vsnprintf(szBuf, sizeof(szBuf) - 1, c_szFormat, args);
+	int nBufLen = vsnprintf(szBuf, sizeof(szBuf) - 1, c_szFormat, args);
 	if (nBufLen > 0)
 	{
 		szBuf[nBufLen++] = '\n';
@@ -161,7 +161,7 @@ void CMakePackLog::WriteError(const char * c_szBuf)
 	if (!__IsLogMode())
 		return;
 
-	__WriteError(c_szBuf, strlen(c_szBuf) + 1);
+	__WriteError(c_szBuf, m2::narrow<int>(strlen(c_szBuf) + 1));
 }
 
 void CMakePackLog::__WriteError(const char * c_szBuf, int nBufLen)
@@ -170,7 +170,7 @@ void CMakePackLog::__WriteError(const char * c_szBuf, int nBufLen)
 		return;
 
 	if (nullptr == m_fp_err)
-		m_fp_err = fopen(m_stErrorFileName.c_str(), "w");
+		m_fp_err = m2::crt::open_file(m_stErrorFileName.c_str(), "w");
 
 	fwrite(c_szBuf, nBufLen, 1, m_fp_err);
 
@@ -236,10 +236,10 @@ bool CEterPack::Create(CEterFileDict & rkFileDict, const char * dbname, const ch
 
 	m_stPathName = pathName;
 
-	strncpy(m_dbName, dbname, DBNAME_MAX_LEN);
+	m2::crt::copy_n(m_dbName, dbname, DBNAME_MAX_LEN);
 
-	strncpy(m_indexFileName, dbname, MAX_PATH);
-	strcat(m_indexFileName, ".eix");
+	m2::crt::copy_n(m_indexFileName, dbname, MAX_PATH);
+	m2::crt::append(m_indexFileName, ".eix");
 
 	m_stDataFileName = dbname;
 	m_stDataFileName += ".epk";
@@ -1095,7 +1095,7 @@ TEterPackIndex * CEterPack::NewIndex(CFileBase & file, const char * filename, lo
 		index->id = GetNewIndexPosition(file);
 	}
 
-	strncpy(index->filename, filename, FILENAME_MAX_LEN);
+	m2::crt::copy_n(index->filename, filename, FILENAME_MAX_LEN);
 	index->filename[FILENAME_MAX_LEN] = '\0';
 	inlineConvertPackFilename(index->filename);
 
@@ -1108,7 +1108,7 @@ TEterPackIndex * CEterPack::NewIndex(CFileBase & file, const char * filename, lo
 TEterPackIndex * CEterPack::FindIndex(const char * filename)
 {
 	static char tmpFilename[MAX_PATH + 1];
-	strncpy(tmpFilename, filename, MAX_PATH);
+	m2::crt::copy_n(tmpFilename, filename, MAX_PATH);
 	inlineConvertPackFilename(tmpFilename);
 
 	uint32_t filename_crc = GetCRC32(tmpFilename, strlen(tmpFilename));
