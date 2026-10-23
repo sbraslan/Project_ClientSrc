@@ -6,8 +6,10 @@
 #include <cstdint>
 #include <cstring>
 #include <exception>
-#include <DbgHelp.h>
 
+// EterBase/StdAfx.h already includes <ImageHlp.h>, which exposes the
+// DbgHelp symbol/stack APIs used below. Including <DbgHelp.h> again causes
+// duplicate SDK type definitions on current Windows SDKs.
 #pragma comment(lib, "Dbghelp.lib")
 #include "Debug.h"
 #include "Singleton.h"
