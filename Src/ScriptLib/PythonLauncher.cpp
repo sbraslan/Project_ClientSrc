@@ -335,10 +335,8 @@ bool CPythonLauncher::RunMemoryTextFile(const char* c_szFileName, uint32_t uFile
     stConvFileData += "', 'exec'))";
 
     const CHAR* c_pcConvFileData = stConvFileData.c_str();
-    NANOBEGIN
-    const bool result = RunLine(c_pcConvFileData);
     NANOEND
-    return result;
+    return RunLine(c_pcConvFileData);
 }
 
 bool CPythonLauncher::RunFile(const char* c_szFileName)
