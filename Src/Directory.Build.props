@@ -23,4 +23,32 @@
       <AdditionalDependencies>$(GrannyLibraryName);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+
+  <!--
+    Reproducible native x64 open-source dependency stack.
+    Install with:
+      vcpkg install --x-manifest-root=<repo> --x-install-root=<repo>\vcpkg_installed --triplet x64-windows-static
+  -->
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <Metin2VcpkgTriplet>x64-windows-static</Metin2VcpkgTriplet>
+    <Metin2VcpkgRoot>$(MSBuildThisFileDirectory)..\vcpkg_installed\$(Metin2VcpkgTriplet)</Metin2VcpkgRoot>
+    <Metin2VcpkgReady Condition="Exists('$(Metin2VcpkgRoot)\include\cryptopp\cryptlib.h') and Exists('$(Metin2VcpkgRoot)\include\jpeglib.h') and Exists('$(Metin2VcpkgRoot)\include\lzo\lzo1x.h')">true</Metin2VcpkgReady>
+    <Metin2VcpkgReady Condition="'$(Metin2VcpkgReady)'==''">false</Metin2VcpkgReady>
+    <Metin2VcpkgLibDir Condition="'$(Configuration)'=='Debug'">$(Metin2VcpkgRoot)\debug\lib</Metin2VcpkgLibDir>
+    <Metin2VcpkgLibDir Condition="'$(Configuration)'!='Debug'">$(Metin2VcpkgRoot)\lib</Metin2VcpkgLibDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64' and '$(Metin2VcpkgReady)'=='true'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(Metin2VcpkgRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>METIN2_X64_MODERN_DEPS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64' and '$(ProjectName)'=='UserInterface' and '$(Metin2VcpkgReady)'=='true'">
+    <Link>
+      <AdditionalLibraryDirectories>$(Metin2VcpkgLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cryptopp.lib;jpeg.lib;lzo2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
 </Project>

@@ -18,7 +18,9 @@
 #include <cryptopp/whrlpool.h>
 #include <cryptopp/panama.h>
 
+#if !defined(_WIN64)
 #include <cryptopp/cryptoppLibLink.h>
+#endif
 #pragma warning(pop)
 
 #include "../EterBase/Utils.h"
@@ -243,7 +245,7 @@ bool CEterPack::Create(CEterFileDict & rkFileDict, const char * dbname, const ch
 
 	m_bReadOnly = bReadOnly;
 
-	// bReadOnly ¸ğµå°¡ ¾Æ´Ï°í µ¥ÀÌÅÍ º£ÀÌ½º°¡ ¿­¸°´Ù¸é »ı¼º ½ÇÆĞ
+	// bReadOnly ëª¨ë“œê°€ ì•„ë‹ˆê³  ë°ì´í„° ë² ì´ìŠ¤ê°€ ì—´ë¦°ë‹¤ë©´ ìƒì„± ì‹¤íŒ¨
 	if (!CreateIndexFile())
 		return false;
 
@@ -270,7 +272,7 @@ bool CEterPack::DecryptIV(uint32_t dwPanamaKey)
 	if (m_stIV_Panama.length() != 32)
 		return false;
 
-	if (m_bDecrypedIV) // ÀÌ¹Ì ¾ÏÈ£È­°¡ Ç®·ÈÀ¸¸é ´Ù½Ã Ã³¸® ¾ÈÇÔ
+	if (m_bDecrypedIV) // ì´ë¯¸ ì•”í˜¸í™”ê°€ í’€ë ¸ìœ¼ë©´ ë‹¤ì‹œ ì²˜ë¦¬ ì•ˆí•¨
 		return true;
 
 	auto ivs = reinterpret_cast<uint32_t *>(&m_stIV_Panama[0]);
@@ -452,7 +454,7 @@ bool CEterPack::__BuildIndex(CEterFileDict & rkFileDict, bool bOverwrite)
 
 			m_DataPositionMap.emplace(index->filename_crc, index);
 
-			if (bOverwrite) // ¼­¹ö ¿¬µ¿ ÆĞÅ· ÆÄÀÏÀº ³ªÁß¿¡ µé¾î¿ÀÁö¸¸ ÃÖ»óÀ§·Î µî·ÏÇØ¾ßÇÑ´Ù
+			if (bOverwrite) // ì„œë²„ ì—°ë™ íŒ¨í‚¹ íŒŒì¼ì€ ë‚˜ì¤‘ì— ë“¤ì–´ì˜¤ì§€ë§Œ ìµœìƒìœ„ë¡œ ë“±ë¡í•´ì•¼í•œë‹¤
 				rkFileDict.UpdateItem(this, index);
 			else
 				rkFileDict.InsertItem(this, index);
@@ -470,7 +472,7 @@ bool CEterPack::__BuildIndex(CEterFileDict & rkFileDict, bool bOverwrite)
 //
 //void CEterPack::ClearDataMemoryMap()
 //{
-//	// m_fileÀÌ data fileÀÌ´Ù...
+//	// m_fileì´ data fileì´ë‹¤...
 //	m_file.Destroy();
 //	m_tLastAccessTime = 0;
 //	m_bIsDataLoaded = false;
@@ -497,8 +499,8 @@ bool CEterPack::Get(CMappedFile & out_file, const char * filename, LPCVOID * dat
 	//	m_bIsDataLoaded = true;
 	//}
 
-	// ±âÁ¸¿¡´Â CEterPack¿¡¼­ epk¸¦ memory map¿¡ ¿Ã·Á³õ°í, ¿äÃ»ÀÌ ¿À¸é ±× ºÎºĞÀ» ¸µÅ©ÇØ¼­ ³Ñ°Ü Áá¾ú´Âµ¥,
-	// ÀÌÁ¦´Â ¿äÃ»ÀÌ ¿À¸é, ÇÊ¿äÇÑ ºÎºĞ¸¸ memory map¿¡ ¿Ã¸®°í, ¿äÃ»ÀÌ ³¡³ª¸é ÇØÁ¦ÇÏ°Ô ÇÔ.
+	// ê¸°ì¡´ì—ëŠ” CEterPackì—ì„œ epkë¥¼ memory mapì— ì˜¬ë ¤ë†“ê³ , ìš”ì²­ì´ ì˜¤ë©´ ê·¸ ë¶€ë¶„ì„ ë§í¬í•´ì„œ ë„˜ê²¨ ì¤¬ì—ˆëŠ”ë°,
+	// ì´ì œëŠ” ìš”ì²­ì´ ì˜¤ë©´, í•„ìš”í•œ ë¶€ë¶„ë§Œ memory mapì— ì˜¬ë¦¬ê³ , ìš”ì²­ì´ ëë‚˜ë©´ í•´ì œí•˜ê²Œ í•¨.
 	out_file.Create(m_stDataFileName.c_str(), data, index->data_position, index->data_size);
 
 	bool bIsSecurityCheckRequired =
@@ -936,15 +938,15 @@ bool CEterPack::Put(const char * filename, LPCVOID data, long len, uint8_t packT
 
 	uint32_t data_crc = GetCRC32(static_cast<const char *>(data), len);
 
-	// ±âÁ¸ µ¥ÀÌÅÍ°¡ ÀÖÀ¸¸é..
+	// ê¸°ì¡´ ë°ì´í„°ê°€ ìˆìœ¼ë©´..
 	if (pIndex)
 	{
-		// ±âÁ¸ data Å©±â°¡ ³ÖÀ» µ¥ÀÌÅÍ Å©±â¸¦ ¼ö¿ëÇÒ ¼ö ÀÖ´Ù¸é
+		// ê¸°ì¡´ data í¬ê¸°ê°€ ë„£ì„ ë°ì´í„° í¬ê¸°ë¥¼ ìˆ˜ìš©í•  ìˆ˜ ìˆë‹¤ë©´
 		if (pIndex->real_data_size >= len)
 		{
 			++m_map_indexRefCount[pIndex->id];
 
-			// ±æÀÌ°¡ Æ²¸®°Å³ª, checksumÀÌ Æ²¸± ¶§¸¸ ÀúÀå ÇÑ´Ù.
+			// ê¸¸ì´ê°€ í‹€ë¦¬ê±°ë‚˜, checksumì´ í‹€ë¦´ ë•Œë§Œ ì €ì¥ í•œë‹¤.
 			if ((pIndex->data_size != len) || (pIndex->data_crc != data_crc))
 			{
 				pIndex->data_size = len;
@@ -961,13 +963,13 @@ bool CEterPack::Put(const char * filename, LPCVOID data, long len, uint8_t packT
 			return true;
 		}
 
-		// ±âÁ¸ µ¥ÀÌÅÍ Å©±â°¡ »õ·Î µé¾î°¥ °Í º¸´Ù Àû´Ù¸é, »õ·Î ÀÎµ¦½º¸¦ ÇÒ´çÇØ
-		// ³Ö¾î¾ß ÇÑ´Ù. ¿ø·¡ ÀÖ´ø ÀÎµ¦½º´Â ºñ¿ö µĞ´Ù.
+		// ê¸°ì¡´ ë°ì´í„° í¬ê¸°ê°€ ìƒˆë¡œ ë“¤ì–´ê°ˆ ê²ƒ ë³´ë‹¤ ì ë‹¤ë©´, ìƒˆë¡œ ì¸ë±ìŠ¤ë¥¼ í• ë‹¹í•´
+		// ë„£ì–´ì•¼ í•œë‹¤. ì›ë˜ ìˆë˜ ì¸ë±ìŠ¤ëŠ” ë¹„ì›Œ ë‘”ë‹¤.
 		PushFreeIndex(pIndex);
 		WriteIndex(fileIndex, pIndex);
 	}
 
-	// »õ µ¥ÀÌÅÍ
+	// ìƒˆ ë°ì´í„°
 	pIndex = NewIndex(fileIndex, filename, len);
 	pIndex->data_size = len;
 
@@ -1003,7 +1005,7 @@ bool CEterPack::CreateIndexFile() const
 		return false;
 
 	//
-	// ÆÄÀÏÀÌ ¾øÀ¸¹Ç·Î »õ·Î ¸¸µç´Ù.
+	// íŒŒì¼ì´ ì—†ìœ¼ë¯€ë¡œ ìƒˆë¡œ ë§Œë“ ë‹¤.
 	//
 	fPtr.open(m_indexFileName, "wb");
 	if (!fPtr)
@@ -1027,16 +1029,16 @@ void CEterPack::WriteIndex(CFileBase & file, TEterPackIndex * index) const
 }
 
 /*
- *	Free Block ÀÌ¶õ µ¥ÀÌÅÍ¿¡¼­ Áö¿öÁø ºÎºĞÀ» ¸»ÇÑ´Ù.
- *	Free Block µéÀº °¢°¢ FREE_INDEX_BLOCK_SIZE (32768) ´ÜÀ§·Î ³ª´©¾îÁ®
- *	¸®½ºÆ®·Î °ü¸®µÈ´Ù.
+ *	Free Block ì´ë€ ë°ì´í„°ì—ì„œ ì§€ì›Œì§„ ë¶€ë¶„ì„ ë§í•œë‹¤.
+ *	Free Block ë“¤ì€ ê°ê° FREE_INDEX_BLOCK_SIZE (32768) ë‹¨ìœ„ë¡œ ë‚˜ëˆ„ì–´ì ¸
+ *	ë¦¬ìŠ¤íŠ¸ë¡œ ê´€ë¦¬ëœë‹¤.
  *
- *	¿¹¸¦ µé¾î 128k ÀÇ µ¥ÀÌÅÍ´Â
- *	128 * 1024 / FREE_INDEX_BLOCK_SIZE = 4 ÀÌ¹Ç·Î
- *	ÃÖÁ¾ ÀûÀ¸·Î´Â m_FreeIndexList[4] ¿¡ µé¾î°£´Ù.
+ *	ì˜ˆë¥¼ ë“¤ì–´ 128k ì˜ ë°ì´í„°ëŠ”
+ *	128 * 1024 / FREE_INDEX_BLOCK_SIZE = 4 ì´ë¯€ë¡œ
+ *	ìµœì¢… ì ìœ¼ë¡œëŠ” m_FreeIndexList[4] ì— ë“¤ì–´ê°„ë‹¤.
  *
- *	FREE_INDEX_BLOCK_SIZE ÀÇ ÃÖ´ë °ªÀº FREE_INDEX_MAX_SIZE(512) ÀÌ´Ù.
- *	µû¶ó¼­ 16MB ÀÌ»óÀÇ µ¥ÀÌÅÍ´Â ¹«Á¶°Ç ¹è¿­ÀÇ 512 À§Ä¡¿¡ µé¾î°£´Ù.
+ *	FREE_INDEX_BLOCK_SIZE ì˜ ìµœëŒ€ ê°’ì€ FREE_INDEX_MAX_SIZE(512) ì´ë‹¤.
+ *	ë”°ë¼ì„œ 16MB ì´ìƒì˜ ë°ì´í„°ëŠ” ë¬´ì¡°ê±´ ë°°ì—´ì˜ 512 ìœ„ì¹˜ì— ë“¤ì–´ê°„ë‹¤.
  */
 int CEterPack::GetFreeBlockIndex(long size)
 {
@@ -1228,7 +1230,7 @@ const char * CEterPack::GetDBName() const
 
 void CEterPack::__CreateFileNameKey_Panama(const char * filename, uint8_t * key, unsigned int keySize)
 {
-	// Å° ¾ÏÈ£È­
+	// í‚¤ ì•”í˜¸í™”
 	if (keySize != 32)
 		return;
 
@@ -1270,7 +1272,7 @@ void CEterPack::__CreateFileNameKey_Panama(const char * filename, uint8_t * key,
 																   ) // HashFilter
 	); // StringSource
 
-	// ¸¸µé¾îÁø Å°ÀÇ Ã¹¹øÂ° 4¹ÙÀÌÆ®·Î ´ÙÀ½ 16¹ÙÀÌÆ® Å° »ı¼º ¾Ë°í¸®Áò ¼±ÅÃ
+	// ë§Œë“¤ì–´ì§„ í‚¤ì˜ ì²«ë²ˆì§¸ 4ë°”ì´íŠ¸ë¡œ ë‹¤ìŒ 16ë°”ì´íŠ¸ í‚¤ ìƒì„± ì•Œê³ ë¦¬ì¦˜ ì„ íƒ
 	unsigned int idx2 = *reinterpret_cast<unsigned int *>(key);
 
 	switch (idx2 & 3)
@@ -1299,14 +1301,14 @@ void CEterPack::__CreateFileNameKey_Panama(const char * filename, uint8_t * key,
 													//) // HexEncoder
 													) // HashFilter
 	); // StringSource
-	// Å° »ı¼º ¿Ï·á
+	// í‚¤ ìƒì„± ì™„ë£Œ
 }
 
 bool CEterPack::__Encrypt_Panama(const char * filename, const uint8_t * data, SIZE_T dataSize, CLZObject & zObj) const
 {
 	if (32 != m_stIV_Panama.length())
 	{
-		// ÇØÄ¿°¡ ÀÌ ¸Ş¼¼Áö¸¦ º¸¸é ÈùÆ®¸¦ ¾òÀ»±îºÁ µğ¹ö±×¿¡¼­¸¸ Ãâ·Â
+		// í•´ì»¤ê°€ ì´ ë©”ì„¸ì§€ë¥¼ ë³´ë©´ íŒíŠ¸ë¥¼ ì–»ì„ê¹Œë´ ë””ë²„ê·¸ì—ì„œë§Œ ì¶œë ¥
 #ifdef _DEBUG
 		TraceError("IV not set (filename: %s)", filename);
 #endif
@@ -1328,7 +1330,7 @@ bool CEterPack::__Encrypt_Panama(const char * filename, const uint8_t * data, SI
 	__CreateFileNameKey_Panama(filename, key, sizeof(key));
 	Encryptor.SetKeyWithIV(key, sizeof(key), reinterpret_cast<const uint8_t *>(m_stIV_Panama.c_str()), 32);
 
-	// MandatoryBlockSize¿¡ ³ª´©¾î ¶³¾îÁö°Ô ¸¸µé°í ÃÖ´ë 2048 ¹ÙÀÌÆ®¸¸
+	// MandatoryBlockSizeì— ë‚˜ëˆ„ì–´ ë–¨ì–´ì§€ê²Œ ë§Œë“¤ê³  ìµœëŒ€ 2048 ë°”ì´íŠ¸ë§Œ
 	uint32_t cryptSize = dataSize - (dataSize % Encryptor.MandatoryBlockSize());
 	cryptSize = cryptSize > 2048 ? 2048 : cryptSize;
 
@@ -1359,7 +1361,7 @@ bool CEterPack::__Decrypt_Panama(const char * filename, const uint8_t * data, SI
 {
 	if (32 != m_stIV_Panama.length())
 	{
-		// ÇØÄ¿°¡ ÀÌ ¸Ş¼¼Áö¸¦ º¸¸é ÈùÆ®¸¦ ¾òÀ»±îºÁ µğ¹ö±×¿¡¼­¸¸ Ãâ·Â
+		// í•´ì»¤ê°€ ì´ ë©”ì„¸ì§€ë¥¼ ë³´ë©´ íŒíŠ¸ë¥¼ ì–»ì„ê¹Œë´ ë””ë²„ê·¸ì—ì„œë§Œ ì¶œë ¥
 #ifdef _DEBUG
 		TraceError("IV not set (filename: %s)", filename);
 #endif
@@ -1372,7 +1374,7 @@ bool CEterPack::__Decrypt_Panama(const char * filename, const uint8_t * data, SI
 
 	__CreateFileNameKey_Panama(filename, key, sizeof(key));
 	Decryptor.SetKeyWithIV(key, sizeof(key), reinterpret_cast<const uint8_t *>(m_stIV_Panama.c_str()), 32);
-	// MandatoryBlockSize¿¡ ³ª´©¾î ¶³¾îÁö°Ô ¸¸µé°í ÃÖ´ë 2048 ¹ÙÀÌÆ®¸¸
+	// MandatoryBlockSizeì— ë‚˜ëˆ„ì–´ ë–¨ì–´ì§€ê²Œ ë§Œë“¤ê³  ìµœëŒ€ 2048 ë°”ì´íŠ¸ë§Œ
 	uint32_t cryptSize = dataSize - (dataSize % Decryptor.MandatoryBlockSize());
 	cryptSize = cryptSize > 2048 ? 2048 : cryptSize;
 

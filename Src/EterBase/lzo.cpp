@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include <cstdlib>
+#if !defined(_WIN64)
 #include <lzo/lzoLibLink.h>
+#endif
 
 #include "lzo.h"
 #include "tea.h"
@@ -107,9 +109,9 @@ void CLZObject::BeginCompress(const void * pvIn, uint32_t uiInLen)
 	m_pbIn = static_cast<const uint8_t *>(pvIn);
 
 	// sizeof(SHeader) +
-	// ¾ÏÈ£È­¸¦ À§ÇÑ fourCC 4¹ÙÀÌÆ®
-	// ¾ĞÃàµÈ ÈÄ ¸¸µé¾îÁú ¼ö ÀÖ´Â ÃÖ´ë ¿ë·® +
-	// ¾ÏÈ£È­¸¦ À§ÇÑ 8 ¹ÙÀÌÆ®
+	// ì•”í˜¸í™”ë¥¼ ìœ„í•œ fourCC 4ë°”ì´íŠ¸
+	// ì••ì¶•ëœ í›„ ë§Œë“¤ì–´ì§ˆ ìˆ˜ ìˆëŠ” ìµœëŒ€ ìš©ëŸ‰ +
+	// ì•”í˜¸í™”ë¥¼ ìœ„í•œ 8 ë°”ì´íŠ¸
 	m_dwBufferSize = sizeof(THeader) + sizeof(uint32_t) + (uiInLen + uiInLen / 64 + 16 + 3) + 8;
 
 	m_pbBuffer = gs_freeMemMgr.Alloc(m_dwBufferSize);
@@ -126,9 +128,9 @@ void CLZObject::BeginCompressInBuffer(const void * pvIn, uint32_t uiInLen, void 
 	m_pbIn = static_cast<const uint8_t *>(pvIn);
 
 	// sizeof(SHeader) +
-	// ¾ÏÈ£È­¸¦ À§ÇÑ fourCC 4¹ÙÀÌÆ®
-	// ¾ĞÃàµÈ ÈÄ ¸¸µé¾îÁú ¼ö ÀÖ´Â ÃÖ´ë ¿ë·® +
-	// ¾ÏÈ£È­¸¦ À§ÇÑ 8 ¹ÙÀÌÆ®
+	// ì•”í˜¸í™”ë¥¼ ìœ„í•œ fourCC 4ë°”ì´íŠ¸
+	// ì••ì¶•ëœ í›„ ë§Œë“¤ì–´ì§ˆ ìˆ˜ ìˆëŠ” ìµœëŒ€ ìš©ëŸ‰ +
+	// ì•”í˜¸í™”ë¥¼ ìœ„í•œ 8 ë°”ì´íŠ¸
 	m_dwBufferSize = sizeof(THeader) + sizeof(uint32_t) + (uiInLen + uiInLen / 64 + 16 + 3) + 8;
 
 	m_pbBuffer = gs_freeMemMgr.Alloc(m_dwBufferSize);

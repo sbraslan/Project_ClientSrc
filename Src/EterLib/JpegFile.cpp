@@ -4,8 +4,12 @@
 #include <cstdlib>
 #include <memory.h>
 
+#if defined(_WIN64)
+#include <jpeglib.h>
+#else
 #include <libjpeg/jpeglib.h>
 #include <libjpeg/jpegLibLink.h>
+#endif
 
 #define OUTBUFFER_SIZE 0x8000
 

@@ -1,0 +1,19 @@
+{
+  "name": "metin2-client-x64-deps",
+  "version-string": "2026.10.23",
+  "builtin-baseline": "40a678a192636131f04b3af79ba118d869effade",
+  "dependencies": [
+    "cryptopp",
+    "libjpeg-turbo",
+    "lz4",
+    "lzo",
+    "snappy"
+  ],
+  "overrides": [
+    { "name": "cryptopp", "version": "8.9.0", "port-version": 2 },
+    { "name": "libjpeg-turbo", "version": "3.2.0", "port-version": 1 },
+    { "name": "lz4", "version": "1.10.0" },
+    { "name": "lzo", "version": "2.10", "port-version": 9 },
+    { "name": "snappy", "version": "1.2.2", "port-version": 2 }
+  ]
+}
