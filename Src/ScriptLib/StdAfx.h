@@ -15,13 +15,13 @@ extern "C"
 #if defined(_WIN64)
 #	ifdef _DEBUG
 #		undef _DEBUG
-#		include <Python.h>
+#		include "../../Extern/Python315/include/Python.h"
 #		define _DEBUG
 #	else
-#		include <Python.h>
+#		include "../../Extern/Python315/include/Python.h"
 #	endif
-#	include <marshal.h>
-#	include <frameobject.h>
+#	include "../../Extern/Python315/include/marshal.h"
+#	include "../../Extern/Python315/include/frameobject.h"
 #else
 #	ifdef _DEBUG
 #		undef _DEBUG
@@ -48,6 +48,7 @@ extern "C"
 #endif
 }
 
+#include "PythonCompat.h"
 #include "PythonUtils.h"
 #include "PythonLauncher.h"
 #include "PythonMarshal.h"
