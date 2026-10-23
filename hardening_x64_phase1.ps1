@@ -3,200 +3,163 @@ $ErrorActionPreference = "Stop"
 $Root = $PSScriptRoot
 $Src  = Join-Path $Root "Src"
 
-function Read-Utf8([string]$Path)
-{
-    return [System.IO.File]::ReadAllText($Path)
+function ReadText([string]$Path) {
+    [System.IO.File]::ReadAllText($Path)
 }
 
-function Write-Utf8([string]$Path, [string]$Content)
-{
+function WriteText([string]$Path, [string]$Text) {
     $utf8 = New-Object System.Text.UTF8Encoding($false)
-    [System.IO.File]::WriteAllText($Path, $Content, $utf8)
+    [System.IO.File]::WriteAllText($Path, $Text, $utf8)
 }
 
-function Replace-Once
-{
+function ReplaceText {
     param(
         [string]$Path,
         [string]$Old,
         [string]$New
     )
 
-    $content = Read-Utf8 $Path
+    $c = ReadText $Path
 
-    if ($content.Contains($New))
-    {
-        Write-Host "[SKIP] $Path" -ForegroundColor DarkYellow
+    if ($c.Contains($New)) {
+        Write-Host "[SKIP] $Path" -ForegroundColor Yellow
         return
     }
 
-    if (!$content.Contains($Old))
-    {
+    if (!$c.Contains($Old)) {
         Write-Host "[NOT FOUND] $Path" -ForegroundColor Red
         return
     }
 
-    $content = $content.Replace($Old, $New)
-    Write-Utf8 $Path $content
+    $c = $c.Replace($Old, $New)
+    WriteText $Path $c
 
     Write-Host "[OK] $Path" -ForegroundColor Green
 }
 
-function Ensure-Include
-{
+function AddInclude {
     param(
         [string]$Path,
         [string]$Include
     )
 
-    $content = Read-Utf8 $Path
+    $c = ReadText $Path
 
-    if ($content.Contains($Include))
-    {
+    if ($c.Contains($Include)) {
         return
     }
 
-    if ($content.Contains("#pragma once"))
-    {
-        $content = $content.Replace(
-            "#pragma once",
-            "#pragma once`r`n`r`n$Include"
-        )
-    }
-    else
-    {
-        $content = "$Include`r`n$content"
-    }
+    $c = $c.Replace(
+        "#pragma once",
+        "#pragma once`r`n`r`n$Include"
+    )
 
-    Write-Utf8 $Path $content
+    WriteText $Path $c
 }
 
 Write-Host ""
-Write-Host "=============================================" -ForegroundColor Cyan
-Write-Host " Metin2 x64 Hardening - Phase 1" -ForegroundColor Cyan
-Write-Host "=============================================" -ForegroundColor Cyan
+Write-Host "=== METIN2 X64 HARDENING PHASE 1 ===" -ForegroundColor Cyan
 
 
-# ------------------------------------------------------------
-# 1. ParticleProperty.h
-# tek warning noktasi tum solution boyunca tekrar ediyor
-# ------------------------------------------------------------
+# ----------------------------------------------------------
+# ParticleProperty.h
+# ----------------------------------------------------------
 
-$path = Join-Path $Src "EffectLib\ParticleProperty.h"
+$p = Join-Path $Src "EffectLib\ParticleProperty.h"
 
-Ensure-Include $path '#include "../EterBase/X64Compat.h"'
+AddInclude $p '#include "../EterBase/X64Compat.h"'
 
-Replace-Once `
-    $path `
+ReplaceText `
+    $p `
     'return m_ImageVector.size();' `
     'return m2::narrow<uint32_t>(m_ImageVector.size());'
 
 
-# ------------------------------------------------------------
-# 2. MapOutdoor.h
-# internal index/order => size_t
-# public legacy count => checked uint32_t
-# ------------------------------------------------------------
+# ----------------------------------------------------------
+# MapOutdoor.h
+# ----------------------------------------------------------
 
-$path = Join-Path $Src "GameLib\MapOutdoor.h"
+$p = Join-Path $Src "GameLib\MapOutdoor.h"
 
-Ensure-Include $path '#include "../EterBase/X64Compat.h"'
+AddInclude $p '#include "../EterBase/X64Compat.h"'
 
-Replace-Once `
-    $path `
+ReplaceText `
+    $p `
     'uint32_t lhsTerrainNumOrder = 0, rhsTerrainNumOrder = 0;' `
     'std::size_t lhsTerrainNumOrder = 0, rhsTerrainNumOrder = 0;'
 
-Replace-Once `
-    $path `
+ReplaceText `
+    $p `
     'uint32_t GetMonsterAreaInfoCount() { return m_MonsterAreaInfoPtrVector.size(); }' `
     'uint32_t GetMonsterAreaInfoCount() { return m2::narrow<uint32_t>(m_MonsterAreaInfoPtrVector.size()); }'
 
 
-# ------------------------------------------------------------
-# 3. PythonPlayer.h
-# API uint32_t kaliyor, STL size checked narrow
-# ------------------------------------------------------------
+# ----------------------------------------------------------
+# PythonPlayer.h
+# ----------------------------------------------------------
 
-$path = Join-Path $Src "UserInterface\PythonPlayer.h"
+$p = Join-Path $Src "UserInterface\PythonPlayer.h"
 
-Ensure-Include $path '#include "../EterBase/X64Compat.h"'
+AddInclude $p '#include "../EterBase/X64Compat.h"'
 
-Replace-Once `
-    $path `
+ReplaceText `
+    $p `
     'uint32_t GetShopSearchResultCount() noexcept { return m_ItemInstanceVector.size(); }' `
     'uint32_t GetShopSearchResultCount() noexcept { return m2::narrow<uint32_t>(m_ItemInstanceVector.size()); }'
 
-Replace-Once `
-    $path `
+ReplaceText `
+    $p `
     'uint32_t GetShopSearchResultMaxCount() noexcept { return m_ItemInstanceVector.size(); }' `
     'uint32_t GetShopSearchResultMaxCount() noexcept { return m2::narrow<uint32_t>(m_ItemInstanceVector.size()); }'
 
 
-# ------------------------------------------------------------
-# 4. PythonWindow.h
-# ------------------------------------------------------------
+# ----------------------------------------------------------
+# PythonWindow.h
+# ----------------------------------------------------------
 
-$path = Join-Path $Src "EterPythonLib\PythonWindow.h"
+$p = Join-Path $Src "EterPythonLib\PythonWindow.h"
 
-Ensure-Include $path '#include "../EterBase/X64Compat.h"'
+AddInclude $p '#include "../EterBase/X64Compat.h"'
 
-Replace-Once `
-    $path `
+ReplaceText `
+    $p `
     'int GetChildCount() const { return m_pChildList.size(); }' `
     'int GetChildCount() const { return m2::narrow<int>(m_pChildList.size()); }'
 
 
-# Case-sensitive duplicate folder compatibility
-$path2 = Join-Path $Src "eterPythonLib\PythonWindow.h"
+# ----------------------------------------------------------
+# FlyingData.h
+# ----------------------------------------------------------
 
-if ((Test-Path $path2) -and ($path2 -ne $path))
-{
-    Ensure-Include $path2 '#include "../EterBase/X64Compat.h"'
+$p = Join-Path $Src "GameLib\FlyingData.h"
 
-    Replace-Once `
-        $path2 `
-        'int GetChildCount() const { return m_pChildList.size(); }' `
-        'int GetChildCount() const { return m2::narrow<int>(m_pChildList.size()); }'
-}
+AddInclude $p '#include "../EterBase/X64Compat.h"'
 
-
-# ------------------------------------------------------------
-# 5. FlyingData.h
-# ------------------------------------------------------------
-
-$path = Join-Path $Src "GameLib\FlyingData.h"
-
-Ensure-Include $path '#include "../EterBase/X64Compat.h"'
-
-Replace-Once `
-    $path `
+ReplaceText `
+    $p `
     'int GetAttachDataCount() { return m_AttachDataVector.size(); }' `
     'int GetAttachDataCount() { return m2::narrow<int>(m_AttachDataVector.size()); }'
 
 
-# ------------------------------------------------------------
-# 6. Pool.h
-# ------------------------------------------------------------
+# ----------------------------------------------------------
+# Pool.h
+# ----------------------------------------------------------
 
-$path = Join-Path $Src "EterLib\Pool.h"
+$p = Join-Path $Src "EterLib\Pool.h"
 
-Ensure-Include $path '#include "../EterBase/X64Compat.h"'
+AddInclude $p '#include "../EterBase/X64Compat.h"'
 
-Replace-Once `
-    $path `
+ReplaceText `
+    $p `
     'uint32_t GetCapacity() { return m_kVct_pkData.size(); }' `
     'uint32_t GetCapacity() { return m2::narrow<uint32_t>(m_kVct_pkData.size()); }'
 
 
-# ------------------------------------------------------------
-# 7. Utils.h string_join
-#
-# uint32/int kullanmaya gerek yok.
-# Ayrica bos container'da "-1" underflow riskini de kaldiriyor.
-# ------------------------------------------------------------
+# ----------------------------------------------------------
+# Utils.h
+# ----------------------------------------------------------
 
-$path = Join-Path $Src "EterBase\Utils.h"
+$p = Join-Path $Src "EterBase\Utils.h"
 
 $old = @'
 	unsigned int capacity = sep.length() * container.size() - 1;
@@ -221,10 +184,10 @@ $new = @'
 	}
 '@
 
-Replace-Once $path $old $new
+ReplaceText $p $old $new
 
 
 Write-Host ""
-Write-Host "=============================================" -ForegroundColor Green
+Write-Host "==================================" -ForegroundColor Green
 Write-Host " PHASE 1 TAMAMLANDI" -ForegroundColor Green
-Write-Host "=============================================" -ForegroundColor Green
+Write-Host "==================================" -ForegroundColor Green
