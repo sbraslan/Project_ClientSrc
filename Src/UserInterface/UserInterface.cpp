@@ -48,7 +48,9 @@ extern "C"
 #endif
 
 #pragma comment(lib, "imagehlp.lib")
+#if !defined(_WIN64)
 #pragma comment(lib, "devil.lib")
+#endif
 
 #if GrannyProductMinorVersion == 4
 #	pragma comment(lib, "granny2.4.0.10.lib")
@@ -889,7 +891,9 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 	SetLogLevel(1);
 
+#if !defined(_WIN64)
 	ilInit();
+#endif
 
 	if (!Setup(lpCmdLine))
 		return false;
