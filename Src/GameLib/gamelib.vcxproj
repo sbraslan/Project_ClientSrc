@@ -21,7 +21,27 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-  </ItemGroup>
+  
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Distribute|x64">
+      <Configuration>Distribute</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MfcDebug|x64">
+      <Configuration>MfcDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MfcRelease|x64">
+      <Configuration>MfcRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration></ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>GameLib</ProjectName>
     <ProjectGuid>{1801F0ED-7DE6-4175-BF25-6FA98AAA350B}</ProjectGuid>
@@ -90,32 +110,58 @@
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Distribute|Win32'">$(ProjectDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Distribute|x64'">$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Distribute|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Distribute|x64'">$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='MfcRelease|Win32'">$(ProjectDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MfcRelease|x64'">$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MfcRelease|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MfcRelease|x64'">$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='MfcDebug|Win32'">$(ProjectDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MfcDebug|x64'">$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MfcDebug|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MfcDebug|x64'">$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Distribute|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Distribute|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Distribute|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Distribute|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Distribute|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Distribute|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='MfcDebug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='MfcDebug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='MfcDebug|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='MfcDebug|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='MfcDebug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='MfcDebug|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='MfcRelease|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='MfcRelease|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='MfcRelease|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='MfcRelease|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='MfcRelease|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='MfcRelease|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   </PropertyGroup>
   <PropertyGroup Label="Metin2CentralOutput"><OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\bin\lib\Debug\Win32\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\obj\$(ProjectName)\Debug\Win32\</IntDir><OutDir Condition="'$(Configuration)|$(Platform)'=='Distribute|Win32'">$(ProjectDir)..\bin\lib\Distribute\Win32\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='Distribute|Win32'">$(ProjectDir)..\obj\$(ProjectName)\Distribute\Win32\</IntDir><OutDir Condition="'$(Configuration)|$(Platform)'=='MfcDebug|Win32'">$(ProjectDir)..\bin\lib\MfcDebug\Win32\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='MfcDebug|Win32'">$(ProjectDir)..\obj\$(ProjectName)\MfcDebug\Win32\</IntDir><OutDir Condition="'$(Configuration)|$(Platform)'=='MfcRelease|Win32'">$(ProjectDir)..\bin\lib\MfcRelease\Win32\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='MfcRelease|Win32'">$(ProjectDir)..\obj\$(ProjectName)\MfcRelease\Win32\</IntDir><OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\bin\lib\Release\Win32\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\obj\$(ProjectName)\Release\Win32\</IntDir></PropertyGroup>
+<PropertyGroup Label="Metin2CentralOutput"><OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\bin\lib\Debug\x64\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\obj\$(ProjectName)\Debug\x64\</IntDir><OutDir Condition="'$(Configuration)|$(Platform)'=='Distribute|x64'">$(ProjectDir)..\bin\lib\Distribute\x64\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='Distribute|x64'">$(ProjectDir)..\obj\$(ProjectName)\Distribute\x64\</IntDir><OutDir Condition="'$(Configuration)|$(Platform)'=='MfcDebug|x64'">$(ProjectDir)..\bin\lib\MfcDebug\x64\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='MfcDebug|x64'">$(ProjectDir)..\obj\$(ProjectName)\MfcDebug\x64\</IntDir><OutDir Condition="'$(Configuration)|$(Platform)'=='MfcRelease|x64'">$(ProjectDir)..\bin\lib\MfcRelease\x64\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='MfcRelease|x64'">$(ProjectDir)..\obj\$(ProjectName)\MfcRelease\x64\</IntDir><OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\bin\lib\Release\x64\</OutDir><IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\obj\$(ProjectName)\Release\x64\</IntDir></PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
