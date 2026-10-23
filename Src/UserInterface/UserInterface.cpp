@@ -421,121 +421,6 @@ bool __CheckMilesFiles()
 }
 #endif
 
-static LONG WINAPI ClientUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
-{
-    HANDLE hFile = CreateFileA(
-        "syserr.txt",
-        FILE_APPEND_DATA,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
-        nullptr,
-        OPEN_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-        nullptr);
-
-    if (hFile == INVALID_HANDLE_VALUE)
-        return EXCEPTION_EXECUTE_HANDLER;
-
-    SYSTEMTIME st{};
-    GetLocalTime(&st);
-
-    DWORD exceptionCode = 0;
-    DWORD exceptionFlags = 0;
-    void* exceptionAddress = nullptr;
-    char moduleName[MAX_PATH] = "unknown";
-
-    if (pExceptionInfo && pExceptionInfo->ExceptionRecord)
-    {
-        exceptionCode =
-            pExceptionInfo->ExceptionRecord->ExceptionCode;
-
-        exceptionFlags =
-            pExceptionInfo->ExceptionRecord->ExceptionFlags;
-
-        exceptionAddress =
-            pExceptionInfo->ExceptionRecord->ExceptionAddress;
-
-        MEMORY_BASIC_INFORMATION mbi{};
-
-        if (exceptionAddress &&
-            VirtualQuery(exceptionAddress, &mbi, sizeof(mbi)) != 0)
-        {
-            GetModuleFileNameA(
-                static_cast<HMODULE>(mbi.AllocationBase),
-                moduleName,
-                MAX_PATH);
-        }
-    }
-
-    char buffer[2048] = {};
-
-    int length = wsprintfA(
-        buffer,
-        "\r\n"
-        "============================================================\r\n"
-        "FATAL CLIENT CRASH\r\n"
-        "Time            : %04u-%02u-%02u %02u:%02u:%02u.%03u\r\n"
-        "Exception Code  : 0x%08lX\r\n"
-        "Exception Flags : 0x%08lX\r\n"
-        "Exception Addr  : %p\r\n"
-        "Module          : %s\r\n"
-        "Thread ID       : %lu\r\n",
-        st.wYear,
-        st.wMonth,
-        st.wDay,
-        st.wHour,
-        st.wMinute,
-        st.wSecond,
-        st.wMilliseconds,
-        exceptionCode,
-        exceptionFlags,
-        exceptionAddress,
-        moduleName,
-        GetCurrentThreadId());
-
-    if (pExceptionInfo && pExceptionInfo->ContextRecord)
-    {
-        const CONTEXT* ctx = pExceptionInfo->ContextRecord;
-
-#if defined(_M_X64)
-        length += wsprintfA(
-            buffer + length,
-            "RIP             : 0x%016I64X\r\n"
-            "RSP             : 0x%016I64X\r\n"
-            "RBP             : 0x%016I64X\r\n",
-            static_cast<unsigned __int64>(ctx->Rip),
-            static_cast<unsigned __int64>(ctx->Rsp),
-            static_cast<unsigned __int64>(ctx->Rbp));
-
-#elif defined(_M_IX86)
-        length += wsprintfA(
-            buffer + length,
-            "EIP             : 0x%08lX\r\n"
-            "ESP             : 0x%08lX\r\n"
-            "EBP             : 0x%08lX\r\n",
-            ctx->Eip,
-            ctx->Esp,
-            ctx->Ebp);
-#endif
-    }
-
-    length += wsprintfA(
-        buffer + length,
-        "============================================================\r\n");
-
-    DWORD written = 0;
-
-    WriteFile(
-        hFile,
-        buffer,
-        static_cast<DWORD>(length),
-        &written,
-        nullptr);
-
-    FlushFileBuffers(hFile);
-    CloseHandle(hFile);
-
-    return EXCEPTION_EXECUTE_HANDLER;
-}
 char gs_szErrorString[512] = "";
 
 void ApplicationSetErrorString(const char * szErrorString) noexcept
@@ -978,8 +863,11 @@ void SetInternetRegKey()
 
 bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
-	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
-	SetUnhandledExceptionFilter(ClientUnhandledExceptionFilter);
+#ifdef _DEBUG
+	OpenConsoleWindow();
+#endif
+	OpenLogFile(true);
+	InstallCrashHandler();
 #ifdef LOCALE_SERVICE_YMIR
 	extern bool g_isScreenShotKey;
 	g_isScreenShotKey = true;
@@ -1004,13 +892,6 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 	if (!Setup(lpCmdLine))
 		return false;
 
-#ifdef _DEBUG
-	OpenConsoleWindow();
-	OpenLogFile(true); // true == uses syserr.txt and log.txt
-#else
-	OpenLogFile(true); // temporary runtime diagnostics: syserr.txt + log.txt
-#endif
-
 	static CLZO lzo;
 	static CEterPackManager EterPackManager;
 
@@ -1031,7 +912,9 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 	auto app = std::make_unique<CPythonApplication>();
 	app->Initialize(hInstance);
 
-	SetUnhandledExceptionFilter(ClientUnhandledExceptionFilter);
+	// Some third-party/runtime components may replace the process filter.
+	// Re-arm the same central EterBase crash handler after application initialization.
+	InstallCrashHandler();
 
 	bool ret = false;
 	{

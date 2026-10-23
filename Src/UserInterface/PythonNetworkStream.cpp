@@ -389,6 +389,7 @@ void CPythonNetworkStream::AbsoluteExitGame()
 
 void CPythonNetworkStream::AbsoluteExitApplication() const
 {
+	TRACE_CONTROLLED_EXIT("CPythonNetworkStream::AbsoluteExitApplication");
 	PostQuitMessage(0);
 }
 
@@ -705,26 +706,12 @@ bool CPythonNetworkStream::CheckPacket(TPacketHeader * pRetHeader)
 	{
 		TraceError("Unknown packet header: %d, last: %d %d", header, g_iLastPacket[0], g_iLastPacket[1]);
 
-        FILE* fpUnknownPacket = fopen("syserr.txt", "a");
-        if (fpUnknownPacket)
-        {
-            fprintf(
-                fpUnknownPacket,
-                "\n============================================================\n"
-                "CONTROLLED CLIENT EXIT\n"
-                "Reason : Unknown packet header\n"
-                "Phase  : %s\n"
-                "Header : %d\n"
-                "Last   : %d %d\n"
-                "============================================================\n",
-                m_strPhase.c_str(),
-                header,
-                g_iLastPacket[0],
-                g_iLastPacket[1]);
-
-            fflush(fpUnknownPacket);
-            fclose(fpUnknownPacket);
-        }
+		TRACE_CONTROLLED_EXITF(
+			"Unknown packet header. Phase=%s Header=%u Last=%d,%d",
+			m_strPhase.c_str(),
+			static_cast<unsigned int>(header),
+			g_iLastPacket[0],
+			g_iLastPacket[1]);
 
 		ClearRecvBuffer();
 

@@ -24,6 +24,12 @@ extern void LogFilef(const char * c_szMessage, ...);
 extern void OpenConsoleWindow(void);
 
 extern void OpenLogFile(bool bUseLogFIle = true);
+extern void InstallCrashHandler();
+extern void TraceControlledExit(const char * c_szReason, const char * c_szFile, int iLine);
+extern void TraceControlledExitf(const char * c_szFile, int iLine, const char * c_szFormat, ...);
+
+#define TRACE_CONTROLLED_EXIT(reason) TraceControlledExit((reason), __FILE__, __LINE__)
+#define TRACE_CONTROLLED_EXITF(...) TraceControlledExitf(__FILE__, __LINE__, __VA_ARGS__)
 
 extern HWND g_PopupHwnd;
 

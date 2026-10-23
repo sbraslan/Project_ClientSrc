@@ -140,11 +140,13 @@ void CPythonApplication::Abort() const
 	TraceError("============================================================================================================");
 	TraceError("Abort!!!!\n\n");
 
+	TRACE_CONTROLLED_EXIT("CPythonApplication::Abort");
 	PostQuitMessage(0);
 }
 
 void CPythonApplication::Exit() const
 {
+	TRACE_CONTROLLED_EXIT("CPythonApplication::Exit");
 	PostQuitMessage(0);
 }
 
@@ -242,7 +244,7 @@ void CPythonApplication::UpdateGame()
 
 	uint32_t t2 = ELTimer_GetMSec();
 
-	//!@# Alt+Tab Áß SetTransfor ¿¡¼­ Æ¨±è Çö»ó ÇØ°áÀ» À§ÇØ - [levites]
+	//!@# Alt+Tab ì¤‘ SetTransfor ì—ì„œ íŠ•ê¹€ í˜„ìƒ í•´ê²°ì„ ìœ„í•´ - [levites]
 	//if (m_isActivateWnd)
 	{
 		CScreen s;
@@ -288,8 +290,8 @@ void CPythonApplication::UpdateGame()
 	m_pyPlayer.Update();
 	uint32_t t11 = ELTimer_GetMSec();
 
-	// NOTE : Update µ¿¾È À§Ä¡ °ªÀÌ ¹Ù²î¹Ç·Î ´Ù½Ã ¾ò¾î ¿É´Ï´Ù - [levites]
-	//        ÀÌ ºÎºĞ ¶§¹®¿¡ ¸ŞÀÎ ÄÉ¸¯ÅÍÀÇ Sound°¡ ÀÌÀü À§Ä¡¿¡¼­ ÇÃ·¹ÀÌ µÇ´Â Çö»óÀÌ ÀÖ¾úÀ½.
+	// NOTE : Update ë™ì•ˆ ìœ„ì¹˜ ê°’ì´ ë°”ë€Œë¯€ë¡œ ë‹¤ì‹œ ì–»ì–´ ì˜µë‹ˆë‹¤ - [levites]
+	//        ì´ ë¶€ë¶„ ë•Œë¬¸ì— ë©”ì¸ ì¼€ë¦­í„°ì˜ Soundê°€ ì´ì „ ìœ„ì¹˜ì—ì„œ í”Œë ˆì´ ë˜ëŠ” í˜„ìƒì´ ìˆì—ˆìŒ.
 	m_pyPlayer.NEW_GetMainActorPosition(&kPPosMainActor);
 	SetCenterPosition(kPPosMainActor.x, kPPosMainActor.y, kPPosMainActor.z);
 	uint32_t t12 = ELTimer_GetMSec();
@@ -342,7 +344,7 @@ bool CPythonApplication::Process()
 	m_fGlobalElapsedTime = rkTimer.GetElapsedSecond();
 
 	uint32_t uiFrameTime = rkTimer.GetElapsedMilliecond();
-	s_uiNextFrameTime += uiFrameTime; //17 - 1ÃÊ´ç 60fps±âÁØ.
+	s_uiNextFrameTime += uiFrameTime; //17 - 1ì´ˆë‹¹ 60fpsê¸°ì¤€.
 
 	uint32_t updatestart = ELTimer_GetMSec();
 	// Network I/O
@@ -365,7 +367,7 @@ bool CPythonApplication::Process()
 		OnMouseMove(Point.x, Point.y);
 	}
 	//////////////////////
-	//!@# Alt+Tab Áß SetTransfor ¿¡¼­ Æ¨±è Çö»ó ÇØ°áÀ» À§ÇØ - [levites]
+	//!@# Alt+Tab ì¤‘ SetTransfor ì—ì„œ íŠ•ê¹€ í˜„ìƒ í•´ê²°ì„ ìœ„í•´ - [levites]
 	//if (m_isActivateWnd)
 	__UpdateCamera();
 	// Update Game Playing
@@ -521,7 +523,7 @@ bool CPythonApplication::Process()
 
 					m_fFaceSpd = (m_dwFaceAccCount / m_dwFaceAccTime);
 
-					// °Å¸® ÀÚµ¿ Á¶Àı
+					// ê±°ë¦¬ ìë™ ì¡°ì ˆ
 					if (-1 == m_iForceSightRange)
 					{
 						static float s_fAveRenderTime = 16.0f;
@@ -537,13 +539,13 @@ bool CPythonApplication::Process()
 						float fDistance = std::max<float>(fNear + (fFar - fNear) * (dbAvePow) / dbMaxPow, fNear);
 						m_pyBackground.SetViewDistanceSet(0, fDistance);
 					}
-					// °Å¸® °­Á¦ ¼³Á¤½Ã
+					// ê±°ë¦¬ ê°•ì œ ì„¤ì •ì‹œ
 					else
 						m_pyBackground.SetViewDistanceSet(0, float(m_iForceSightRange));
 				}
 				else
 				{
-					// 10000 Æú¸®°ï º¸´Ù ÀûÀ»¶§´Â °¡Àå ¸Ö¸® º¸ÀÌ°Ô ÇÑ´Ù
+					// 10000 í´ë¦¬ê³¤ ë³´ë‹¤ ì ì„ë•ŒëŠ” ê°€ì¥ ë©€ë¦¬ ë³´ì´ê²Œ í•œë‹¤
 					m_pyBackground.SetViewDistanceSet(0, 25600.0f);
 				}
 
@@ -556,7 +558,7 @@ bool CPythonApplication::Process()
 
 	if (rest > 0 && !bCurrentLateUpdate)
 	{
-		s_uiLoad -= rest; // ½® ½Ã°£Àº ·Îµå¿¡¼­ »«´Ù..
+		s_uiLoad -= rest; // ì‰° ì‹œê°„ì€ ë¡œë“œì—ì„œ ëº€ë‹¤..
 		Sleep(rest);
 	}
 
@@ -939,9 +941,9 @@ bool CPythonApplication::Create(PyObject * poSelf, const char * c_szName, int wi
 	if (m_pySystem.IsUseDefaultIME())
 		CPythonIME::Instance().UseDefaultIME();
 
-	// Ç®½ºÅ©¸° ¸ğµåÀÌ°í
-	// µğÆúÆ® IME ¸¦ »ç¿ëÇÏ°Å³ª À¯·´ ¹öÀüÀÌ¸é
-	// À©µµ¿ì Ç®½ºÅ©¸° ¸ğµå¸¦ »ç¿ëÇÑ´Ù
+	// í’€ìŠ¤í¬ë¦° ëª¨ë“œì´ê³ 
+	// ë””í´íŠ¸ IME ë¥¼ ì‚¬ìš©í•˜ê±°ë‚˜ ìœ ëŸ½ ë²„ì „ì´ë©´
+	// ìœˆë„ìš° í’€ìŠ¤í¬ë¦° ëª¨ë“œë¥¼ ì‚¬ìš©í•œë‹¤
 	if (!m_pySystem.IsWindowed() && (m_pySystem.IsUseDefaultIME() || LocaleService_IsEUROPE()))
 	{
 		m_isWindowed = false;
@@ -994,7 +996,7 @@ bool CPythonApplication::Create(PyObject * poSelf, const char * c_szName, int wi
 		// Sound
 		if (!m_SoundManager.Create())
 		{
-			// NOTE : Áß±¹ÃøÀÇ ¿äÃ»À¸·Î »ı·«
+			// NOTE : ì¤‘êµ­ì¸¡ì˜ ìš”ì²­ìœ¼ë¡œ ìƒëµ
 			//		LogBox(ApplicationStringTable_GetStringz(IDS_WARN_NO_SOUND_DEVICE));
 		}
 	}
@@ -1061,13 +1063,13 @@ bool CPythonApplication::Create(PyObject * poSelf, const char * c_szName, int wi
 
 	CGraphicImageInstance::CreateSystem(32);
 
-	// ¹é¾÷
+	// ë°±ì—…
 	STICKYKEYS sStickKeys{};
 	sStickKeys.cbSize = sizeof(sStickKeys);
 	SystemParametersInfo(SPI_GETSTICKYKEYS, sizeof(sStickKeys), &sStickKeys, 0);
 	m_dwStickyKeysFlag = sStickKeys.dwFlags;
 
-	// ¼³Á¤
+	// ì„¤ì •
 	sStickKeys.dwFlags &= ~(SKF_AVAILABLE | SKF_HOTKEYACTIVE);
 	SystemParametersInfo(SPI_SETSTICKYKEYS, sizeof(sStickKeys), &sStickKeys, 0);
 
@@ -1114,8 +1116,8 @@ time_t CPythonApplication::GetServerTime() const
 	return (ELTimer_GetMSec() - m_dwStartLocalTime) + m_tServerTime;
 }
 
-// 2005.03.28 - MALL ¾ÆÀÌÅÛ¿¡ µé¾îÀÖ´Â ½Ã°£ÀÇ ´ÜÀ§°¡ ¼­¹ö¿¡¼­ time(0) À¸·Î ¸¸µé¾îÁö´Â
-//              °ªÀÌ±â ¶§¹®¿¡ ´ÜÀ§¸¦ ¸ÂÃß±â À§ÇØ ½Ã°£ °ü·Ã Ã³¸®¸¦ º°µµ·Î Ãß°¡
+// 2005.03.28 - MALL ì•„ì´í…œì— ë“¤ì–´ìˆëŠ” ì‹œê°„ì˜ ë‹¨ìœ„ê°€ ì„œë²„ì—ì„œ time(0) ìœ¼ë¡œ ë§Œë“¤ì–´ì§€ëŠ”
+//              ê°’ì´ê¸° ë•Œë¬¸ì— ë‹¨ìœ„ë¥¼ ë§ì¶”ê¸° ìœ„í•´ ì‹œê°„ ê´€ë ¨ ì²˜ë¦¬ë¥¼ ë³„ë„ë¡œ ì¶”ê°€
 time_t CPythonApplication::GetServerTimeStamp() const
 {
 	return (time(nullptr) - m_tLocalStartTime) + m_tServerTime;
@@ -1273,7 +1275,7 @@ void CPythonApplication::Destroy()
 	m_SoundManager.Destroy();
 	m_grpDevice.Destroy();
 
-	// FIXME : ¸¸µé¾îÁ® ÀÖÁö ¾ÊÀ½ - [levites]
+	// FIXME : ë§Œë“¤ì–´ì ¸ ìˆì§€ ì•ŠìŒ - [levites]
 	//CSpeedTreeForestDirectX8::Instance().Clear();
 
 	CAttributeInstance::DestroySystem();
