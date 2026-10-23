@@ -52,6 +52,7 @@ extern "C"
 #pragma comment(lib, "devil.lib")
 #endif
 
+#if !defined(_WIN64)
 #if GrannyProductMinorVersion == 4
 #	pragma comment(lib, "granny2.4.0.10.lib")
 #elif GrannyProductMinorVersion == 7
@@ -72,6 +73,7 @@ extern "C"
 #	endif
 #else
 #	error "unknown granny version"
+#endif
 #endif
 
 #pragma comment(lib, "mss32.lib")

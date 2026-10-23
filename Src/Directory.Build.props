@@ -1,0 +1,21 @@
+<Project>
+  <!--
+    Native x64 Granny SDK integration.
+    The proprietary SDK itself is intentionally not committed.
+    Expected local layout:
+      Extern\Granny\2.11.10.0\x64\include\granny2\...
+      Extern\Granny\2.11.10.0\x64\lib\granny2.11.10.0.lib
+  -->
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <GrannySdkVersion>2.11.10.0</GrannySdkVersion>
+    <GrannySdkRoot>$(MSBuildThisFileDirectory)..\Extern\Granny\$(GrannySdkVersion)\x64</GrannySdkRoot>
+    <GrannyLibraryName>granny2.11.10.0.lib</GrannyLibraryName>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64' and '$(ProjectName)'=='UserInterface'">
+    <Link>
+      <AdditionalLibraryDirectories>$(GrannySdkRoot)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(GrannyLibraryName);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

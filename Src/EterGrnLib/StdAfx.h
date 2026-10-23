@@ -1,8 +1,12 @@
 #pragma once
 
-#pragma warning(disable : 4786) // character 255 �Ѿ�°� ����
+#pragma warning(disable : 4786) // character 255 ³Ñ¾î°¡´Â°Å ²ô±â
 
-#include <granny2/granny.h>
+#if defined(_WIN64)
+#	include "../../Extern/Granny/2.11.10.0/x64/include/granny2/granny.h"
+#else
+#	include <granny2/granny.h>
+#endif
 
 #include "../EterBase/StdAfx.h"
 #include "../EterBase/Utils.h"
