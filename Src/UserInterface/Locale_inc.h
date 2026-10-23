@@ -31,7 +31,7 @@ enum eCommon
 #define ENABLE_PREVENT_FILE_READ_FROM_DRIVE			// will block loading files from the d: drive.
 //#define USE_PACK_TYPE_DIO_ONLY						// disable the old 0-1-2-3-4-5 types by enabling the define
 #ifndef _DEBUG
-#define ENABLE_PACK_TYPE_DIO
+//#define ENABLE_PACK_TYPE_DIO
 #endif
 
 
