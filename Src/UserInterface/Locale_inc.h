@@ -141,7 +141,9 @@ enum eCommon
 // METIN2_DEBUG_CEF_FALLBACK
 #ifndef _DEBUG
 // METIN2_DEBUG_NO_CEF
+#if !defined(_WIN64)
 #define CEF_BROWSER
+#endif
 #endif
 #endif
 #define ENABLE_RENDERING_ONLY_IN_AREA				// Map Area Heavy Effect Usage Fix
