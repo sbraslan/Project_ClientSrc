@@ -92,18 +92,18 @@ struct LightComp
 	bool operator()(const CLight * l, const CLight * r) const { return l->GetDistance() < r->GetDistance(); }
 };
 
-// NOTE : FlushLightÈÄ ·»´õ¸µ
-//        ±× ÈÄ ¹İµå½Ã RestoreLight¸¦ ÇØÁà¾ß¸¸ ÇÑ´Ù.
+// NOTE : FlushLightí›„ ë Œë”ë§
+//        ê·¸ í›„ ë°˜ë“œì‹œ RestoreLightë¥¼ í•´ì¤˜ì•¼ë§Œ í•œë‹¤.
 void CLightManager::FlushLight()
 {
 	Update();
 
 	m_LightSortVector.clear();
 
-	// NOTE: Dynamic°ú StaticÀ» ºĞ¸® ½ÃÅ°°í CenterPositionÀÌ ¹Ù²ğ¶§¸¶´Ù Static¸¸
-	//		 ´Ù½Ã Flush ÇÏ´Â ½ÄÀ¸·Î ÃÖÀûÈ­ ÇÒ ¼ö ÀÖ´Ù. - [levites]
+	// NOTE: Dynamicê³¼ Staticì„ ë¶„ë¦¬ ì‹œí‚¤ê³  CenterPositionì´ ë°”ë€”ë•Œë§ˆë‹¤ Staticë§Œ
+	//		 ë‹¤ì‹œ Flush í•˜ëŠ” ì‹ìœ¼ë¡œ ìµœì í™” í•  ìˆ˜ ìˆë‹¤. - [levites]
 
-	// lightµéÀÇ °Å¸®¸¦ ÃßÃâÇØ Á¤·ÄÇÑ´Ù.
+	// lightë“¤ì˜ ê±°ë¦¬ë¥¼ ì¶”ì¶œí•´ ì •ë ¬í•œë‹¤.
 	auto itor = m_LightMap.begin();
 
 	for (; itor != m_LightMap.end(); ++itor)
@@ -119,10 +119,11 @@ void CLightManager::FlushLight()
 	// quick sort lights
 	std::sort(m_LightSortVector.begin(), m_LightSortVector.end(), LightComp());
 
-	// NOTE - °Å¸®·Î Á¤·ÄµÈ ¶óÀÌÆ®¸¦ Limit °¹¼ö ¸¸Å­ Á¦ÇÑÇØ¼­ ÄÑÁØ´Ù.
+	// NOTE - ê±°ë¦¬ë¡œ ì •ë ¬ëœ ë¼ì´íŠ¸ë¥¼ Limit ê°¯ìˆ˜ ë§Œí¼ ì œí•œí•´ì„œ ì¼œì¤€ë‹¤.
 	STATEMANAGER.SaveRenderState(D3DRS_LIGHTING, TRUE);
 
-	for (uint32_t k = 0; k < std::min(m_dwLimitLightCount, m_LightSortVector.size()); ++k)
+	const size_t lightCount = std::min<size_t>(m_dwLimitLightCount, m_LightSortVector.size());
+	for (size_t k = 0; k < lightCount; ++k)
 	{
 		m_LightSortVector[k]->Update();
 		m_LightSortVector[k]->SetDeviceLight(TRUE);
@@ -133,7 +134,8 @@ void CLightManager::RestoreLight()
 {
 	STATEMANAGER.RestoreRenderState(D3DRS_LIGHTING);
 
-	for (uint32_t k = 0; k < std::min(m_dwLimitLightCount, m_LightSortVector.size()); ++k)
+	const size_t lightCount = std::min<size_t>(m_dwLimitLightCount, m_LightSortVector.size());
+	for (size_t k = 0; k < lightCount; ++k)
 		m_LightSortVector[k]->SetDeviceLight(FALSE);
 }
 

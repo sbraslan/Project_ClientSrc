@@ -74,7 +74,10 @@ void CRainEnvironment::Deform()
 
 	if (m_bRainEnable)
 	{
-		for (int p = 0; p < std::min(10u, m_dwParticleMaxNum - m_kVct_pkParticleRain.size()); ++p)
+		const size_t currentCount = m_kVct_pkParticleRain.size();
+		const size_t availableCount = currentCount < m_dwParticleMaxNum ? static_cast<size_t>(m_dwParticleMaxNum) - currentCount : 0;
+		const size_t spawnCount = std::min<size_t>(10u, availableCount);
+		for (size_t p = 0; p < spawnCount; ++p)
 		{
 			CRainParticle* pRainParticle = CRainParticle::New();
 			pRainParticle->Init(v3ChangedPos);
@@ -91,7 +94,7 @@ void CRainEnvironment::Render()
 			return;
 	}
 
-	uint32_t dwParticleCount = std::min(m_dwParticleMaxNum, m_kVct_pkParticleRain.size());
+	const uint32_t dwParticleCount = static_cast<uint32_t>(std::min<size_t>(m_dwParticleMaxNum, m_kVct_pkParticleRain.size()));
 
 	CCamera * pCamera = CCameraManager::Instance().GetCurrentCamera();
 	if (!pCamera)

@@ -1,6 +1,8 @@
 #ifndef __TERRAIn_TYPES__
 #define __TERRAIn_TYPES__
 
+#include <cmath>
+
 #include "../eterlib/GrpVertexBuffer.h"
 #include "../eterlib/GrpIndexBuffer.h"
 
@@ -63,10 +65,21 @@ typedef struct
 	D3DXVECTOR3 SunLocation;
 } TTerrainGlobals;
 
-/* Converts a floating point number to an integer by truncation, using
-   the FISTP instruction */
-#define PR_FLOAT_TO_INTASM __asm {									\
-		__asm fld PR_FCNV				\
+/* Fast float/integer conversion.
+   MSVC x64 does not support inline x86 assembly, so use portable equivalents
+   there while preserving the legacy x86 path unchanged. */
+#if defined(_M_X64) || defined(_WIN64)
+#define PR_FLOAT_TO_FIXED(inreal, outint) \
+	do { (outint) = static_cast<long>(std::lrint((inreal) * 65536.0f)); } while (0)
+
+#define PR_FLOAT_TO_INT(inreal, outint) \
+	do { (outint) = static_cast<long>(std::floor(static_cast<double>(inreal))); } while (0)
+
+#define PR_FLOAT_ADD_TO_INT(inreal, outint) \
+	do { (outint) += static_cast<long>(std::lrint(inreal)); } while (0)
+#else
+#define PR_FLOAT_TO_INTASM __asm { \
+		__asm fld PR_FCNV \
 		__asm fistp PR_ICNV}
 
 #define PR_FLOAT_TO_FIXED(inreal, outint) \
@@ -89,5 +102,6 @@ typedef struct
 		PR_FLOAT_TO_INTASM;                 \
 		(outint) += PR_ICNV;                \
 	}
+#endif
 
 #endif //__TERRAIn_TYPES__

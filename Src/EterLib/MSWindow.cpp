@@ -8,7 +8,7 @@ HINSTANCE CMSWindow::ms_hInstance = nullptr;
 
 LRESULT CALLBACK MSWindowProcedure(HWND hWnd, uint32_t uiMsg, WPARAM wParam, LPARAM lParam)
 {
-	auto * pWnd = (CMSWindow *) GetWindowLong(hWnd, GWL_USERDATA);
+	auto * pWnd = reinterpret_cast<CMSWindow *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
 	if (pWnd)
 		return pWnd->WindowProcedure(hWnd, uiMsg, wParam, lParam);
@@ -71,7 +71,7 @@ bool CMSWindow::Create(const char * c_szName, int brush, uint32_t cs, uint32_t w
 	if (!m_hWnd)
 		return false;
 
-	SetWindowLong(m_hWnd, GWL_USERDATA, (uint32_t) this);
+	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 	//DestroyWindow(ImmGetDefaultIMEWnd(m_hWnd));
 
 	return true;
@@ -185,7 +185,7 @@ void CMSWindow::SetSize(int width, int height)
 const char * CMSWindow::RegisterWindowClass(uint32_t style, int brush, WNDPROC pfnWndProc, HICON hIcon, int iCursorResource)
 {
 	char szClassName[1024];
-	sprintf(szClassName, "eter - s%x:b%x:p:%x", style, brush, (uint32_t) pfnWndProc);
+	sprintf(szClassName, "eter - s%x:b%x:p:%llx", style, brush, static_cast<unsigned long long>(reinterpret_cast<std::uintptr_t>(pfnWndProc)));
 
 	auto f = ms_stWCSet.find((char *) szClassName);
 

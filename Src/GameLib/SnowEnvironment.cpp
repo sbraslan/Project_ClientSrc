@@ -72,7 +72,10 @@ void CSnowEnvironment::Deform()
 
 	if (m_bSnowEnable)
 	{
-		for (int p = 0; p < std::min(10u, m_dwParticleMaxNum - m_kVct_pkParticleSnow.size()); ++p)
+		const size_t currentCount = m_kVct_pkParticleSnow.size();
+		const size_t availableCount = currentCount < m_dwParticleMaxNum ? static_cast<size_t>(m_dwParticleMaxNum) - currentCount : 0;
+		const size_t spawnCount = std::min<size_t>(10u, availableCount);
+		for (size_t p = 0; p < spawnCount; ++p)
 		{
 			CSnowParticle * pSnowParticle = CSnowParticle::New();
 			pSnowParticle->Init(v3ChangedPos);
@@ -120,7 +123,7 @@ void CSnowEnvironment::__ApplyBlur()
 	//									BlurVertex(D3DXVECTOR3(wTextureSize,0.0f,0.0f),1.0f,		alphaColor, 1,0) ,
 	//									BlurVertex(D3DXVECTOR3(0.0f,wTextureSize,0.0f),1.0f,		alphaColor, 0,1) ,
 	//									BlurVertex(D3DXVECTOR3(wTextureSize,wTextureSize,0.0f),1.0f,	alphaColor, 1,1) };
-	//				//¥©¿˚ ∫Ì∑Ø ≈ÿΩ∫√ƒ∏¶ ¬Ô¥¬¥Ÿ.
+	//				//ÎàÑÏ†Å Î∏îÎü¨ ÌÖçÏä§Ï≥êÎ•º Ï∞çÎäîÎã§.
 	//				STATEMANAGER.SetTexture(0,m_lpAccumTexture);
 	//				STATEMANAGER.SetVertexShader( D3DFVF_XYZRHW | D3DFVF_DIFFUSE|D3DFVF_TEX1 );
 	//				STATEMANAGER.DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,V,sizeof(BlurVertex));
@@ -174,7 +177,7 @@ void CSnowEnvironment::Render()
 
 	__BeginBlur();
 
-	uint32_t dwParticleCount = std::min(m_dwParticleMaxNum, m_kVct_pkParticleSnow.size());
+	const uint32_t dwParticleCount = static_cast<uint32_t>(std::min<size_t>(m_dwParticleMaxNum, m_kVct_pkParticleSnow.size()));
 
 	CCamera * pCamera = CCameraManager::Instance().GetCurrentCamera();
 	if (!pCamera)
