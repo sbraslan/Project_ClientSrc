@@ -60,7 +60,7 @@ uint32_t GetProcessMemoryCRC(LPCVOID c_pvBaseAddress)
 {
 	HANDLE hProcess = GetCurrentProcess();
 	std::vector<char> pBuf(1024 * 1024);
-	unsigned long dwBytesRead;
+	SIZE_T dwBytesRead = 0;
 
 	BOOL bRet = ReadProcessMemory(hProcess, c_pvBaseAddress, pBuf.data(), 1024 * 1024, &dwBytesRead);
 

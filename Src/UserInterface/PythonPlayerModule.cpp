@@ -82,7 +82,7 @@ public:
 	static TGradeUnit GetBeltGradeByRefineLevel(int refineLevel)
 	{
 		static TGradeUnit beltGradeByLevelTable[] = {
-			0, // ∫ß∆Æ+0
+			0, // È™áÈ£ò+0
 			1, // +1
 			1, // +2
 			2, // +3
@@ -112,7 +112,7 @@ public:
 
 	static bool IsAvailableCell(uint16_t cell, int beltGrade /*int beltLevel*/)
 	{
-		// ±‚»π ∂« πŸ≤Ò.. æ∆≥ˆ...
+		// ÊâÅË£ô ËÇö ÂÆòÊü¥.. ÈÖíÂá∫...
 		//const TGradeUnit beltGrade = GetBeltGradeByRefineLevel(beltLevel);
 		const TGradeUnit * ruleTable = GetAvailableRuleTableByGrade();
 
@@ -2564,7 +2564,7 @@ PyObject* playerIsAvailableBeltInventoryCell(PyObject* poSelf, PyObject* poArgs)
 //END_ENABLE_NEW_EQUIPMENT_SYSTEM
 
 
-// øÎ»•ºÆ ∞≠»≠
+// ‰æ©ÂéªÁ±ç Á¢çÊã≥
 PyObject * playerSendDragonSoulRefine(PyObject * poSelf, PyObject * poArgs)
 {
 	uint8_t bSubHeader;
@@ -2585,9 +2585,10 @@ PyObject * playerSendDragonSoulRefine(PyObject * poSelf, PyObject * poArgs)
 	{
 		if (!PyTuple_GetObject(poArgs, 1, &pDic))
 			return Py_BuildException();
-		int pos = 0;
+		Py_ssize_t pos = 0;
 		PyObject *key, *value;
-		int size = PyDict_Size(pDic);
+		const Py_ssize_t size = PyDict_Size(pDic);
+		(void) size;
 
 		while (PyDict_Next(pDic, &pos, &key, &value))
 		{
@@ -4936,15 +4937,15 @@ PyObject* playerGetAutoSlotIndex(PyObject* poSelf, PyObject* poArgs)
 
 PyObject* playerSetAutoSlotCoolTime(PyObject* poSelf, PyObject* poArgs)
 {
-	int ÌIndex;
-	if (!PyTuple_GetInteger(poArgs, 0, &ÌIndex))
+	int Èû©ndex;
+	if (!PyTuple_GetInteger(poArgs, 0, &Èû©ndex))
 		return Py_BadArgument();
 
 	int iCoolTime;
 	if (!PyTuple_GetInteger(poArgs, 1, &iCoolTime))
 		return Py_BadArgument();
 
-	CPythonPlayer::Instance().SetAutoSlotCoolTime(ÌIndex, iCoolTime);
+	CPythonPlayer::Instance().SetAutoSlotCoolTime(Èû©ndex, iCoolTime);
 	return Py_BuildNone();
 }
 
@@ -6169,14 +6170,14 @@ void initPlayer()
 	PyModule_AddIntConstant(poModule, "EMOTION_SELFIE",			EMOTION_SELFIE);
 #endif
 
-	//// ¿⁄µøπ∞æ‡ ≈∏¿‘
+	//// Á£äÊÇºÊã±Ë∑ù È∏•Ê∂ù
 	PyModule_AddIntConstant(poModule, "AUTO_POTION_TYPE_HP", CPythonPlayer::AUTO_POTION_TYPE_HP);
 	PyModule_AddIntConstant(poModule, "AUTO_POTION_TYPE_SP", CPythonPlayer::AUTO_POTION_TYPE_SP);
 #ifdef ENABLE_ANTI_EXP_RING
 	PyModule_AddIntConstant(poModule, "AUTO_POTION_TYPE_EXP", CPythonPlayer::AUTO_POTION_TYPE_EXP);
 #endif
 
-	// øÎ»•ºÆ
+	// ‰æ©ÂéªÁ±ç
 	PyModule_AddIntConstant(poModule, "DRAGON_SOUL_PAGE_SIZE", c_DragonSoul_Inventory_Box_Size);
 	PyModule_AddIntConstant(poModule, "DRAGON_SOUL_PAGE_COUNT", DRAGON_SOUL_GRADE_MAX);
 	PyModule_AddIntConstant(poModule, "DRAGON_SOUL_SLOT_COUNT", c_DragonSoul_Inventory_Count);
@@ -6185,7 +6186,7 @@ void initPlayer()
 	PyModule_AddIntConstant(poModule, "DRAGON_SOUL_EQUIPMENT_FIRST_SIZE", c_DragonSoul_Equip_Slot_Max);
 	PyModule_AddIntConstant(poModule, "DRAGON_SOUL_EQUIPMENT_SLOT_END", c_DragonSoul_Equip_End);
 
-	// øÎ»•ºÆ ∞≥∑Æ√¢
+	// ‰æ©ÂéªÁ±ç ‰ø∫Ê®äËäí
 	PyModule_AddIntConstant(poModule, "DRAGON_SOUL_REFINE_CLOSE", DS_SUB_HEADER_CLOSE);
 	PyModule_AddIntConstant(poModule, "DS_SUB_HEADER_DO_UPGRADE", DS_SUB_HEADER_DO_UPGRADE);
 	PyModule_AddIntConstant(poModule, "DS_SUB_HEADER_DO_IMPROVEMENT", DS_SUB_HEADER_DO_IMPROVEMENT);

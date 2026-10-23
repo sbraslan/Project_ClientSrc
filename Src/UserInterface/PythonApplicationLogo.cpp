@@ -24,7 +24,7 @@ int CPythonApplication::OnLogoOpen(const char * szName)
 	m_nBottom = 0;
 
 
-	// Ã³À½¿¡´Â 1/1 Å©±âÀÇ ÅØ½ºÃÄ¸¦ »ı¼ºÇØµĞ´Ù.
+	// ì²˜ìŒì—ëŠ” 1/1 í¬ê¸°ì˜ í…ìŠ¤ì³ë¥¼ ìƒì„±í•´ë‘”ë‹¤.
 	if (!m_pLogoTex->Create(1, 1, D3DFMT_A8R8G8B8))
 		return 0;
 
@@ -73,7 +73,7 @@ int CPythonApplication::OnLogoOpen(const char * szName)
 	if (FAILED(m_pGraphBuilder->QueryInterface(IID_IMediaEventEx, (VOID **) &m_pMediaEvent)))
 		return 0;
 
-	// Window ¾Èº¸ÀÌ°Ô
+	// Window ì•ˆë³´ì´ê²Œ
 	m_pVideoWnd->SetWindowPosition(3000, 3000, 0, 0);
 	m_pVideoWnd->put_Visible(0);
 	m_pSampleGrabber->SetBufferSamples(TRUE);
@@ -92,14 +92,14 @@ int CPythonApplication::OnLogoUpdate()
 		m_pMediaEvent == nullptr || m_pVideoWnd == nullptr || false == bInitializedLogo)
 		return 0;
 
-	// Àç»ıÀÌ ¾È‰çÀ» °æ¿ì Àç»ı.
+	// ì¬ìƒì´ ì•ˆÂ‰ç‘› ê²½ìš° ì¬ìƒ.
 	if (!m_bLogoPlay)
 	{
 		m_pMediaCtrl->Run();
 		m_bLogoPlay = true;
 	}
 
-	// ÀĞ¾î¿Â ¹öÆÛ°¡ 0ÀÎ°æ¿ì ¹öÆÛ¸¦ ÀçÇÒ´ç.
+	// ì½ì–´ì˜¨ ë²„í¼ê°€ 0ì¸ê²½ìš° ë²„í¼ë¥¼ ì¬í• ë‹¹.
 	if (m_pCaptureBuffer.empty())
 	{
 		LONG lBufferSize = 0;
@@ -108,8 +108,8 @@ int CPythonApplication::OnLogoUpdate()
 		m_pCaptureBuffer.resize(lBufferSize);
 	}
 
-	// ¿µ»ó ·ÎµùÁß¿¡ UpdateµÇ´Â °æ¿ì, ¹öÆÛ ¾ò±â¿¡ ½ÇÆĞÇÏ´Â °æ¿ì°¡ ¸¹´Ù.
-	// ½ÇÆĞÇÏ´õ¶óµµ ¿ÏÀüÈ÷ Á¾·áµÇ´Â °æ¿ì´Â ¾Æ´Ï¹Ç·Î, ½ÇÇàÀ» Áß´ÜÇÏÁö´Â ¾Ê´Â´Ù.
+	// ì˜ìƒ ë¡œë”©ì¤‘ì— Updateë˜ëŠ” ê²½ìš°, ë²„í¼ ì–»ê¸°ì— ì‹¤íŒ¨í•˜ëŠ” ê²½ìš°ê°€ ë§ë‹¤.
+	// ì‹¤íŒ¨í•˜ë”ë¼ë„ ì™„ì „íˆ ì¢…ë£Œë˜ëŠ” ê²½ìš°ëŠ” ì•„ë‹ˆë¯€ë¡œ, ì‹¤í–‰ì„ ì¤‘ë‹¨í•˜ì§€ëŠ” ì•ŠëŠ”ë‹¤.
 	if (LONG lBufferSize = 0; FAILED(m_pSampleGrabber->GetCurrentBuffer(&lBufferSize, (LONG *) m_pCaptureBuffer.data())))
 	{
 		m_bLogoError = true;
@@ -118,7 +118,7 @@ int CPythonApplication::OnLogoUpdate()
 		D3DLOCKED_RECT rt;
 		ZeroMemory(&rt, sizeof(rt));
 
-		// ½ÇÆĞÇÑ °æ¿ì¿¡´Â ÅØ½ºÃÄ¸¦ ±î¸Ä°Ô ºñ¿î´Ù.
+		// ì‹¤íŒ¨í•œ ê²½ìš°ì—ëŠ” í…ìŠ¤ì³ë¥¼ ê¹Œë§£ê²Œ ë¹„ìš´ë‹¤.
 		tex->LockRect(0, &rt, nullptr, 0);
 		auto * destb = static_cast<CryptoPP::byte *>(rt.pBits);
 		for (int a = 0; a < 4; a += 4)
@@ -155,14 +155,14 @@ int CPythonApplication::OnLogoUpdate()
 	}
 
 
-	// Å©±â°¡ 1, Áï ÅØ½ºÃÄ °ø°£ÀÌ Á¦´ë·Î ÁØºñ ¾ÈµÈ°æ¿ì ´Ù½Ã ¸¸µç´Ù.
+	// í¬ê¸°ê°€ 1, ì¦‰ í…ìŠ¤ì³ ê³µê°„ì´ ì œëŒ€ë¡œ ì¤€ë¹„ ì•ˆëœê²½ìš° ë‹¤ì‹œ ë§Œë“ ë‹¤.
 	if (m_pLogoTex->GetWidth() == 1)
 	{
 		m_pLogoTex->Destroy();
 		m_pLogoTex->Create(lWidth, lHeight, D3DFMT_A8R8G8B8);
 	}
 
-	// ÁØºñ‰çÀ¸¸é ¹öÆÛ¿¡¼­ ÅØ½ºÃÄ·Î º¹»çÇØ¿Â´Ù.
+	// ì¤€ë¹„Â‰ç‘›ë§Œ ë²„í¼ì—ì„œ í…ìŠ¤ì³ë¡œ ë³µì‚¬í•´ì˜¨ë‹¤.
 	LPDIRECT3DTEXTURE9 tex = m_pLogoTex->GetD3DTexture();
 	D3DLOCKED_RECT rt;
 	ZeroMemory(&rt, sizeof(rt));
@@ -180,8 +180,9 @@ int CPythonApplication::OnLogoUpdate()
 	}
 	tex->UnlockRect(0);
 
-	// ¿µ»óÀÇ »óÅÂ Ã¼Å© (Á¾·áµÇ¾ú´ÂÁö)
-	long evCode, param1, param2;
+	// ì˜ìƒì˜ ìƒíƒœ ì²´í¬ (ì¢…ë£Œë˜ì—ˆëŠ”ì§€)
+	long evCode;
+	LONG_PTR param1, param2;
 	while (SUCCEEDED(m_pMediaEvent->GetEvent(&evCode, &param1, &param2, 0)))
 	{
 		switch (evCode)
@@ -216,7 +217,7 @@ void CPythonApplication::OnLogoRender() const
 
 void CPythonApplication::OnLogoClose()
 {
-	// NOTE: LOGO µ¿¿µ»óÀÌ ÇÑ ¹øµµ ¾È ºÒ·ÈÀ» °æ¿ì¿¡´Â OnLogoClose °úÁ¤¿¡¼­ Å©·¡½Ã°¡ ³ª´Â ¹®Á¦ ¼öÁ¤
+	// NOTE: LOGO ë™ì˜ìƒì´ í•œ ë²ˆë„ ì•ˆ ë¶ˆë ¸ì„ ê²½ìš°ì—ëŠ” OnLogoClose ê³¼ì •ì—ì„œ í¬ë˜ì‹œê°€ ë‚˜ëŠ” ë¬¸ì œ ìˆ˜ì •
 	if (false == bInitializedLogo)
 		return;
 

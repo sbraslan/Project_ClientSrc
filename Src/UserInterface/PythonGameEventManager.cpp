@@ -145,7 +145,8 @@ void InGameEventManager::AddEventData(std::vector<TEventTable>& eventVec)
 	{
 		// Sort event based on start time[@day]
 		const TEventTable eventTable = *itor;
-		const tm* t = localtime(&eventTable.startTime);
+		const time_t eventStartTime = static_cast<time_t>(eventTable.startTime);
+		const tm* t = localtime(&eventStartTime);
 
 		m_map_Event[t->tm_mday].emplace_back(eventTable);
 	}
