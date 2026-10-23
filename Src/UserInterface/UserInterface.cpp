@@ -39,10 +39,12 @@ extern "C"
 
 #pragma comment(lib, "version.lib")
 
-#ifdef _DEBUG
-#	pragma comment(lib, "python27.lib") // _d (need to recompile it from python source)
-#else
-#	pragma comment(lib, "python27.lib")
+#if !defined(_WIN64)
+#	ifdef _DEBUG
+#		pragma comment(lib, "python27.lib") // legacy Win32 baseline
+#	else
+#		pragma comment(lib, "python27.lib")
+#	endif
 #endif
 
 #pragma comment(lib, "imagehlp.lib")
