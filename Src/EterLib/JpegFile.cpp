@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "JpegFile.h"
 #include <cstdio>
 #include <cstdlib>

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterBase/Utils.h"
 #include "AttributeInstance.h"
 #include "GrpMath.h"

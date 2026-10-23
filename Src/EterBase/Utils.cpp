@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "X64Compat.h"
 
 #include <cstdlib>
 #include <direct.h>
@@ -419,7 +420,7 @@ void MyCreateDirectory(const char * path)
 
 	if (strlen(path) >= 3)
 	{
-		if (*(path + 1) == ':') // C:, D: °°Àº °æ¿ì¸¦ Ã¼Å©
+		if (*(path + 1) == ':') // C:, D: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¸¦ Ã¼Å©
 			path += 3;
 	}
 

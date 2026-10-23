@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EffectLib/EffectManager.h"
 
 #include "FlyingData.h"
@@ -101,7 +102,7 @@ uint32_t CFlyingData::AttachFlyEffect(int iType, const std::string & strFilename
 
 void CFlyingData::RemoveAttach(int iIndex)
 {
-	assert(0 <= iIndex && iIndex < (int) m_AttachDataVector.size());
+	assert(0 <= iIndex && iIndex < m2::narrow<int>(m_AttachDataVector.size()));
 	m_AttachDataVector.erase(m_AttachDataVector.begin() + iIndex);
 }
 
@@ -112,7 +113,7 @@ void CFlyingData::RemoveAllAttach()
 
 void CFlyingData::DuplicateAttach(int iIndex)
 {
-	assert(0 <= iIndex && iIndex < (int) m_AttachDataVector.size());
+	assert(0 <= iIndex && iIndex < m2::narrow<int>(m_AttachDataVector.size()));
 	m_AttachDataVector.emplace_back(m_AttachDataVector[iIndex]);
 }
 

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterLib/ResourceManager.h"
 
 #include "ItemData.h"
@@ -439,10 +440,10 @@ long CItemData::GetSocket(uint8_t byIndex) const
 	return m_ItemTable.alSockets[byIndex];
 }
 
-//¼­¹ö¿Í µ¿ÀÏ ¼­¹ö ÇÔ¼ö º¯°æ½Ã °°ÀÌ º¯°æ!!(ÀÌÈÄ¿¡ ÇÕÄ£´Ù)
-//SocketCount = 1 ÀÌ¸é ÃÊ±Þ¹«±â
-//SocketCount = 2 ÀÌ¸é Áß±Þ¹«±â
-//SocketCount = 3 ÀÌ¸é °í±Þ¹«±â
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!!(ï¿½ï¿½ï¿½Ä¿ï¿½ ï¿½ï¿½Ä£ï¿½ï¿½)
+//SocketCount = 1 ï¿½Ì¸ï¿½ ï¿½Ê±Þ¹ï¿½ï¿½ï¿½
+//SocketCount = 2 ï¿½Ì¸ï¿½ ï¿½ß±Þ¹ï¿½ï¿½ï¿½
+//SocketCount = 3 ï¿½Ì¸ï¿½ ï¿½ï¿½Þ¹ï¿½ï¿½ï¿½
 int CItemData::GetSocketCount() const
 {
 	return m_ItemTable.bGainSocketPct;
@@ -465,7 +466,7 @@ float CItemData::GetSpecularPowerf() const
 	return float(uSpecularPower) / 100.0f;
 }
 
-//refine °ªÀº ¾ÆÀÌÅÛ¹øÈ£ ³¡ÀÚ¸®¿Í ÀÏÄ¡ÇÑ´Ù-_-(Å×ÀÌºíÀÌ¿ëÀ¸·Î ¹Ù²Ü ¿¹Á¤)
+//refine ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Û¹ï¿½È£ ï¿½ï¿½ï¿½Ú¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½Ñ´ï¿½-_-(ï¿½ï¿½ï¿½Ìºï¿½ï¿½Ì¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ ï¿½ï¿½ï¿½ï¿½)
 uint32_t CItemData::GetRefine() const
 {
 	return GetIndex() % 10;

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterLib/ResourceManager.h"
 #include "../EterLib/AttributeInstance.h"
 #include "../EterBase/Utils.h"
@@ -329,17 +330,17 @@ CGraphicThing * CRaceData::RegisterMotionData(uint16_t wMotionMode, uint16_t wMo
 		return nullptr;
 	}
 
-	// 2004. 3. 15. myevan. ¿ø·¡´Â ¸ð¼Ç³» ÀÎµ¦½º Á¤º¸°¡ ÀÖ¾î¾ß ÇÑ´Ù.
+	// 2004. 3. 15. myevan. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç³ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ ï¿½Ñ´ï¿½.
 	pRaceMotionData->SetName(wMotionIndex);
 
 	/////
 
-	// FIXME : ÀÌ¹Ì GR2°¡ ·Îµå µÇ¾î ÀÖÀ» °æ¿ì¿¡´Â ¾î¶»°Ô ÇØ¾ß ÇÏ´Â°¡?
-	//         ÇöÀç´Â ¶È°°Àº °ÍÀÌ ÇÏ³ª ´õ Ãß°¡ µÇ¾î ¹ö¸°´Ù. - [levites]
+	// FIXME : ï¿½Ì¹ï¿½ GR2ï¿½ï¿½ ï¿½Îµï¿½ ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½î¶»ï¿½ï¿½ ï¿½Ø¾ï¿½ ï¿½Ï´Â°ï¿½?
+	//         ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½È°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. - [levites]
 
 	return NEW_RegisterMotion(pRaceMotionData, wMotionMode, wMotionIndex, pRaceMotionData->GetMotionFileName(), byPercentage);
 
-	// 2004.09.03.myevan.»õ·Î¿îÇÔ¼ö·Î ´ëÃ³
+	// 2004.09.03.myevan.ï¿½ï¿½ï¿½Î¿ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½Ã³
 	//TMotion	Motion;
 	//Motion.byPercentage	= byPercentage;
 	//Motion.pMotion = (CGraphicThing *)CResourceManager::Instance().GetResourcePointer(pRaceMotionData->GetMotionFileName());

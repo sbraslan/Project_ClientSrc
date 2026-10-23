@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "GameType.h"
 #include "../EffectLib/EffectManager.h"
 
@@ -78,8 +79,8 @@ BOOL NRaceData::LoadMotionAttackData(CTextFileLoader & rTextFileLoader, TMotionA
 	if (!LoadAttackData(rTextFileLoader, pData))
 		return FALSE;
 
-	// NOTE : ±âÁ¸ÀÇ AttackingTypeÀÌ MotionTypeÀ¸·Î ¹Ù²î¾úÀ½
-	//        ±âÁ¸ µ¥ÀÌÅ¸ÀÇ °æ¿ì ¾øÀ¸¸é ±âÁ¸ °ÍÀ¸·Î ÀÐ°Ô²û..
+	// NOTE : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ AttackingTypeï¿½ï¿½ MotionTypeï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ï¿½ï¿½ï¿½
+	//        ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð°Ô²ï¿½..
 	if (!rTextFileLoader.GetTokenInteger("motiontype", &pData->iMotionType))
 	{
 		if (!rTextFileLoader.GetTokenInteger("attackingtype", &pData->iMotionType))

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "NetStream.h"
 
 #ifndef _IMPROVED_PACKET_ENCRYPTION_

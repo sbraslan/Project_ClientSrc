@@ -195,13 +195,13 @@ const char * GetFontFaceFromCodePage9x(uint16_t codePage)
 	switch (codePage)
 	{
 	case CP_932:
-		return "‚l‚r ‚oƒSƒVƒbƒN";
+		return "ï¿½lï¿½r ï¿½oï¿½Sï¿½Vï¿½bï¿½N";
 	case CP_949:
-		return "±¼¸²Ã¼";
+		return "ï¿½ï¿½ï¿½ï¿½Ã¼";
 	case CP_936:
-		return "ËÎÌå";
+		return "ï¿½ï¿½ï¿½ï¿½";
 	case CP_950:
-		return "²Ó©úÅé";
+		return "ï¿½Ó©ï¿½ï¿½ï¿½";
 	default:
 		return "Arial";
 	}
@@ -227,7 +227,7 @@ const char * GetFontFaceFromCodePage(uint16_t codePage)
 
 	HDC hDC = GetDC(nullptr);
 
-	if (EnumFontFamiliesEx(hDC, &logFont, (FONTENUMPROC) EnumFontFamExProc, (LONG) fontFace, 0) == 0)
+	if (EnumFontFamiliesEx(hDC, &logFont, (FONTENUMPROC) EnumFontFamExProc, reinterpret_cast<LPARAM>(fontFace), 0) == 0)
 	{
 		ReleaseDC(nullptr, hDC);
 		return fontFace;
@@ -235,7 +235,7 @@ const char * GetFontFaceFromCodePage(uint16_t codePage)
 
 	fontFace = GetFontFaceFromCodePageNT(codePage);
 
-	if (EnumFontFamiliesEx(hDC, &logFont, (FONTENUMPROC) EnumFontFamExProc, (LONG) fontFace, 0) == 0)
+	if (EnumFontFamiliesEx(hDC, &logFont, (FONTENUMPROC) EnumFontFamExProc, reinterpret_cast<LPARAM>(fontFace), 0) == 0)
 	{
 		ReleaseDC(nullptr, hDC);
 		return fontFace;
@@ -301,7 +301,7 @@ void base64_decode(const char * str, char * resultStr)
 	{
 		i = 0;
 		strcpy(szDest, "");
-		while (nCount < length && i < 4) // 4°³ÀÇ ¹ÙÀÌÆ®¸¦ ¾ò´Â´Ù.
+		while (nCount < length && i < 4) // 4ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½Â´ï¿½.
 		{
 			r = str[nCount++];
 			result = __base64_get(r);
@@ -310,13 +310,13 @@ void base64_decode(const char * str, char * resultStr)
 				if (result != -1)
 					szDest[i++] = result;
 				else
-					szDest[i++] = '@'; // It's end  (64¹øÀº µðÄÚµù½Ã »ç¿ëµÇÁö ¾Ê±â ¶§¹®)
+					szDest[i++] = '@'; // It's end  (64ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½)
 			}
 		}
 
-		if (i == 4) // 4°³ÀÇ ¼Ò½º¸¦ ¸ðµÎ ¾ò¾î³Â´Ù. µðÄÚµå ½ÃÀÛ
+		if (i == 4) // 4ï¿½ï¿½ï¿½ï¿½ ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â´ï¿½. ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½
 		{
-			if (nCount + 3 >= length) // µ¥ÀÌÅÍÀÇ ³¡¿¡ µµ´ÞÇß´Ù.
+			if (nCount + 3 >= length) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ß´ï¿½.
 			{
 				if (szDest[1] == '@')
 				{

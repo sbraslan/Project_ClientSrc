@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "X64Compat.h"
 #include "FileLoader.h"
 #include <cassert>
 
@@ -68,7 +69,7 @@ int CMemoryTextFileLoader::SplitLine2(uint32_t dwLine, CTokenVector * pstTokenVe
 
 		pstTokenVector->emplace_back(c_rstLine.substr(beginPos, endPos - beginPos));
 
-		// Ãß°¡ ÄÚµå. ¸ÇµÚ¿¡ ÅÇÀÌ ÀÖ´Â °æ¿ì¸¦ Ã¼Å©ÇÑ´Ù. - [levites]
+		// ï¿½ß°ï¿½ ï¿½Úµï¿½. ï¿½ÇµÚ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ì¸¦ Ã¼Å©ï¿½Ñ´ï¿½. - [levites]
 		if (int(c_rstLine.find_first_not_of(c_szDelimeter, basePos)) < 0)
 			break;
 	} while (basePos < c_rstLine.length());
@@ -121,7 +122,7 @@ bool CMemoryTextFileLoader::SplitLine(uint32_t dwLine, CTokenVector * pstTokenVe
 
 		pstTokenVector->emplace_back(c_rstLine.substr(beginPos, endPos - beginPos));
 
-		// Ãß°¡ ÄÚµå. ¸ÇµÚ¿¡ ÅÇÀÌ ÀÖ´Â °æ¿ì¸¦ Ã¼Å©ÇÑ´Ù. - [levites]
+		// ï¿½ß°ï¿½ ï¿½Úµï¿½. ï¿½ÇµÚ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ì¸¦ Ã¼Å©ï¿½Ñ´ï¿½. - [levites]
 		if (int(c_rstLine.find_first_not_of(c_szDelimeter, basePos)) < 0)
 			break;
 	} while (basePos < c_rstLine.length());

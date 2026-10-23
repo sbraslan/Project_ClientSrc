@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EffectLib/EffectManager.h"
 #include "FlyingObjectManager.h"
 #include "RaceMotionData.h"

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterBase/Debug.h"
 #include "Thing.h"
 #include "ThingInstance.h"

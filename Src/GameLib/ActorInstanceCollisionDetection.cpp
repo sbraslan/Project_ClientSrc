@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterLib/GrpMath.h"
 
 #include "ActorInstance.h"
@@ -44,7 +45,7 @@ void CActorInstance::UpdatePointInstance(TCollisionPointInstance* pPointInstance
 {
 	if (!pPointInstance)
 	{
-		assert(!"CActorInstance::UpdatePointInstance - pPointInstance is nullptr"); // ·¹ÆÛ·±½º·Î ±³Ã¼ÇÏ½Ã¿À
+		assert(!"CActorInstance::UpdatePointInstance - pPointInstance is nullptr"); // ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½Ï½Ã¿ï¿½
 		return;
 	}
 
@@ -103,12 +104,12 @@ void CActorInstance::UpdatePointInstance(TCollisionPointInstance* pPointInstance
 
 void CActorInstance::UpdateAdvancingPointInstance()
 {
-	// ¸»À» ÅÀÀ» °æ¿ì »ç¶÷Àº ÀÌµ¿°ªÀ» °¡Áö°í ÀÖÁö ¾Ê±â ¶§¹®¿¡ ¸»·Î ºÎÅÍ ¾ò¾î¿Í¾ß ÇÑ´Ù - [levites]
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¾ï¿½ ï¿½Ñ´ï¿½ - [levites]
 	D3DXVECTOR3 v3Movement = m_v3Movement;
 	if (m_pkHorse)
 		v3Movement = m_pkHorse->m_v3Movement;
 
-	// ¸»Àº ¾÷µ¥ÀÌÆ® ÇÏÁö ¾Ê¾Æµµ µÈ´Ù - [levites]
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Æµï¿½ ï¿½È´ï¿½ - [levites]
 	if (m_pkHorse)
 		m_pkHorse->UpdateAdvancingPointInstance();
 
@@ -224,19 +225,19 @@ bool CActorInstance::CreateCollisionInstancePiece(uint32_t dwAttachingModelIndex
 {
 	if (!c_pAttachingData)
 	{
-		assert(!"CActorInstance::CreateCollisionInstancePiece - c_pAttachingData is nullptr"); // ·¹ÆÛ·±½º·Î ±³Ã¼ÇÏ½Ã¿À
+		assert(!"CActorInstance::CreateCollisionInstancePiece - c_pAttachingData is nullptr"); // ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½Ï½Ã¿ï¿½
 		return false;
 	}
 
 	if (!c_pAttachingData->pCollisionData)
 	{
-		assert(!"CActorInstance::CreateCollisionInstancePiece - c_pAttachingData->pCollisionData is nullptr"); // ·¹ÆÛ·±½º·Î ±³Ã¼ÇÏ½Ã¿À
+		assert(!"CActorInstance::CreateCollisionInstancePiece - c_pAttachingData->pCollisionData is nullptr"); // ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½Ï½Ã¿ï¿½
 		return false;
 	}
 
 	if (!pPointInstance)
 	{
-		assert(!"CActorInstance::CreateCollisionInstancePiece - pPointInstance is nullptr"); // ·¹ÆÛ·±½º·Î ±³Ã¼ÇÏ½Ã¿À
+		assert(!"CActorInstance::CreateCollisionInstancePiece - pPointInstance is nullptr"); // ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½Ï½Ã¿ï¿½
 		return false;
 	}
 
@@ -317,17 +318,17 @@ BOOL CActorInstance::__SplashAttackProcess(CActorInstance& rVictim)
 	const NRaceData::TAttackData& c_rAttackData = c_pAttackingEvent->AttackData;
 	THittedInstanceMap& rHittedInstanceMap = m_kSplashArea.HittedInstanceMap;
 
-	// NOTE : ÀÌ¹Ì ¶§·È´Ù¸é ¶§¸± ¼ö ¾øÀ½
+	// NOTE : ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½È´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (rHittedInstanceMap.end() != rHittedInstanceMap.find(&rVictim))
 		return FALSE;
 
-	// NOTE : Snipe ¸ðµåÀÌ°í..
+	// NOTE : Snipe ï¿½ï¿½ï¿½ï¿½Ì°ï¿½..
 	if (NRaceData::ATTACK_TYPE_SNIPE == c_rAttackData.iAttackType)
 	{
-		// Target ÀÌ PC ¶ó¸é..
+		// Target ï¿½ï¿½ PC ï¿½ï¿½ï¿½..
 		if (__IsFlyTargetPC())
 		{
-			// ´Ù¸¥ °´Ã¼´Â ¶§¸± ¼ö ¾ø´Ù
+			// ï¿½Ù¸ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			if (!__IsSameFlyTarget(&rVictim))
 				return FALSE;
 
@@ -336,7 +337,7 @@ BOOL CActorInstance::__SplashAttackProcess(CActorInstance& rVictim)
 			{
 				CActorInstance * pActorInstance = (CActorInstance *)m_kFlyTarget.GetFlyTarget();
 
-				// NOTE : Target ÀÌ PC ÀÏ¶§´Â ÇÑ¸í¸¸ ¶§¸± ¼ö ÀÖ´Ù.
+				// NOTE : Target ï¿½ï¿½ PC ï¿½Ï¶ï¿½ï¿½ï¿½ ï¿½Ñ¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½.
 				if (pActorInstance->IsPC())
 				{
 					if (&rVictim != pActorInstance)
@@ -373,7 +374,7 @@ BOOL CActorInstance::__SplashAttackProcess(CActorInstance& rVictim)
 BOOL CActorInstance::__NormalAttackProcess(CActorInstance& rVictim)
 {
 	// Check Distance
-	// NOTE - ÀÏ´Ü ±ÙÁ¢ Ã¼Å©¸¸ ÇÏ°í ÀÖÀ½
+	// NOTE - ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½ï¿½ ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½
 	const D3DXVECTOR3 v3Distance(rVictim.m_x - m_x, rVictim.m_z - m_z, rVictim.m_z - m_z);
 	const float fDistance = D3DXVec3LengthSq(&v3Distance);
 #ifdef ENABLE_NEW_DISTANCE_CALC
@@ -409,7 +410,7 @@ BOOL CActorInstance::__NormalAttackProcess(CActorInstance& rVictim)
 	{
 		const NRaceData::THitData& c_rHitData = *itorHitData;
 
-		// NOTE : ÀÌ¹Ì ¸Â¾Ò´ÂÁö Ã¼Å©
+		// NOTE : ï¿½Ì¹ï¿½ ï¿½Â¾Ò´ï¿½ï¿½ï¿½ Ã¼Å©
 		const auto itHitData = m_HitDataMap.find(&c_rHitData);
 		if (itHitData != m_HitDataMap.end())
 		{
@@ -480,7 +481,7 @@ BOOL CActorInstance::__NormalAttackProcess(CActorInstance& rVictim)
 							itHitData->second.emplace(&rVictim, GetLocalTime() + pad->fInvisibleTime);
 
 							const int iCurrentHitCount = itHitData->second.size();
-							// NOTE : º¸Åë °ø°ÝÀº 16¸íÀÌ ÇÑ°è
+							// NOTE : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 16ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ°ï¿½
 							if (NRaceData::MOTION_TYPE_COMBO == pad->iMotionType || NRaceData::MOTION_TYPE_NORMAL == pad->iMotionType)
 							{
 								if (iCurrentHitCount > MAX_HIT_COUNT)	//@fixme439
@@ -566,8 +567,8 @@ BOOL CActorInstance::TestPhysicsBlendingCollision(CActorInstance& rVictim)
 	if (fDistance > 800.0f * 800.0f)
 		return FALSE;
 
-	// NOTE : °ø°Ý ÁßÀÏ¶§´Â Defending Sphere·Î Collision Check¸¦ ÇÕ´Ï´Ù.
-	// NOTE : Wait·Î ºí·»µù µÇ´Â µµÁß¿¡ ¶Õ°í µé¾î°¡´Â ¹®Á¦°¡ ÀÖ¾î¼­.. - [levites]
+	// NOTE : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¶ï¿½ï¿½ï¿½ Defending Sphereï¿½ï¿½ Collision Checkï¿½ï¿½ ï¿½Õ´Ï´ï¿½.
+	// NOTE : Waitï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ß¿ï¿½ ï¿½Õ°ï¿½ ï¿½ï¿½î°¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾î¼­.. - [levites]
 	TCollisionPointInstanceList* pMainList;
 	TCollisionPointInstanceList* pVictimList;
 	if (isAttacking() || IsWaiting())
@@ -685,17 +686,17 @@ BOOL CActorInstance::TestActorCollision(CActorInstance& rVictim)
 #endif
 
 	// Check Distance
-	// NOTE : Àû´çÈ÷ ¸Ö¸é Ã¼Å© ¾ÈÇÔ
-	//        ÇÁ·¹ÀÓ ½ºÅµ½Ã³ª ´ë»ó ¿ÀºêÁ§Æ®ÀÇ Å©±â°¡ Å¬°æ¿ì ¹®Á¦°¡ »ý±æ ¿©Áö°¡ ÀÖÀ½
-	//        Ä³¸¯ÅÍ°¡ ÀÚ½ÅÀÇ Body Sphere Radius º¸´Ù ´õ Å©°Ô ÀÌµ¿Çß´ÂÁö¸¦ Ã¼Å©ÇÏ°í,
-	//        ¸¸¾à ±×·¸Áö ¾Ê´Ù¸é °Å¸®·Î Ã¼Å©ÇØ¼­ °É·¯ÁØ´Ù.
+	// NOTE : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¸ï¿½ Ã¼Å© ï¿½ï¿½ï¿½ï¿½
+	//        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Åµï¿½Ã³ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ Å©ï¿½â°¡ Å¬ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	//        Ä³ï¿½ï¿½ï¿½Í°ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ Body Sphere Radius ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ß´ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ï°ï¿½,
+	//        ï¿½ï¿½ï¿½ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ø¼ï¿½ ï¿½É·ï¿½ï¿½Ø´ï¿½.
 	const D3DXVECTOR3 v3Distance = D3DXVECTOR3(rVictim.m_x - m_x, rVictim.m_y - m_y, rVictim.m_z - m_z);
 	const float fDistance = D3DXVec3LengthSq(&v3Distance);
 	if (fDistance > 800.0f * 800.0f)
 		return FALSE;
 
-	// NOTE : °ø°Ý ÁßÀÏ¶§´Â Defending Sphere·Î Collision Check¸¦ ÇÕ´Ï´Ù.
-	// NOTE : Wait·Î ºí·»µù µÇ´Â µµÁß¿¡ ¶Õ°í µé¾î°¡´Â ¹®Á¦°¡ ÀÖ¾î¼­.. - [levites]
+	// NOTE : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¶ï¿½ï¿½ï¿½ Defending Sphereï¿½ï¿½ Collision Checkï¿½ï¿½ ï¿½Õ´Ï´ï¿½.
+	// NOTE : Waitï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ß¿ï¿½ ï¿½Õ°ï¿½ ï¿½ï¿½î°¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾î¼­.. - [levites]
 	TCollisionPointInstanceList* pMainList;
 	TCollisionPointInstanceList* pVictimList;
 	if (isAttacking() || IsWaiting())

@@ -43,10 +43,10 @@ void CMapOutdoor::RenderTerrain()
 
 	__RenderTerrain_RecurseRenderQuadTree(m_pRootNode);
 
-	// °Å¸®¼ø Á¤·Ä
+	// ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	std::sort(m_PatchVector.begin(), m_PatchVector.end());
 
-	// ±×¸®±â À§ÇÑ º¤ÅÍ ¼¼ÆÃ
+	// ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (CTerrainPatch::SOFTWARE_TRANSFORM_PATCH_ENABLE)
 		__RenderTerrain_RenderSoftwareTransformPatch();
 	else
@@ -126,19 +126,19 @@ void CMapOutdoor::__RenderTerrain_AppendPatch(const D3DXVECTOR3 & c_rv3Center, f
 	m_PatchVector.emplace_back(fDistance, lPatchNum);
 }
 
-void CMapOutdoor::ApplyLight(uint32_t dwVersion, const D3DLIGHT9 & c_rkLight)
+void CMapOutdoor::ApplyLight(std::uintptr_t dwVersion, const D3DLIGHT9 & c_rkLight)
 {
 	m_kSTPD.m_dwLightVersion = dwVersion;
 	STATEMANAGER.SetLight(0, &c_rkLight);
 }
 
-// 2004. 2. 17. myevan. ¸ðµç ºÎºÐÀ» º¸ÀÌ°Ô ÃÊ±âÈ­ ÇÑ´Ù
+// 2004. 2. 17. myevan. ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½Ê±ï¿½È­ ï¿½Ñ´ï¿½
 void CMapOutdoor::InitializeVisibleParts()
 {
 	m_dwVisiblePartFlags = 0xffffffff;
 }
 
-// 2004. 2. 17. myevan. Æ¯Á¤ ºÎºÐÀ» º¸ÀÌ°Ô ÇÏ°Å³ª °¨Ãß´Â ÇÔ¼ö
+// 2004. 2. 17. myevan. Æ¯ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½Ï°Å³ï¿½ ï¿½ï¿½ï¿½ß´ï¿½ ï¿½Ô¼ï¿½
 void CMapOutdoor::SetVisiblePart(int ePart, bool isVisible)
 {
 	uint32_t dwMask = (1 << ePart);
@@ -151,7 +151,7 @@ void CMapOutdoor::SetVisiblePart(int ePart, bool isVisible)
 	}
 }
 
-// 2004. 2. 17. myevan. Æ¯Á¤ ºÎºÐÀÌ º¸ÀÌ´ÂÁö ¾Ë¾Æ³»´Â ÇÔ¼ö
+// 2004. 2. 17. myevan. Æ¯ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½Ë¾Æ³ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 bool CMapOutdoor::IsVisiblePart(int ePart)
 {
 	uint32_t dwMask = (1 << ePart);
@@ -161,7 +161,7 @@ bool CMapOutdoor::IsVisiblePart(int ePart)
 	return false;
 }
 
-// Splat °³¼ö Á¦ÇÑ
+// Splat ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 void CMapOutdoor::SetSplatLimit(int iSplatNum)
 {
 	m_iSplatLimit = iSplatNum;
@@ -317,7 +317,7 @@ struct CMapOutdoor_LessThingInstancePtrRenderOrder
 {
 	bool operator()(CGraphicThingInstance * pkLeft, CGraphicThingInstance * pkRight)
 	{
-		//TODO : CameraÀ§Ä¡±â¹ÝÀ¸·Î ¼ÒÆÃ
+		//TODO : Cameraï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		CCamera * pCurrentCamera = CCameraManager::Instance().GetCurrentCamera();
 		const D3DXVECTOR3 & c_rv3CameraPos = pCurrentCamera->GetEye();
 		const D3DXVECTOR3 & c_v3LeftPos = pkLeft->GetPosition();
@@ -347,7 +347,7 @@ void CMapOutdoor::RenderArea(bool bRenderAmbience)
 	m_dwRenderedGraphicThingInstanceNum = 0;
 	m_dwRenderedCRCWithNumberVector.clear();
 
-	// NOTE - 20041201.levites.´øÁ¯ ±×¸²ÀÚ Ãß°¡
+	// NOTE - 20041201.levites.ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 	for (int j = 0; j < AROUND_AREA_NUM; ++j)
 	{
 		CArea * pArea;

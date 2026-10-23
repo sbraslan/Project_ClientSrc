@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "GrpImageInstance.h"
 #include "StateManager.h"
 
@@ -414,7 +415,7 @@ void CGraphicImageInstance::Initialize()
 
 void CGraphicImageInstance::Destroy()
 {
-	m_roImage.SetPointer(nullptr); // CRef ¿¡¼­ ·¹ÆÛ·±½º Ä«¿îÆ®°¡ ¶³¾îÁ®¾ß ÇÔ.
+	m_roImage.SetPointer(nullptr); // CRef ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½.
 	Initialize();
 }
 

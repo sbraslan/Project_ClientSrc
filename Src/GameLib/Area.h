@@ -1,4 +1,6 @@
-﻿#pragma once
+#pragma once
+
+#include <cstdint>
 
 #include "../SpeedTreeLib/SpeedTreeWrapper.h"
 #include "../eterGrnLib/ThingInstance.h"
@@ -95,7 +97,7 @@ public:
 
 		// Data for Effect
 		uint32_t dwEffectID;
-		uint32_t dwEffectInstanceIndex;
+		std::uintptr_t dwEffectInstanceIndex;
 
 		// Data For Ambience
 		TAmbienceInstance * pAmbienceInstance;
@@ -297,7 +299,7 @@ protected:
 	static CDynamicPool<TAmbienceInstance> ms_AmbienceInstancePool;
 	static CDynamicPool<CDungeonBlock> ms_DungeonBlockInstancePool;
 
-	typedef std::map<uint32_t, CEffectInstance *> TEffectInstanceMap;
+	typedef std::map<std::uintptr_t, CEffectInstance *> TEffectInstanceMap;
 	typedef TEffectInstanceMap::iterator TEffectInstanceIterator;
 	TEffectInstanceMap m_EffectInstanceMap;
 

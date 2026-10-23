@@ -1,3 +1,4 @@
+#include "X64Compat.h"
 #include "StdAfx.h"
 #include "CPostIt.h"
 #include "../EterBase/Utils.h"
@@ -217,7 +218,7 @@ HANDLE _CPostItMemoryBlock::CreateHandle()
 		GlobalFree(hBlock);
 		return INVALID_HANDLE_VALUE;
 	}
-	*reinterpret_cast<LPDWORD>(lpBuffer) = static_cast<uint32_t>(m_StrList.size());
+	*reinterpret_cast<LPDWORD>(lpBuffer) = m2::narrow<uint32_t>(m_StrList.size());
 	lpBuffer += sizeof(uint32_t);
 	for (itr = m_StrList.begin(); itr != m_StrList.end(); ++itr)
 	{

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "parser.h"
 
 using namespace script;
@@ -210,11 +211,11 @@ bool Group::GetArg(const char * c_arg_base, int arg_len, TArgList & argList)
 			}
 			else if (c == ';')
 				isValue = true;
-			// °ªÀÌ ¾Æ´Ï°í, ÀÌ¸§ÀÌ ½ÃÀÛµÇÁö ¾Ê¾ÒÀ» °æ¿ì ºóÄ­Àº °Ç³Ê ¶Ú´Ù.
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Ï°ï¿½, ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ûµï¿½ï¿½ï¿½ ï¿½Ê¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½Ä­ï¿½ï¿½ ï¿½Ç³ï¿½ ï¿½Ú´ï¿½.
 			else if (!isValue && iNameLen == 0 && isspace((unsigned char) c))
 			{
 			}
-			// ¿£ÅÍ´Â °Ç³Ê ¶Ú´Ù
+			// ï¿½ï¿½ï¿½Í´ï¿½ ï¿½Ç³ï¿½ ï¿½Ú´ï¿½
 			else if (c == '\r' || c == '\n')
 			{
 			}

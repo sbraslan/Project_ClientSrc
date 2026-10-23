@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterBase/CRC32.h"
 #include "GrpExpandedImageInstance.h"
 #include "StateManager.h"
@@ -171,7 +172,7 @@ void CGraphicExpandedImageInstance::OnRender()
 			break;
 	}
 
-	// 2004.11.18.myevan.ctrl+alt+del ¹Ýº¹ »ç¿ë½Ã Æ¨±â´Â ¹®Á¦
+	// 2004.11.18.myevan.ctrl+alt+del ï¿½Ýºï¿½ ï¿½ï¿½ï¿½ï¿½ Æ¨ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (CGraphicBase::SetPDTStream(vertices, 4))
 	{
 		CGraphicBase::SetDefaultIndexBuffer(CGraphicBase::DEFAULT_IB_FILL_RECT);

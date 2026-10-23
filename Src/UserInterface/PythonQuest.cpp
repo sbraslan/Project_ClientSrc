@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PythonQuest.h"
 
 void CPythonQuest::RegisterQuestInstance(const SQuestInstance & c_rQuestInstance)
@@ -180,7 +181,7 @@ PyObject * questGetQuestData(PyObject * poSelf, PyObject * poArgs)
 	else
 	{
 		{
-			// ºñ¾îÀÖÀ» °æ¿ì µðÆúÆ® ÀÌ¹ÌÁö¸¦ ³Ö´Â´Ù.
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Â´ï¿½.
 			std::string strIconFileName = "season1/icon/scroll_open.tga";
 			pImage = msl::inherit_cast<CGraphicImage *>(CResourceManager::Instance().GetResourcePointer(strIconFileName.c_str()));
 		}

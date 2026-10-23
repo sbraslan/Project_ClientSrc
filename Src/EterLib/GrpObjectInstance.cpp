@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "GrpObjectInstance.h"
 #include "../EterBase/Timer.h"
 

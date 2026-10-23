@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PythonGuild.h"
 #include "AbstractPlayer.h"
 #include "MarkManager.h"

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PythonSafeBox.h"
 
 void CPythonSafeBox::OpenSafeBox(int iSize)

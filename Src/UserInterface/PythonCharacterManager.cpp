@@ -50,8 +50,8 @@ void CPythonCharacterManager::AdjustCollisionWithOtherObjects(CActorInstance * p
 
 		if (pInst->TestPhysicsBlendingCollision(*rkActorEach))
 		{
-			// NOTE : ÀÏ´Ü ±âÁ¸À§Ä¡·Î ¿øº¹
-			// TODO : ÇâÈÄ Á¶±Ý´õ Àß Ã³¸®ÇÑ´Ù¸é physic movement°Å¸®¸¦ stepingÇØ¼­ iterationÃ³¸®ÇØ¾ß ÇÔ.
+			// NOTE : ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			// TODO : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ý´ï¿½ ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½Ñ´Ù¸ï¿½ physic movementï¿½Å¸ï¿½ï¿½ï¿½ stepingï¿½Ø¼ï¿½ iterationÃ³ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½ï¿½.
 			TPixelPosition curPos;
 			pInst->GetPixelPosition(&curPos);
 			pInst->SetBlendingPosition(curPos);
@@ -242,8 +242,8 @@ void CPythonCharacterManager::UpdateTransform()
 
 			pSrcInstance->CheckAdvancing();
 
-			// 2004.08.02.myevan.IsAttacked ÀÏ °æ¿ì Á×¾úÀ»¶§µµ Ã¼Å©ÇÏ¹Ç·Î,
-			// ½ÇÁúÀûÀ¸·Î °Å¸®°¡ º¯°æµÇ´Â IsPushingÀÏ¶§¸¸ Ã¼Å©ÇÏµµ·Ï ÇÑ´Ù
+			// 2004.08.02.myevan.IsAttacked ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½×¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ï¹Ç·ï¿½,
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ IsPushingï¿½Ï¶ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ïµï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½
 			if (pSrcInstance->IsPushing())
 				rkBG.CheckAdvancing(pSrcInstance);
 		}
@@ -671,7 +671,7 @@ void CPythonCharacterManager::__UpdatePickedActorList()
 	for (auto & i : m_kAliveInstMap)
 	{
 		CInstanceBase * pkInstEach = i.second;
-		// 2004.07.17.levites.isShow¸¦ ViewFrustumCheck·Î º¯°æ
+		// 2004.07.17.levites.isShowï¿½ï¿½ ViewFrustumCheckï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (pkInstEach->CanPickInstance())
 		{
 			if (pkInstEach->IsDead())
@@ -734,7 +734,7 @@ void CPythonCharacterManager::__NEW_Pick()
 		}
 #endif
 
-	// Á¤¹ÐÇÑ Ã¼Å©
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
 	{
 		for (auto pkInstEach : m_kVct_pkInstPicked)
 		{
@@ -756,7 +756,7 @@ void CPythonCharacterManager::__NEW_Pick()
 		}
 	}
 
-	// ¸øÃ£°ÚÀ¸¸é °Á ¼ø¼­´ë·Î
+	// ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	{
 		for (auto pkInstEach : m_kVct_pkInstPicked)
 		{

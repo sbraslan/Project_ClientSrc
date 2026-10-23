@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "InstanceBase.h"
 #include "PythonBackground.h"
 #include "PythonNonPlayer.h"
@@ -192,12 +193,12 @@ eMountType GetMountLevelByVnum(uint32_t dwMountVnum, bool IsNew)
 		case 20230: // Turkey Lv3 (yes skill, yes atk)
 
 		//NewMonuts [Date: 2020]
-		case 20233:	// Muffin (Zubehör braun)
-		case 20234:	// Nugget (Zubehör braun)
-		case 20235:	// Muffin (Zubehör blau)
-		case 20236:	// Nugget (Zubehör blau)
-		case 20237:	// Muffin (Zubehör grün)
-		case 20238:	// Nugget (Zubehör grün)
+		case 20233:	// Muffin (Zubehï¿½r braun)
+		case 20234:	// Nugget (Zubehï¿½r braun)
+		case 20235:	// Muffin (Zubehï¿½r blau)
+		case 20236:	// Nugget (Zubehï¿½r blau)
+		case 20237:	// Muffin (Zubehï¿½r grï¿½n)
+		case 20238:	// Nugget (Zubehï¿½r grï¿½n)
 		case 20239:	// Blitzen
 		case 20240:	// Donner
 		case 20241:	// Nugget (marine)
@@ -209,10 +210,10 @@ eMountType GetMountLevelByVnum(uint32_t dwMountVnum, bool IsNew)
 		case 20247:	// Manu
 		case 20248:	// Braunes Kampf-Tulu
 		case 20249:	// Schwarzes Kampf-Tulu
-		case 20250:	// Lavahöllenechse
-		case 20251:	// Eishöllenechse
+		case 20250:	// Lavahï¿½llenechse
+		case 20251:	// Eishï¿½llenechse
 		case 20252:	// Magmadrache
-		case 20254:	// Weißes Kaninchen
+		case 20254:	// Weiï¿½es Kaninchen
 		case 20255:	// Mondhase
 		case 20257:	// Bernie
 		case 20258:	// Blue Barry
@@ -220,13 +221,13 @@ eMountType GetMountLevelByVnum(uint32_t dwMountVnum, bool IsNew)
 		case 20260:	// Zerberus (silber)
 		case 20261:	// Spektralross
 		case 20262:	// Ross Nocturnos
-		case 20263:	// Nachtflügel
+		case 20263:	// Nachtflï¿½gel
 		case 20264:	// Finsterschwinge
 		case 20265:	// Mondschatten
 		case 20266:	// Silberstern
 		case 20267:	// Goldener Kriegsstier
 		case 20268:	// Silberner Kriegsstier
-		case 20269:	// Weiße Sphinx
+		case 20269:	// Weiï¿½e Sphinx
 		case 20270:	// Steinerne Sphinx
 		case 20271:	// Eisrabe
 		case 20272:	// Nachtrabe
@@ -407,7 +408,7 @@ bool __ArmorVnumToShape(int iVnum, uint32_t * pdwShape)
 	return true;
 }
 
-// 2004.07.05.myevan.±Ã½ÅÅº¿µ ³¢ÀÌ´Â ¹®Á¦
+// 2004.07.05.myevan.ï¿½Ã½ï¿½Åºï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½
 class CActorInstanceBackground : public IBackground
 {
 public:
@@ -962,7 +963,7 @@ void CInstanceBase::__ClearMainInstance() const
 	rkChrMgr.ClearMainInstance();
 }
 
-/* ½ÇÁ¦ ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍÀÎÁö Á¶»ç.*/
+/* ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.*/
 bool CInstanceBase::__IsMainInstance()
 {
 	if (this == __GetMainInstancePtr())
@@ -1148,7 +1149,7 @@ bool CInstanceBase::Create(const SCreateData & c_rkCreateData)
 	if (!IsGuildWall())
 		SetAffectFlagContainer(c_rkCreateData.m_kAffectFlags);
 
-	// NOTE : ¹Ýµå½Ã Affect ¼ÂÆÃ ÈÄ¿¡ ÇØ¾ß ÇÔ
+	// NOTE : ï¿½Ýµï¿½ï¿½ Affect ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¿ï¿½ ï¿½Ø¾ï¿½ ï¿½ï¿½
 	AttachTextTail();
 	RefreshTextTail();
 
@@ -1188,7 +1189,7 @@ bool CInstanceBase::Create(const SCreateData & c_rkCreateData)
 
 	__AttachHorseSaddle();
 
-	// ±æµå ½Éº¼À» À§ÇÑ ÀÓ½Ã ÄÚµå, ÀûÁ¤ À§Ä¡¸¦ Ã£´Â Áß
+	// ï¿½ï¿½ï¿½ ï¿½Éºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ó½ï¿½ ï¿½Úµï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½
 	const int c_iGuildSymbolRace = 14200;
 	if (c_iGuildSymbolRace == GetRace())
 	{
@@ -1987,7 +1988,7 @@ void CInstanceBase::MovementProcess()
 	TPixelPosition kPPosCur;
 	NEW_GetPixelPosition(&kPPosCur);
 
-	// ·»´õ¸µ ÁÂÇ¥°èÀÌ¹Ç·Î y¸¦ -È­ÇØ¼­ ´õÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½Ì¹Ç·ï¿½ yï¿½ï¿½ -È­ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½Ñ´ï¿½.
 
 	TPixelPosition kPPosNext;
 	{
@@ -2020,7 +2021,7 @@ void CInstanceBase::MovementProcess()
 				if (IsWalking())
 					EndWalking();
 
-				//Tracen("¸ñÇ¥ µµ´Þ Á¤Áö");
+				//Tracen("ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
 
 				m_isGoing = FALSE;
 
@@ -2045,31 +2046,31 @@ void CInstanceBase::MovementProcess()
 
 			SetAdvancingRotation(fDstRot);
 
-			// ¸¸¾à ·»ÅÏ½Ã°¡ ´Ê¾î ³Ê¹« ¸¹ÀÌ ÀÌµ¿Çß´Ù¸é..
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï½Ã°ï¿½ ï¿½Ê¾ï¿½ ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ß´Ù¸ï¿½..
 			if (fRestLen < -100.0f)
 			{
 				NEW_SetSrcPixelPosition(kPPosCur);
 
 				float fDstRot = NEW_GetAdvancingRotationFromPixelPosition(kPPosCur, NEW_GetDstPixelPositionRef());
 				SetAdvancingRotation(fDstRot);
-				//Tracenf("VID %d ¿À¹ö ¹æÇâ¼³Á¤ (%f, %f) %f rest %f", GetVirtualID(), kPPosCur.x, kPPosCur.y, fDstRot, fRestLen);
+				//Tracenf("VID %d ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¼³ï¿½ï¿½ (%f, %f) %f rest %f", GetVirtualID(), kPPosCur.x, kPPosCur.y, fDstRot, fRestLen);
 
-				// ÀÌµ¿ÁßÀÌ¶ó¸é ´ÙÀ½¹ø¿¡ ¸ØÃß°Ô ÇÑ´Ù
+				// ï¿½Ìµï¿½ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß°ï¿½ ï¿½Ñ´ï¿½
 				if (FUNC_MOVE == m_kMovAfterFunc.eFunc)
 					m_kMovAfterFunc.eFunc = FUNC_WAIT;
 			}
-			// µµÂøÇß´Ù¸é...
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ß´Ù¸ï¿½...
 			else if (fCurLen <= fTotalLen && fTotalLen <= fNextLen)
 			{
 				if (m_GraphicThingInstance.IsDead() || m_GraphicThingInstance.IsKnockDown())
 				{
 					__DisableSkipCollision();
 
-					//Tracen("»ç¸Á »óÅÂ¶ó µ¿ÀÛ ½ºÅµ");
+					//Tracen("ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Åµ");
 
 					m_isGoing = FALSE;
 
-					//Tracen("Çàµ¿ ºÒ´É »óÅÂ¶ó ÀÌÈÄ µ¿ÀÛ ½ºÅµ");
+					//Tracen("ï¿½àµ¿ ï¿½Ò´ï¿½ ï¿½ï¿½ï¿½Â¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Åµ");
 				}
 				else
 				{
@@ -2152,7 +2153,7 @@ void CInstanceBase::MovementProcess()
 							}
 							else
 							{
-								//Tracenf("VID %d ½ºÅ³ °ø°Ý (%f, %f) rot %f", GetVirtualID(), NEW_GetDstPixelPositionRef().x, NEW_GetDstPixelPositionRef().y, m_fDstRot);
+								//Tracenf("VID %d ï¿½ï¿½Å³ ï¿½ï¿½ï¿½ï¿½ (%f, %f) rot %f", GetVirtualID(), NEW_GetDstPixelPositionRef().x, NEW_GetDstPixelPositionRef().y, m_fDstRot);
 
 								__DisableSkipCollision();
 								m_isGoing = FALSE;
@@ -2164,7 +2165,7 @@ void CInstanceBase::MovementProcess()
 								if (!IsWaiting())
 									EndWalking();
 
-								//Tracenf("VID %d Á¤Áö (%f, %f) rot %f IsWalking %d", GetVirtualID(), NEW_GetDstPixelPositionRef().x, NEW_GetDstPixelPositionRef().y, m_fDstRot, IsWalking());
+								//Tracenf("VID %d ï¿½ï¿½ï¿½ï¿½ (%f, %f) rot %f IsWalking %d", GetVirtualID(), NEW_GetDstPixelPositionRef().x, NEW_GetDstPixelPositionRef().y, m_fDstRot, IsWalking());
 							}
 							break;
 						}
@@ -2374,7 +2375,7 @@ void CInstanceBase::Transform()
 
 void CInstanceBase::Deform()
 {
-	// 2004.07.17.levites.isShow¸¦ ViewFrustumCheck·Î º¯°æ
+	// 2004.07.17.levites.isShowï¿½ï¿½ ViewFrustumCheckï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (!__CanRender())
 		return;
 
@@ -2395,7 +2396,7 @@ void CInstanceBase::RenderTrace()
 
 void CInstanceBase::Render()
 {
-	// 2004.07.17.levites.isShow¸¦ ViewFrustumCheck·Î º¯°æ
+	// 2004.07.17.levites.isShowï¿½ï¿½ ViewFrustumCheckï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (!__CanRender())
 		return;
 
@@ -2739,13 +2740,13 @@ bool CInstanceBase::IsTargetableInstance(CInstanceBase & rkInstVictim) const
 	return rkInstVictim.CanPickInstance();
 }
 
-// 2004. 07. 07. [levites] - ½ºÅ³ »ç¿ëÁß Å¸°ÙÀÌ ¹Ù²î´Â ¹®Á¦ ÇØ°áÀ» À§ÇÑ ÄÚµå
+// 2004. 07. 07. [levites] - ï¿½ï¿½Å³ ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½
 bool CInstanceBase::CanChangeTarget()
 {
 	return m_GraphicThingInstance.CanChangeTarget();
 }
 
-// 2004.07.17.levites.isShow¸¦ ViewFrustumCheck·Î º¯°æ
+// 2004.07.17.levites.isShowï¿½ï¿½ ViewFrustumCheckï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 bool CInstanceBase::CanPickInstance()
 {
 #ifdef ENABLE_GRAPHIC_ON_OFF
@@ -3034,7 +3035,7 @@ uint32_t CInstanceBase::GetVirtualNumber() const
 	return m_dwVirtualNumber;
 }
 
-// 2004.07.17.levites.isShow¸¦ ViewFrustumCheck·Î º¯°æ
+// 2004.07.17.levites.isShowï¿½ï¿½ ViewFrustumCheckï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 bool CInstanceBase::__IsInViewFrustum()
 {
 	return m_GraphicThingInstance.isShow();
@@ -3338,7 +3339,7 @@ uint32_t CInstanceBase::__GetRefinedEffect(CItemData* pItem
 						(3240 <= vnum && vnum <= 3245) ||	// Dunkeldrachenklinge
 						(370 <= vnum && vnum <= 375) ||		// Schlangenschwert
 						(390 <= vnum && vnum <= 395) ||		// Schlangenklinge
-						(3260 <= vnum && vnum <= 3265))		// Schlangengroßschwert
+						(3260 <= vnum && vnum <= 3265))		// Schlangengroï¿½schwert
 					{
 						default_effect = false;
 						enable_refine = false;
@@ -3460,8 +3461,8 @@ uint32_t CInstanceBase::__GetRefinedEffect(CItemData* pItem
 					bool default_effect = true;
 
 #ifdef ENABLE_LVL96_WEAPON_EFFECT
-					if ((7320 <= vnum && vnum <= 7325) ||	// Dunkeldrachenfächer
-						(7340 <= vnum && vnum <= 7345))		// Schlangenfächer
+					if ((7320 <= vnum && vnum <= 7325) ||	// Dunkeldrachenfï¿½cher
+						(7340 <= vnum && vnum <= 7345))		// Schlangenfï¿½cher
 					{
 						default_effect = false;
 						enable_refine = false;
@@ -3545,7 +3546,7 @@ uint32_t CInstanceBase::__GetRefinedEffect(CItemData* pItem
 					(12030 <= vnum && vnum <= 12039) ||	// Auraplattenpanzer
 					(12040 <= vnum && vnum <= 12049)	// Kleidung des Drachen
 #ifdef ENABLE_WOLFMAN_CHARACTER
-					|| (21080 <= vnum && vnum <= 21089)	// Waldläuferpanzer
+					|| (21080 <= vnum && vnum <= 21089)	// Waldlï¿½uferpanzer
 #endif
 					)
 				{
@@ -3556,12 +3557,12 @@ uint32_t CInstanceBase::__GetRefinedEffect(CItemData* pItem
 
 #ifdef ENABLE_LVL96_ARMOR_EFFECT
 	/*----------96-Armor----------*/
-				if ((21220 <= vnum && vnum <= 21225) ||	// Dunkeldrachenrüstung		Warrior
-					(21240 <= vnum && vnum <= 21245) ||	// Winddrachenrüstung		Assassin
-					(21260 <= vnum && vnum <= 21265) ||	// Magiedrachenrüstung		Sura
-					(21280 <= vnum && vnum <= 21285)	// Götterdrachenrüstung		Shaman
+				if ((21220 <= vnum && vnum <= 21225) ||	// Dunkeldrachenrï¿½stung		Warrior
+					(21240 <= vnum && vnum <= 21245) ||	// Winddrachenrï¿½stung		Assassin
+					(21260 <= vnum && vnum <= 21265) ||	// Magiedrachenrï¿½stung		Sura
+					(21280 <= vnum && vnum <= 21285)	// Gï¿½tterdrachenrï¿½stung		Shaman
 #	ifdef ENABLE_WOLFMAN_CHARACTER
-					|| (21300 <= vnum && vnum <= 21305)	// Himmelsdrachenrüstung	Wolfman
+					|| (21300 <= vnum && vnum <= 21305)	// Himmelsdrachenrï¿½stung	Wolfman
 #	endif
 					|| (21320 <= vnum && vnum <= 21325)	// Schlangenmantel
 					|| (21340 <= vnum && vnum <= 21345)	// Schlangenwams
@@ -3585,7 +3586,7 @@ uint32_t CInstanceBase::__GetRefinedEffect(CItemData* pItem
 					// Sura
 					(20780 <= vnum && vnum <= 20789) ||	// Teufelskrallenpanzer
 					(20880 <= vnum && vnum <= 20889) ||	// Irrlichterpanzer
-					(20830 <= vnum && vnum <= 20839) ||	// Höllenrittpanzer
+					(20830 <= vnum && vnum <= 20839) ||	// Hï¿½llenrittpanzer
 					(20930 <= vnum && vnum <= 20930) ||	// Schwarzfeuerpanzer
 
 					// Assassin
@@ -3602,7 +3603,7 @@ uint32_t CInstanceBase::__GetRefinedEffect(CItemData* pItem
 
 #	ifdef ENABLE_WOLFMAN_CHARACTER
 				// Wolfman
-					|| (20800 <= vnum && vnum <= 20800)	// Schattenkämpferpanzer
+					|| (20800 <= vnum && vnum <= 20800)	// Schattenkï¿½mpferpanzer
 					|| (20900 <= vnum && vnum <= 20900)	// Mondsteinplattenpanzer
 					|| (20850 <= vnum && vnum <= 20850)	// Achatplattenpanzer
 					|| (20950 <= vnum && vnum <= 20950)	// Onyxplattenpanzer
@@ -3683,13 +3684,13 @@ uint32_t CInstanceBase::__GetRefinedEffect(CItemData* pItem
 
 				int costumeBodyEffect = 0;
 
-				if (41001 <= vnum && vnum <= 41002)			//Hasenkostüm
+				if (41001 <= vnum && vnum <= 41002)			//Hasenkostï¿½m
 					costumeBodyEffect = EFFECT_COSTUMEBODY_YELLOW;
-				else if (41003 <= vnum && vnum <= 41004)	// Wüstenkämpfer
+				else if (41003 <= vnum && vnum <= 41004)	// Wï¿½stenkï¿½mpfer
 					costumeBodyEffect = EFFECT_COSTUMEBODY_ORANGE;
 				else if (41005 <= vnum && vnum <= 41012)	// Fechtanzug
 					costumeBodyEffect = EFFECT_COSTUMEBODY_BLUE;
-				else if (41013 <= vnum && vnum <= 41020)	// Fußballtrikot
+				else if (41013 <= vnum && vnum <= 41020)	// Fuï¿½balltrikot
 					costumeBodyEffect = EFFECT_COSTUMEBODY_RED;
 				else if (41021 <= vnum && vnum <= 41028)	// Box-Outfit
 					costumeBodyEffect = EFFECT_COSTUMEBODY_GREEN;
@@ -4017,7 +4018,7 @@ bool CInstanceBase::ChangeArmor(uint32_t dwArmor)
 	if (IsWalking())
 		EndWalking();
 
-	// 2004.07.25.myevan.ÀÌÆåÆ® ¾È ºÙ´Â ¹®Á¦
+	// 2004.07.25.myevan.ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½Ù´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	//////////////////////////////////////////////////////
 	__ClearAffects();
 	//////////////////////////////////////////////////////
@@ -4052,7 +4053,7 @@ bool CInstanceBase::ChangeArmor(uint32_t dwArmor)
 
 	RefreshState(CRaceMotionData::NAME_WAIT, TRUE);
 
-	// 2004.07.25.myevan.ÀÌÆåÆ® ¾È ºÙ´Â ¹®Á¦
+	// 2004.07.25.myevan.ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½Ù´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	/////////////////////////////////////////////////
 	SetAffectFlagContainer(kAffectFlagContainer);
 	/////////////////////////////////////////////////
@@ -4094,7 +4095,7 @@ void CInstanceBase::__GetHeroicEffect(CItemData* pItem)
 			check = true;
 			c_szName = "d:/ymir work/effect/mehok/cw_1.mse";
 		}
-		else if (pItem->GetIndex() == 97008) {	//Fächer
+		else if (pItem->GetIndex() == 97008) {	//Fï¿½cher
 			check = true;
 			c_szName = "d:/ymir work/effect/mehok/fa_1.mse";
 		}
@@ -4133,7 +4134,7 @@ void CInstanceBase::__GetHeroicEffect(CItemData* pItem)
 		}
 		/*else if (pItem->GetIndex() == 97006)	//Glocke
 			c_szName = "d:/ymir work/effect/mehok/.mse";*/
-		else if (pItem->GetIndex() == 97008) {	//Fächer
+		else if (pItem->GetIndex() == 97008) {	//Fï¿½cher
 			check = true;
 			c_szName = "d:/ymir work/effect/mehok/fa_1.mse";
 		}
@@ -4561,9 +4562,9 @@ bool CInstanceBase::IsShowActor()
 
 void CInstanceBase::RegisterBoundingSphere()
 {
-	// Stone ÀÏ °æ¿ì DeforomNoSkin À» ÇÏ¸é
-	// ³«ÇÏÇÏ´Â ¾Ö´Ï¸ÞÀÌ¼Ç °°Àº °æ¿ì ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ
-	// ¹Ù¿îµå ¹Ú½º¿¡ ¿µÇâÀ» ¹ÌÃÄ ÄÃ¸µÀÌ Á¦´ë·Î ÀÌ·ç¾îÁöÁö ¾Ê´Â´Ù.
+	// Stone ï¿½ï¿½ ï¿½ï¿½ï¿½ DeforomNoSkin ï¿½ï¿½ ï¿½Ï¸ï¿½
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
+	// ï¿½Ù¿ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 	if (!IsStone())
 		m_GraphicThingInstance.DeformNoSkin();
 

@@ -7,8 +7,8 @@ std::string g_strImagePath = "d:/ymir work/ui/";
 std::string g_strGuildSymbolPathName = "mark/10/";
 
 // DEFAULT_FONT
-static std::string gs_strDefaultFontName = "±¼¸²Ã¼:12.fnt";
-static std::string gs_strDefaultItalicFontName = "±¼¸²Ã¼:12i.fnt";
+static std::string gs_strDefaultFontName = "ï¿½ï¿½ï¿½ï¿½Ã¼:12.fnt";
+static std::string gs_strDefaultItalicFontName = "ï¿½ï¿½ï¿½ï¿½Ã¼:12i.fnt";
 static CResource * gs_pkDefaultFont = nullptr;
 static CResource * gs_pkDefaultItalicFont = nullptr;
 
@@ -693,9 +693,9 @@ const TPointInfo aPointInfo[POINT_MAX_NUM] =
 	CItemData::APPLY_ATTBONUS_BELL,
 	CItemData::APPLY_ATTBONUS_FAN,
 	CItemData::APPLY_ATTBONUS_BOW,
-#	ifdef ENABLE_WOLFMAN_CHARACTER,
+#	ifdef ENABLE_WOLFMAN_CHARACTER
 	CItemData::APPLY_ATTBONUS_CLAW,
-#	endif,
+#	endif
 	CItemData::APPLY_RESIST_MOUNT_FALL,
 #endif
 	CItemData::APPLY_RESIST_FIST,

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterLib/GrpMath.h"
 #include "../GameLib/ItemManager.h"
 #include "../EffectLib/EffectManager.h"

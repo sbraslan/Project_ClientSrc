@@ -1,26 +1,22 @@
 <Project>
   <!--
-    Native x64 Granny SDK integration.
-    The proprietary SDK itself is intentionally not committed.
-    Expected local layout:
-      Extern\Granny\2.11.10.0\x64\include\granny2\...
-      Extern\Granny\2.11.10.0\x64\lib\granny2.11.10.0.lib
+    Granny x64 runtime/import library.
+    Uses the native x64 library installed with Granny Viewer.
+    Proprietary Granny binaries are not committed to the repository.
   -->
   <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <GrannySdkVersion>2.11.10.0</GrannySdkVersion>
-    <GrannySdkRoot>$(MSBuildThisFileDirectory)..\Extern\Granny\$(GrannySdkVersion)\x64</GrannySdkRoot>
-    <GrannyLibraryName>granny2.11.10.0.lib</GrannyLibraryName>
+    <GrannyX64LibDir>C:\Program Files (x86)\Granny Viewer\lib\win64</GrannyX64LibDir>
+    <GrannyX64Library>granny2_x64.lib</GrannyX64Library>
+    <GrannyX64Dll>$(GrannyX64LibDir)\granny2_x64.dll</GrannyX64Dll>
+
+    <GrannyX64Available Condition="Exists('$(GrannyX64LibDir)\$(GrannyX64Library)')">true</GrannyX64Available>
+    <GrannyX64Available Condition="'$(GrannyX64Available)'==''">false</GrannyX64Available>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <GrannySdkAvailable Condition="Exists('$(GrannySdkRoot)\include\granny2\granny.h') and Exists('$(GrannySdkRoot)\lib\$(GrannyLibraryName)')">true</GrannySdkAvailable>
-    <GrannySdkAvailable Condition="'$(GrannySdkAvailable)'==''">false</GrannySdkAvailable>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup Condition="'$(Platform)'=='x64' and '$(ProjectName)'=='UserInterface' and '$(GrannySdkAvailable)'=='true'">
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64' and '$(ProjectName)'=='UserInterface' and '$(GrannyX64Available)'=='true'">
     <Link>
-      <AdditionalLibraryDirectories>$(GrannySdkRoot)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(GrannyLibraryName);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(GrannyX64LibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(GrannyX64Library);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 
@@ -50,5 +46,16 @@
       <AdditionalLibraryDirectories>$(Metin2VcpkgLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>cryptopp.lib;jpeg.lib;lzo2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+  </ItemDefinitionGroup>
+
+  <!--
+    x64 migration quality gate.
+    Do not suppress migration warnings: the x64 build must remain warning-free.
+  -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
   </ItemDefinitionGroup>
 </Project>

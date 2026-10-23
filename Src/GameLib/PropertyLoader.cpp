@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PropertyLoader.h"
 #include "PropertyManager.h"
 #include "Property.h"
@@ -33,10 +34,10 @@ uint32_t CPropertyLoader::RegisterFile(const char * c_szPathName, const char * c
 	stl_lowers(stExt);
 	stl_lowers(strFileName);
 
-	// ÆÐ½º¸¦ ¼Ò¹®ÀÚ·Î ¸¸µé°í \\ ´Â / ·Î ¹Ù²Û´Ù.
+	// ï¿½Ð½ï¿½ï¿½ï¿½ ï¿½Ò¹ï¿½ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ \\ ï¿½ï¿½ / ï¿½ï¿½ ï¿½Ù²Û´ï¿½.
 	StringPath(strFileName);
 
-	// ¿¹¾àµÈ CRC Ã³¸® (Áö¿öÁø CRC)
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ CRC Ã³ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ CRC)
 	if ("property/reserve" == strFileName)
 	{
 		m_pPropertyManager->LoadReservedCRC(strFileName.c_str());

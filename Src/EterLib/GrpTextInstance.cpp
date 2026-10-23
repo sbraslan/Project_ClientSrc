@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "GrpTextInstance.h"
 #include "StateManager.h"
 #include "IME.h"

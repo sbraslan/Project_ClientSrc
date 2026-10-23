@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "SkyBox.h"
 #include "Camera.h"
 #include "StateManager.h"
@@ -691,7 +692,7 @@ void CSkyBox::Update()
 
 void CSkyBox::Render()
 {
-	// 2004.01.25 myevan Ã³¸®¸¦ ·»´õ¸µ ÈÄ¹ÝÀ¸·Î ¿Å±â°í, DepthTest Ã³¸®
+	// 2004.01.25 myevan Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å±ï¿½ï¿½, DepthTest Ã³ï¿½ï¿½
 	STATEMANAGER.SaveRenderState(D3DRS_ZENABLE, TRUE);
 	STATEMANAGER.SaveRenderState(D3DRS_ZWRITEENABLE, FALSE);
 	STATEMANAGER.SaveRenderState(D3DRS_LIGHTING, FALSE);
@@ -757,7 +758,7 @@ void CSkyBox::RenderCloud()
 	if (!pCloudGraphicImageInstance)
 		return;
 
-	// 2004.01.25 myevan Ã³¸®¸¦ ·»´õ¸µ ÈÄ¹ÝÀ¸·Î ¿Å±â°í, DepthTest Ã³¸®
+	// 2004.01.25 myevan Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å±ï¿½ï¿½, DepthTest Ã³ï¿½ï¿½
 	STATEMANAGER.SaveRenderState(D3DRS_ZENABLE, TRUE);
 	STATEMANAGER.SaveRenderState(D3DRS_ZWRITEENABLE, FALSE);
 	STATEMANAGER.SaveRenderState(D3DRS_LIGHTING, FALSE);

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 
 #ifdef ENABLE_EVENT_MANAGER
 #include "PythonGameEventManager.h"

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "LODController.h"
 
 #include <ctime>
@@ -244,8 +245,8 @@ void CGrannyLODController::AddModel(CGraphicThing * pThing, int iSrcModel, CGran
 	}
 	else
 	{
-		// FIXME : CModelInstance::m_pgrnWorldPose¸¦ Update¿¡¼­ »ç¿ëÇÏ´Âµ¥,
-		//         DeformÀ» ÇÏÁö ¾ÊÀ¸¸é nullptr ÀÔ´Ï´Ù. ±¸Á¶°¡ Á¶±Ý ¹Ù²î¾î¾ß ÇÒÁöµµ.. - [levites]
+		// FIXME : CModelInstance::m_pgrnWorldPoseï¿½ï¿½ Updateï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´Âµï¿½,
+		//         Deformï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ nullptr ï¿½Ô´Ï´ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.. - [levites]
 		pModelInstance->DeformNoSkin(&ms_matIdentity);
 	}
 
@@ -401,10 +402,10 @@ void CGrannyLODController::UpdateLODLevel(float fDistanceFromCenter, float fDist
 	assert(m_pCurrentModelInstance != nullptr);
 
 
-	if (fDistanceFromCenter > LOD_APPLY_MIN) // Áß½É LOD ¿¹¿Ü Ãë¼Ò
+	if (fDistanceFromCenter > LOD_APPLY_MIN) // ï¿½ß½ï¿½ LOD ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	{
-		// Ä«¸Þ¶óºÎÅÍ ¸Ö¾îÁú ¼ö·Ï fLODRate°¡ ÀÛ¾ÆÁø´Ù
-		// 3°³ LOD°¡ ÀÖÀ»¶§.. °¡Àå ¸Õ°Ô 0, °¡±î¿ï ¼ö·Ï ¼ýÀÚ°¡ Ä¿Áø´Ù
+		// Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ fLODRateï¿½ï¿½ ï¿½Û¾ï¿½ï¿½ï¿½ï¿½ï¿½
+		// 3ï¿½ï¿½ LODï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.. ï¿½ï¿½ï¿½ï¿½ ï¿½Õ°ï¿½ 0, ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ú°ï¿½ Ä¿ï¿½ï¿½ï¿½ï¿½
 
 		// 100fps 50fps 33fps 25fps 20fps
 		// 10ms 20ms 30ms 40ms 50ms

@@ -1,4 +1,5 @@
 #include "../StdAfx.h"
+#include "../X64Compat.h"
 #include <string>
 #include <assert.h>
 

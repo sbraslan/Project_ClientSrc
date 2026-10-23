@@ -1,16 +1,17 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include <cstring>
 #include "../EterBase/TempFile.h"
 
 #include "PropertyManager.h"
 #include "Property.h"
 /*
- *	CProperty ÆÄÀÏ Æ÷¸Ë
+ *	CProperty ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
  *
  *  0 ~ 4 bytes: fourcc
  *  5 ~ 6 bytes: \r\n
  *
- *  ±× ÀÌÈÄÀÇ ¹ÙÀÌÆ®µéÀº ÅØ½ºÆ® ÆÄÀÏ ·Î´õ¿Í °°Àº ±¸Á¶
+ *  ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Î´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
  */
 CProperty::CProperty(const char * c_pszFileName) : mc_pFileName(nullptr), m_dwCRC(0)
 {
@@ -66,8 +67,8 @@ bool CProperty::GetVector(const char * c_pszKey, CTokenVector & rTokenVector)
 	if (m_stTokenMap.end() == it)
 		return false;
 
-	// °á±¹ ÀÌ·¸°Ô.. - [levites]
-	// ÇöÀç »ç¿ëÇÏ´Â °÷ : WorldEditor/Dialog/MapObjectPropertyPageBuilding.cpp
+	// ï¿½á±¹ ï¿½Ì·ï¿½ï¿½ï¿½.. - [levites]
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ : WorldEditor/Dialog/MapObjectPropertyPageBuilding.cpp
 	CTokenVector & rSourceTokenVector = it->second;
 	auto itor = rSourceTokenVector.begin();
 	for (; itor != rSourceTokenVector.end(); ++itor)
@@ -81,7 +82,7 @@ void CProperty::PutString(const char * c_pszKey, const char * c_pszString)
 	std::string stTempKey = c_pszKey;
 	stl_lowers(stTempKey);
 
-	// ÀÌ¹Ì ÀÖ´Â°É Áö¿ò
+	// ï¿½Ì¹ï¿½ ï¿½Ö´Â°ï¿½ ï¿½ï¿½ï¿½ï¿½
 	auto itor = m_stTokenMap.find(stTempKey);
 
 	if (itor != m_stTokenMap.end())

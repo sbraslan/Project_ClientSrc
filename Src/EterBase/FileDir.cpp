@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "X64Compat.h"
 #include "FileDir.h"
 #include <string>
 
@@ -60,9 +61,9 @@ bool CDir::Create(const char * c_szFilter, const char * c_szPath, BOOL bCheckedE
 			if (!c_szExtension)
 				continue;
 
-			// NOTE : ÀÓ½Ã º¯¼ö - [levites]
-			//        ÃÖÁ¾ÀûÀ¸·Î´Â ¹«Á¶°Ç TRUE ÇüÅÂ·Î ¸¸µç´Ù.
-			//        ±×Àü¿¡ Àü ÇÁ·ÎÁ§Æ®ÀÇ CDirÀ» »ç¿ëÇÏ´Â °÷¿¡¼­ ExtensionÀ» "wav", "gr2" ÀÌ·±½ÄÀ¸·Î ³Ö°Ô²û ÇÑ´Ù. - [levites]
+			// NOTE : ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½ï¿½ - [levites]
+			//        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ TRUE ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
+			//        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ CDirï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Extensionï¿½ï¿½ "wav", "gr2" ï¿½Ì·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö°Ô²ï¿½ ï¿½Ñ´ï¿½. - [levites]
 			if (bCheckedExtension)
 			{
 				std::string strFilter = c_szFilter;

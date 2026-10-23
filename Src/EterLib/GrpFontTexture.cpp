@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "GrpText.h"
 #include "../EterBase/Stl.h"
 
@@ -213,7 +214,7 @@ CGraphicFontTexture::TCharacterInfomation * CGraphicFontTexture::UpdateCharacter
 	wchar_t keyValue = code.second;
 
 	if (keyValue == 0x08)
-		keyValue = L' '; // ÅÇÀº °ø¹éÀ¸·Î ¹Ù²Û´Ù (¾Æ¶ø Ãâ·Â½Ã ÅÇ »ç¿ë: NAME:\tTEXT -> TEXT\t:NAME ·Î ÀüÈ¯µÊ )
+		keyValue = L' '; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²Û´ï¿½ (ï¿½Æ¶ï¿½ ï¿½ï¿½Â½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½: NAME:\tTEXT -> TEXT\t:NAME ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ )
 
 	ABCFLOAT stABC;
 	SIZE size;

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PythonPlayerEventHandler.h"
 #include "PythonPlayer.h"
 #include "PythonCharacterManager.h"
@@ -164,7 +165,7 @@ void CPythonPlayerEventHandler::OnHit(uint32_t uSkill, CActorInstance & rkActorV
 	if (!rkActorVictim.IsPushing())
 		return;
 
-	// °Å´ë ¸ó½ºÅÍ ¹Ð¸² Á¦¿Ü
+	// ï¿½Å´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 	extern bool IS_HUGE_RACE(unsigned int vnum);
 	if (IS_HUGE_RACE(rkActorVictim.GetRace()))
 		return;
@@ -187,7 +188,7 @@ void CPythonPlayerEventHandler::FlushVictimList()
 	if (m_kVctkVictim.empty())
 		return;
 
-	// #0000682: [M2EU] ´ëÁø°¢ ½ºÅ³ »ç¿ë½Ã Æ¨±è
+	// #0000682: [M2EU] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å³ ï¿½ï¿½ï¿½ï¿½ Æ¨ï¿½ï¿½
 	unsigned int SYNC_POSITION_COUNT_LIMIT = 16;
 	unsigned int uiVictimCount = m_kVctkVictim.size();
 

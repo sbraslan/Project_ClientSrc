@@ -75,11 +75,11 @@ bool NSound::LoadSoundInformationPiece(const char * c_szFileName, NSound::TSound
 
 bool NSound::SaveSoundInformationPiece(const char * c_szFileName, NSound::TSoundDataVector & rSoundDataVector)
 {
-	if (rSoundDataVector.empty()) // µ¥ÀÌÅÍ°¡ ¾øÀ¸¸é ¼º°øÀ¸·Î °£ÁÖ
+	if (rSoundDataVector.empty()) // ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	{
-		if (IsFile(c_szFileName)) // µ¥ÀÌÅÍ´Â ºñ¾îÀÖ´Âµ¥ ÆÄÀÏÀÌ ÀÖ´Ù¸é
+		if (IsFile(c_szFileName)) // ï¿½ï¿½ï¿½ï¿½ï¿½Í´ï¿½ ï¿½ï¿½ï¿½ï¿½Ö´Âµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ù¸ï¿½
 		{
-			_unlink(c_szFileName); // Áö¿î´Ù.
+			_unlink(c_szFileName); // ï¿½ï¿½ï¿½ï¿½ï¿½.
 		}
 		return true;
 	}

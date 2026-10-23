@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterLib/ResourceManager.h"
 #include "../EterLib/StateManager.h"
 
@@ -32,7 +33,7 @@ void CWeaponTrace::Update(float fReachScale)
 	if (!m_pInstance)
 		return;
 	{
-		// ÀÜ»óÀ» ³²±â´Â ½Ã°£ ¹üÀ§ ³»ÀÇ Á¡µé¸¸ À¯ÁöÇÕ´Ï´Ù.
+		// ï¿½Ü»ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½é¸¸ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 		TTimePointList::iterator it;
 		for (it = m_ShortTimePointList.begin(); it != m_ShortTimePointList.end(); ++it)
 		{
@@ -69,7 +70,7 @@ void CWeaponTrace::Update(float fReachScale)
 			mat._41 = pBoneMat->_41;
 			mat._42 = pBoneMat->_42;
 			mat._43 = pBoneMat->_43;
-			// ÇöÀç À§Ä¡¸¦ Ãß°¡ÇÕ´Ï´Ù.
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Õ´Ï´ï¿½.
 			D3DXMATRIX matPoint;
 			D3DXMATRIX matTranslation;
 			D3DXMATRIX matRotation;

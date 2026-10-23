@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "TextureSet.h"
 
 CTextureSet::CTextureSet()
@@ -17,7 +18,7 @@ void CTextureSet::Create()
 {
 	CResource * pResource = CResourceManager::Instance().GetResourcePointer("d:/ymir work/special/error.tga");
 	m_ErrorTexture.ImageInstance.SetImagePointer(msl::inherit_cast<CGraphicImage *>(pResource));
-	AddEmptyTexture(); // Áö¿ì°³ ÅØ½ºÃç¸¦ Ã³À½¿¡ Ãß°¡ ÇØ¾ß ÇÔ
+	AddEmptyTexture(); // ï¿½ï¿½ï¿½ì°³ ï¿½Ø½ï¿½ï¿½ç¸¦ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½Ø¾ï¿½ ï¿½ï¿½
 }
 
 bool CTextureSet::Load(const char * c_szTextureSetFileName, float fTerrainTexCoordBase)

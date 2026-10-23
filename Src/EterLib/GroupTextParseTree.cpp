@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../UserInterface/Locale_inc.h"
 #ifdef ENABLE_DS_SET
 #include <string>
@@ -193,7 +194,7 @@ bool CGroupNode::GetRow(const std::string& c_rstrRowKey, OUT const CGroupNode::C
 	return true;
 }
 
-// Âü°í·Î, idx¶û txt¿¡ ¾²¿©Áø ¼ø¼­¶û °ü°è ¾øÀ½.
+// ï¿½ï¿½ï¿½ï¿½ï¿½, idxï¿½ï¿½ txtï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 bool CGroupNode::GetRow(int idx, OUT const CGroupNode::CGroupNodeRow** ppRow) const
 {
 	if ((TMapRow::size_type)idx >= m_map_rows.size())
@@ -217,7 +218,7 @@ bool CGroupNode::GetGroupRow(const std::string& stGroupName, const std::string& 
 			return true;
 	}
 
-	// default groupÀ» »ìÆìº½.
+	// default groupï¿½ï¿½ ï¿½ï¿½ï¿½ìº½.
 	pChildGroup = GetChildNode("default");
 	if (nullptr != pChildGroup)
 	{

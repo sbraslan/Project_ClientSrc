@@ -1,4 +1,5 @@
-﻿#include "StdAfx.h"
+#include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 
 #include "../EterLib/ResourceManager.h"
 #include "../EterLib/StateManager.h"
@@ -835,7 +836,7 @@ void CArea::__SetObjectInstance_SetEffect(TObjectInstance * pObjectInstance, con
 	pEffectInstance->SetGlobalMatrix(mat);
 
 #ifdef ENABLE_RENDERING_ONLY_IN_AREA_V2
-	pObjectInstance->dwEffectInstanceIndex = (uint32_t)pEffectInstance;
+	pObjectInstance->dwEffectInstanceIndex = reinterpret_cast<std::uintptr_t>(pEffectInstance);
 #else
 	pObjectInstance->dwEffectInstanceIndex = m_EffectInstanceMap.size();
 #endif

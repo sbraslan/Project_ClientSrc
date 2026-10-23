@@ -1302,15 +1302,18 @@ PyObject* playerGetItemLink(PyObject* poSelf, PyObject* poArgs)
 		}
 
 #ifdef ENABLE_YOHARA_SYSTEM
-		len += snprintf(itemlink + len, sizeof(itemlink) - len,
-			":%x"	// HYPER_LINK_ITEM_RANDOM_VALUE0
-			":%x"	// HYPER_LINK_ITEM_RANDOM_VALUE1
-			":%x",	// HYPER_LINK_ITEM_RANDOM_VALUE2
-			":%x",	// HYPER_LINK_ITEM_RANDOM_VALUE3
+		len += snprintf(
+			itemlink + len,
+			sizeof(itemlink) - len,
+			":%x"
+			":%x"
+			":%x"
+			":%x",
 			pPlayerItem->alRandomValues[0],
 			pPlayerItem->alRandomValues[1],
 			pPlayerItem->alRandomValues[2],
-			pPlayerItem->alRandomValues[3]);
+			pPlayerItem->alRandomValues[3]
+		);
 #endif
 
 #ifdef ENABLE_GROWTH_PET_SYSTEM

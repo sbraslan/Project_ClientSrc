@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 class CMapBase : public CScreen
 {
 public:
@@ -22,13 +24,13 @@ public:
 	virtual bool Update(float fX, float fY, float fZ) = 0;
 	virtual void UpdateAroundAmbience(float fX, float fY, float fZ) = 0;
 	virtual float GetHeight(float fx, float fy) = 0;
-	virtual void OnBeginEnvironment() = 0; // ·»´õ¸µ ÇÒ ¶§ ºÒ·ÁÁö¸ç ¿©±â¼­ Environment¿¡ °ü·Ã ÀÖ´Â °ÍµéÀ» ¼ÂÆÃ ÇÑ´Ù.
+	virtual void OnBeginEnvironment() = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¼­ Environmentï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Íµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
 
-	virtual void ApplyLight(uint32_t dwVersion, const D3DLIGHT9 & c_rkLight) = 0;
+	virtual void ApplyLight(std::uintptr_t dwVersion, const D3DLIGHT9 & c_rkLight) = 0;
 
 protected:
 	virtual void OnRender() = 0;
-	virtual void OnSetEnvironmentDataPtr() = 0; // Environment µ¥ÀÌÅÍ°¡ ¼³Á¤µÉ ¶§ ºÒ·ÁÁø´Ù.
+	virtual void OnSetEnvironmentDataPtr() = 0; // Environment ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ï¿½ï¿½.
 	virtual void OnResetEnvironmentDataPtr() = 0;
 
 public:

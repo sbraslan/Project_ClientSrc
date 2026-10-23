@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "EterPackPolicy_CSHybridCrypt.h"
 #include "../EterBase/Stl.h"
 #include "../EterBase/Filename.h"

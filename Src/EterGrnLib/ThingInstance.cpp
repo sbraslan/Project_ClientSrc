@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterBase/Debug.h"
 #include "../EterLib/Camera.h"
 #include "../EterBase/Timer.h"
@@ -341,8 +342,8 @@ bool CGraphicThingInstance::GetBonePosition(int iModelIndex, int iBoneIndex, flo
 	*pfz = pfMatrix[14];
 	return true;
 }
-//iSkelInstance °¡ ÀÖÀ¸¸é ±âº» º»¿¡ Link(º»ÀÌ ºÙ´Â°Í)½ÃÅ°°í,
-//¾øÀ¸¸é ±âº» º»¿¡ attach(ÁÂÇ¥¸¸ °¡Á®´Ù ¾²´Â°Í) µË´Ï´Ù.
+//iSkelInstance ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ Link(ï¿½ï¿½ï¿½ï¿½ ï¿½Ù´Â°ï¿½)ï¿½ï¿½Å°ï¿½ï¿½,
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ attach(ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½) ï¿½Ë´Ï´ï¿½.
 bool CGraphicThingInstance::SetModelInstance(int iDstModelInstance, int iSrcModelThing, int iSrcModel, int iSkelInstance)
 {
 	if (!CheckModelInstanceIndex(iDstModelInstance))
@@ -817,7 +818,7 @@ void CGraphicThingInstance::UpdateLODLevel()
 	const D3DXVECTOR3 & c_rv3CameraPosition = pcurCamera->GetEye();
 	const D3DXVECTOR3 & c_v3Position = GetPosition();
 
-	// NOTE : Áß½ÉÀ¸·ÎºÎÅÍÀÇ °Å¸® °è»ê¿¡ z°ª Â÷ÀÌ´Â »ç¿ëÇÏÁö ¾Ê´Â´Ù. - [levites]
+	// NOTE : ï¿½ß½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ ï¿½ï¿½ê¿¡ zï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½. - [levites]
 	CGrannyLODController::FUpdateLODLevel f{};
 	f.fDistanceFromCenter = sqrtf((c_rv3TargetPosition.x - c_v3Position.x) * (c_rv3TargetPosition.x - c_v3Position.x) +
 								  (c_rv3TargetPosition.y - c_v3Position.y) * (c_rv3TargetPosition.y - c_v3Position.y));

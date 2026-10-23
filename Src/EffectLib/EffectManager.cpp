@@ -40,7 +40,7 @@ bool CEffectManager::IsAliveEffect(uint32_t dwInstanceIndex)
 
 void CEffectManager::Update()
 {
-	// 2004. 3. 1. myevan. ÀÌÆåÆ® ¸ð´ÏÅÍ¸µ ÇÏ´Â ÄÚµå
+	// 2004. 3. 1. myevan. ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Ï´ï¿½ ï¿½Úµï¿½
 	/*
 	if (GetAsyncKeyState(VK_F9))
 	{
@@ -232,8 +232,8 @@ BOOL CEffectManager::RegisterEffect(const char * c_szFileName,bool isExistDelete
 	return TRUE;
 }
 
-// CEffectData ¸¦ Æ÷ÀÎÅÍÇüÀ¸·Î ¸®ÅÏÇÏ°Ô ÇÏ°í..
-// CEffectData¿¡¼­ CRC¸¦ ¾òÀ»¼ö ÀÖ°Ô ÇÑ´Ù
+// CEffectData ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Ï°ï¿½..
+// CEffectDataï¿½ï¿½ï¿½ï¿½ CRCï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö°ï¿½ ï¿½Ñ´ï¿½
 #ifdef ENABLE_SKILL_COLOR_SYSTEM
 BOOL CEffectManager::RegisterEffect2(const char* c_szFileName, uint32_t* pdwRetCRC, bool isNeedCache, const char* name)
 #else

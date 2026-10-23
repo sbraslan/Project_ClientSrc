@@ -229,6 +229,8 @@ bool CInstanceBase::ProcessDamage()
 
 		index++;
 	}
+
+	return true;
 }
 
 void CInstanceBase::AttachSpecialEffect(uint32_t effect
@@ -928,7 +930,7 @@ void CInstanceBase::UpdateTextTailLevel(uint32_t level)
 #	endif
 		{
 			if (GetDefaultCodePage() == CP_ARABIC)
-				sprintf(szText, "|h|r[ÝÑíÞ ÇááÚÈÉ]|cffff0000|h ");
+				sprintf(szText, "|h|r[ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]|cffff0000|h ");
 			else
 				sprintf(szText, "|cffff0000[Team] ");
 			CPythonTextTail::Instance().AttachLevel(GetVirtualID(), szText, s_kGameMasterColor, outline);

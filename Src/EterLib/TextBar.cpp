@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "TextBar.h"
 #include "../EterLib/Util.h"
 

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterPack/EterPackManager.h"
 #include "PythonNonPlayer.h"
 #include "InstanceBase.h"
@@ -81,7 +82,7 @@ bool CPythonNonPlayer::GetInstanceType(uint32_t dwVnum, uint8_t* pbType)
 {
 	const TMobTable* p = GetTable(dwVnum);
 
-	// dwVnum¸¦ Ã£À» ¼ö ¾øÀ¸¸é ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ·Î °£ÁÖ ÇÑ´Ù. ¹®Á¦¼º ÄÚµå -_- [cronan]
+	// dwVnumï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ä³ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ -_- [cronan]
 	if (!p)
 		return false;
 

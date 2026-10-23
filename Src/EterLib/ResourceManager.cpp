@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include <io.h>
 #include "../EterBase/CRC32.h"
 #include "../EterBase/Timer.h"
@@ -10,9 +11,9 @@
 
 int g_iLoadingDelayTime = 20;
 
-const long c_Deleting_Wait_Time = 30000; // »èÁ¦ ´ë±â ½Ã°£ (30ÃÊ)
-const long c_DeletingCountPerFrame = 30; // ÇÁ·¹ÀÓ´ç Ã¼Å© ¸®¼Ò½º °¹¼ö
-const long c_Reference_Decrease_Wait_Time = 30000; // ¼±·Îµù ¸®¼Ò½ºÀÇ ÇØÁ¦ ´ë±â ½Ã°£ (30ÃÊ)
+const long c_Deleting_Wait_Time = 30000; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ (30ï¿½ï¿½)
+const long c_DeletingCountPerFrame = 30; // ï¿½ï¿½ï¿½ï¿½ï¿½Ó´ï¿½ Ã¼Å© ï¿½ï¿½ï¿½Ò½ï¿½ ï¿½ï¿½ï¿½ï¿½
+const long c_Reference_Decrease_Wait_Time = 30000; // ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ (30ï¿½ï¿½)
 
 CFileLoaderThread CResourceManager::ms_loadingThread;
 
@@ -54,7 +55,7 @@ void CResourceManager::ProcessBackgroundLoading()
 		ms_loadingThread.Request(stFileName);
 		m_WaitingMap.emplace(dwFileCRC, stFileName);
 		itor = m_RequestMap.erase(itor);
-		//break; // NOTE: ¿©±â¼­ break ÇÏ¸é ÃµÃµÈ÷ ·Îµù µÈ´Ù.
+		//break; // NOTE: ï¿½ï¿½ï¿½â¼­ break ï¿½Ï¸ï¿½ ÃµÃµï¿½ï¿½ ï¿½Îµï¿½ ï¿½È´ï¿½.
 	}
 
 	uint32_t dwCurrentTime = ELTimer_GetMSec();
@@ -72,7 +73,7 @@ void CResourceManager::ProcessBackgroundLoading()
 				pResource->OnLoad(pData->dwSize, pData->pvBuf);
 				pResource->AddReferenceOnly();
 
-				// ¿©±â¼­ ¿Ã¶ó°£ ·¹ÆÛ·±½º Ä«¿îÆ®¸¦ ÀÏÁ¤ ½Ã°£ÀÌ Áö³­ µÚ¿¡ Ç®¾îÁÖ±â À§ÇÏ¿©
+				// ï¿½ï¿½ï¿½â¼­ ï¿½Ã¶ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¿ï¿½ Ç®ï¿½ï¿½ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½
 				m_pResRefDecreaseWaitingMap.emplace(dwCurrentTime, pResource);
 			}
 		}
@@ -83,7 +84,7 @@ void CResourceManager::ProcessBackgroundLoading()
 		delete pData;
 	}
 
-	// DO : ÀÏÁ¤ ½Ã°£ÀÌ Áö³ª°í ³­µÚ ¹Ì¸® ·ÎµùÇØ µÎ¾ú´ø ¸®¼Ò½ºÀÇ ·¹ÆÛ·±½º Ä«¿îÆ®¸¦ °¨¼Ò ½ÃÅ²´Ù - [levites]
+	// DO : ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½Î¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å²ï¿½ï¿½ - [levites]
 	long lCurrentTime = ELTimer_GetMSec();
 
 	auto itorRef = m_pResRefDecreaseWaitingMap.begin();
@@ -231,7 +232,7 @@ CResource * CResourceManager::GetTypeResourcePointer(const char * c_szFileName, 
 	uint32_t dwFileCRC = __GetFileCRC(c_szFileName, &c_pszFile);
 	CResource * pResource = FindResourcePointer(dwFileCRC);
 
-	if (pResource) // ÀÌ¹Ì ¸®¼Ò½º°¡ ÀÖÀ¸¸é ¸®ÅÏ ÇÑ´Ù.
+	if (pResource) // ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
 		return pResource;
 
 	CResource * (*newFunc)(const char *) = nullptr;
@@ -281,7 +282,7 @@ CResource * CResourceManager::GetResourcePointer(const char * c_szFileName)
 	uint32_t dwFileCRC = __GetFileCRC(c_szFileName, &c_pszFile);
 	CResource * pResource = FindResourcePointer(dwFileCRC);
 
-	if (pResource) // ÀÌ¹Ì ¸®¼Ò½º°¡ ÀÖÀ¸¸é ¸®ÅÏ ÇÑ´Ù.
+	if (pResource) // ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
 		return pResource;
 
 	const char * pcFileExt = strrchr(c_pszFile, '.');

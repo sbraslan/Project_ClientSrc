@@ -12,7 +12,7 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////
-// ±âº» ÇÔ¼ö
+// ï¿½âº» ï¿½Ô¼ï¿½
 //////////////////////////////////////////////////////////////////////////
 
 bool CMapManager::IsMapOutdoor()
@@ -254,7 +254,7 @@ void CMapManager::BeginEnvironment()
 	{
 		ms_lpd3dDevice->LightEnable(0, TRUE);
 
-		rkMap.ApplyLight((uint32_t) mc_pcurEnvironmentData, mc_pcurEnvironmentData->DirLights[ENV_DIRLIGHT_BACKGROUND]);
+		rkMap.ApplyLight(reinterpret_cast<std::uintptr_t>(mc_pcurEnvironmentData), mc_pcurEnvironmentData->DirLights[ENV_DIRLIGHT_BACKGROUND]);
 	}
 	else
 		ms_lpd3dDevice->LightEnable(0, FALSE);

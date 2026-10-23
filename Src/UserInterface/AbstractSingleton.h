@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 template <typename T> class TAbstractSingleton
 {
 	static T * ms_singleton;
@@ -8,8 +10,14 @@ public:
 	TAbstractSingleton()
 	{
 		assert(!ms_singleton);
-		int offset = (int) (T *) 1 - (int) (CSingleton<T> *) (T *) 1;
-		ms_singleton = (T *) ((int) this + offset);
+
+		const std::intptr_t offset =
+			reinterpret_cast<std::intptr_t>((T*)1) -
+			reinterpret_cast<std::intptr_t>((CSingleton<T>*)(T*)1);
+
+		ms_singleton = reinterpret_cast<T*>(
+			reinterpret_cast<std::intptr_t>(this) + offset
+		);
 	}
 
 	TAbstractSingleton(const TAbstractSingleton &) = delete;

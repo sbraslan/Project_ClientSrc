@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "X64Compat.h"
 #include "Stl.h"
 
 static std::list<std::string> s_stList;

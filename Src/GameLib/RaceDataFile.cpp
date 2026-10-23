@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterLib/ResourceManager.h"
 
 #include "RaceData.h"
@@ -69,7 +70,7 @@ BOOL CRaceData::LoadRaceData(const char * c_szFileName)
 					continue;
 
 				/////////////////////////
-				// Temporary - ÀÌº¥Æ®¸¦ À§ÇÑ ÀÓ½Ã ±â´É
+				// Temporary - ï¿½Ìºï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½
 				TextFileLoader.GetTokenString("specialpath", &strPathName);
 				/////////////////////////
 
@@ -139,7 +140,7 @@ BOOL CRaceData::LoadRaceData(const char * c_szFileName)
 					continue;
 
 				/////////////////////////
-				// Temporary - ÀÌº¥Æ®¸¦ À§ÇÑ ÀÓ½Ã ±â´É
+				// Temporary - ï¿½Ìºï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½
 				TextFileLoader.GetTokenString("specialpath", &strPathName);
 				/////////////////////////
 

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "Material.h"
 #include "../EterBase/Filename.h"
 #include "../EterLib/ResourceManager.h"
@@ -227,7 +228,7 @@ bool CGrannyMaterial::CreateFromGrannyMaterialPointer(granny_material * pgrnMate
 			pgrnOpacityTexture = GrannyGetMaterialTextureByType(m_pgrnMaterial, GrannyOpacityTexture);
 		}
 
-		// Two-Side ·»´õ¸µÀÌ ÇÊ¿äÇÑ Áö °Ë»ç
+		// Two-Side ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ë»ï¿½
 		{
 			granny_int32 twoSided = 0;
 			granny_data_type_definition TwoSidedFieldType[] = {{GrannyInt32Member, "Two-sided"}, {GrannyEndMember}};
@@ -263,7 +264,7 @@ bool CGrannyMaterial::CreateFromGrannyMaterialPointer(granny_material * pgrnMate
 	if (pgrnOpacityTexture)
 		m_roImage[1].SetPointer(__GetImagePointer(pgrnOpacityTexture->FromFileName));
 
-	// ¿ÀÆÛ½ÃÆ¼°¡ ÀÖÀ¸¸é ºí·»µù ¸Þ½¬
+	// ï¿½ï¿½ï¿½Û½ï¿½Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½
 	if (!m_roImage[1].IsNull())
 		m_eType = TYPE_BLEND_PNT;
 	else
@@ -286,7 +287,7 @@ void CGrannyMaterial::__ApplyDiffuseRenderState()
 
 	if (m_bTwoSideRender)
 	{
-		// -_-·»´õ¸µ ÇÁ·Î¼¼½º°¡ Á» ±¸·Á¼­... Save & Restore ÇÏ¸é ¼ø¼­¶§¹®¿¡ Á» ²¿ÀÎ´Ù. ±ÍÂúÀ¸´Ï Save & Restore ´ë½Å µû·Î ÀúÀåÇØ µÒ.
+		// -_-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½... Save & Restore ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Î´ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Save & Restore ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½.
 		m_dwLastCullRenderStateForTwoSideRendering = STATEMANAGER.GetRenderState(D3DRS_CULLMODE);
 		STATEMANAGER.SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	}

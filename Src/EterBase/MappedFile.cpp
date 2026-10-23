@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "X64Compat.h"
 #include "MappedFile.h"
 #include "Debug.h"
 
@@ -82,7 +83,7 @@ uint8_t * CMappedFile::AppendDataBlock(const void * pBlock, uint32_t dwBlockSize
 
 void CMappedFile::Destroy()
 {
-	if (m_pLZObj) // ¾ÐÃàµÈ µ¥ÀÌÅÍ°¡ ÀÌ Æ÷ÀÎÅÍ·Î ¿¬°á µÈ´Ù
+	if (m_pLZObj) // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½È´ï¿½
 	{
 		delete m_pLZObj;
 		m_pLZObj = nullptr;

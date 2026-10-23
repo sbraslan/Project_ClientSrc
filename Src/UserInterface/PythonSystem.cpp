@@ -1005,12 +1005,38 @@ CPythonSystem::~CPythonSystem()
 #include "picosha2.h"
 TCHAR* registry_read(LPCTSTR subkey, LPCTSTR name, unsigned long type)
 {
-	HKEY key;
-	TCHAR value[255];
-	unsigned long value_length = 255;
-	RegOpenKey(HKEY_LOCAL_MACHINE, subkey, &key);
-	RegQueryValueEx(key, name, nullptr, &type, (LPBYTE)&value, &value_length);
+	static thread_local TCHAR value[255]{};
+
+	HKEY key = nullptr;
+	DWORD valueLength = sizeof(value);
+
+	value[0] = TEXT('\0');
+
+	const LONG openResult = RegOpenKeyEx(
+		HKEY_LOCAL_MACHINE,
+		subkey,
+		0,
+		KEY_READ,
+		&key
+	);
+
+	if (openResult != ERROR_SUCCESS)
+		return value;
+
+	const LONG queryResult = RegQueryValueEx(
+		key,
+		name,
+		nullptr,
+		&type,
+		reinterpret_cast<LPBYTE>(value),
+		&valueLength
+	);
+
 	RegCloseKey(key);
+
+	if (queryResult != ERROR_SUCCESS)
+		value[0] = TEXT('\0');
+
 	return value;
 }
 

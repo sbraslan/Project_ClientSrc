@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "Type.h"
 #include "../EterBase/Random.h"
 #include "../EterLib/Pool.h"
@@ -139,7 +141,10 @@ protected:
 		  it_end(ted.it_end),
 		  it_cur(ted.it_cur),
 		  it_next(ted.it_next),
-		  pData((T *) ((unsigned char *) ted.pData - (uint32_t) pFirstInstance + (uint32_t) pInstance))
+		  pData(reinterpret_cast<T*>(
+			  reinterpret_cast<std::uintptr_t>(ted.pData)
+			  - reinterpret_cast<std::uintptr_t>(pFirstInstance)
+			  + reinterpret_cast<std::uintptr_t>(pInstance)))
 	{
 		if (it_start == it_end)
 			*pData = T();

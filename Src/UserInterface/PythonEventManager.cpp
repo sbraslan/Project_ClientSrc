@@ -1,4 +1,5 @@
-﻿#include "StdAfx.h"
+#include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "PythonEventManager.h"
 #include "PythonNetworkStream.h"
 #include "PythonNonPlayer.h"

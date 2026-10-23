@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../EterBase/X64Compat.h"
 #include "../EterBase/Stl.h"
 #include "../EterBase/FileLoader.h"
 #include "GrpSubImage.h"

@@ -1,4 +1,6 @@
-﻿#pragma once
+#pragma once
+
+#include <cstdint>
 
 #include "../eterLib/SkyBox.h"
 #include "../eterLib/LensFlare.h"
@@ -103,7 +105,7 @@ public:
 	bool LoadSungmaSetting();
 #endif
 
-	void ApplyLight(uint32_t dwVersion, const D3DLIGHT9 & c_rkLight);
+	void ApplyLight(std::uintptr_t dwVersion, const D3DLIGHT9 & c_rkLight);
 	void SetEnvironmentScreenFilter();
 	void SetEnvironmentSkyBox();
 	void SetEnvironmentLensFlare();
@@ -601,7 +603,7 @@ protected:
 		IDirect3DVertexBuffer9 * m_pkVBNone[NONE_VB_NUM];
 		uint32_t m_dwSplatPos;
 		uint32_t m_dwNonePos;
-		uint32_t m_dwLightVersion;
+		std::uintptr_t m_dwLightVersion;
 	} m_kSTPD;
 
 	struct SoftwareTransformPatch_SRenderState
