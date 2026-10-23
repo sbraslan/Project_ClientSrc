@@ -3,31 +3,45 @@
 #include "../eterLib/StdAfx.h"
 #include "../eterGrnLib/StdAfx.h"
 
-// python include
+// Python runtime headers.
+// Win32 keeps the legacy Python 2 ABI for the frozen baseline.
+// Native x64 is migrated to the current CPython 3.15 SDK.
 extern "C"
 {
 #ifdef AT
 #	undef AT // @warme667
 #endif
 
-#ifdef _DEBUG
-#	undef _DEBUG
-#	include <Python2/Python.h>
-#	define _DEBUG
+#if defined(_WIN64)
+#	ifdef _DEBUG
+#		undef _DEBUG
+#		include <Python.h>
+#		define _DEBUG
+#	else
+#		include <Python.h>
+#	endif
+#	include <marshal.h>
+#	include <frameobject.h>
 #else
-#	include <Python2/Python.h>
+#	ifdef _DEBUG
+#		undef _DEBUG
+#		include <Python2/Python.h>
+#		define _DEBUG
+#	else
+#		include <Python2/Python.h>
+#	endif
+#	include <Python2/node.h>
+#	include <Python2/grammar.h>
+#	include <Python2/token.h>
+#	include <Python2/parsetok.h>
+#	include <Python2/errcode.h>
+#	include <Python2/compile.h>
+#	include <Python2/symtable.h>
+#	include <Python2/eval.h>
+#	include <Python2/marshal.h>
+#	include <Python2/frameobject.h>
+#	include <Python2/longintrepr.h>
 #endif
-#include <Python2/node.h>
-#include <Python2/grammar.h>
-#include <Python2/token.h>
-#include <Python2/parsetok.h>
-#include <Python2/errcode.h>
-#include <Python2/compile.h>
-#include <Python2/symtable.h>
-#include <Python2/eval.h>
-#include <Python2/marshal.h>
-#include <Python2/frameobject.h>
-#include <Python2/longintrepr.h>
 
 #ifdef AT
 #	undef AT // @warme667
