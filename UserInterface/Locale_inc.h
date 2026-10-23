@@ -50,7 +50,6 @@ enum eCommon
 #define ENABLE_PACK_GET_CHECK						// enable py|pyc|txt check on pack.Get
 #define ENABLE_TELEPORT_CRASH_FIX					// 
 //#define ENABLE_SYSLOG_PACKET_SENT					// 
-//#define ENABLE_CRASHRPT								// 
 #define ENABLE_IE11_UPDATE							// upgrade IE7->IE11
 #define HIDE_GRANNY_SYSERR							// 
 //#define DISABLE_PROPERTY_SYSERR					// 
