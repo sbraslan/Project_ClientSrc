@@ -9,7 +9,11 @@
 #pragma warning(disable : 4100)
 
 #pragma warning(disable : 4201)
-#include <mss.h>
+#if defined(_WIN64)
+#	include "MilesCompat.h"
+#else
+#	include <mss.h>
+#endif
 #pragma warning(default : 4201)
 #include <windows.h>
 

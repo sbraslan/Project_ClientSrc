@@ -65,6 +65,31 @@ bool CSoundData::ReadFromDisk()
 {
 	assert(m_assigned == true);
 
+#if defined(_WIN64)
+	CMappedFile file;
+	LPCVOID mappedData = nullptr;
+	if (!CEterPackManager::Instance().Get(file, m_filename, &mappedData) || !mappedData || file.Size() == 0)
+		return false;
+
+	const size_t rawSize = file.Size();
+	if (rawSize > static_cast<size_t>(ULONG_MAX))
+		return false;
+
+	auto* allocation = static_cast<std::uint8_t*>(malloc(rawSize + sizeof(U32)));
+	if (!allocation)
+		return false;
+
+	*reinterpret_cast<U32*>(allocation) = static_cast<U32>(rawSize);
+	memcpy(allocation + sizeof(U32), mappedData, rawSize);
+
+	m_data = allocation;
+	m_size = static_cast<ULONG>(rawSize);
+	m_flag |= FLAG_DATA_SIZE;
+	return true;
+#else
+
+	assert(m_assigned == true);
+
 	LARGE_INTEGER start;
 	QueryPerformanceCounter(&start);
 
@@ -86,7 +111,7 @@ bool CSoundData::ReadFromDisk()
 	}
 	break;
 
-	case AILFILETYPE_ADPCM_WAV: // 3D »ç¿îµå´Â decompress ÇØ¾ß ÇÔ.
+	case AILFILETYPE_ADPCM_WAV: // 3D Â»Ã§Â¿Ã®ÂµÃ¥Â´Ã‚ decompress Ã‡Ã˜Â¾ÃŸ Ã‡Ã”.
 	{
 		AIL_WAV_info(s + 1, &info);
 		AIL_decompress_ADPCM(&info, &m_data, &m_size);
@@ -108,8 +133,11 @@ bool CSoundData::ReadFromDisk()
 	}
 
 	return true;
+
+#endif
 }
 
+#if !defined(_WIN64)
 bool CSoundData::isSlotIndex(uint32_t dwIndex)
 {
 	if (dwIndex >= SOUND_FILE_MAX_NUM)
@@ -186,11 +214,23 @@ void CSoundData::SetPackMode()
 		i = false;
 }
 
+
+#else
+void CSoundData::SetPackMode()
+{
+    // Native x64 reads raw sound bytes directly through CEterPackManager.
+}
+#endif
+
 void CSoundData::Destroy()
 {
 	if (m_data)
 	{
+#if defined(_WIN64)
+		free(m_data);
+#else
 		AIL_mem_free_lock(m_data);
+#endif
 		m_data = nullptr;
 	}
 }

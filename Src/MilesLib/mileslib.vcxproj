@@ -502,6 +502,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MilesCompat.cpp" />
     <ClCompile Include="SoundBase.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -725,6 +726,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MilesCompat.h" />
     <ClInclude Include="SoundBase.h" />
     <ClInclude Include="SoundData.h" />
     <ClInclude Include="SoundInstance.h" />

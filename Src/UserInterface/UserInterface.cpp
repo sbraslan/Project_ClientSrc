@@ -76,7 +76,9 @@ extern "C"
 #endif
 #endif
 
+#if !defined(_WIN64)
 #pragma comment(lib, "mss32.lib")
+#endif
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "imm32.lib")
 #pragma comment(lib, "oldnames.lib")

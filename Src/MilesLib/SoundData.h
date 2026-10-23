@@ -1,7 +1,11 @@
 #ifndef __MILESLIB_CSOUNDDATA_H__
 #define __MILESLIB_CSOUNDDATA_H__
 
-#include <mss.h>
+#if defined(_WIN64)
+#	include "MilesCompat.h"
+#else
+#	include <mss.h>
+#endif
 #include "../eterBase/MappedFile.h"
 
 class CSoundData
@@ -44,6 +48,7 @@ protected:
 	bool m_assigned;
 
 private:
+#if !defined(_WIN64)
 	static U32 AILCALLBACK open_callback(char const * filename, U32 * file_handle);
 	static void AILCALLBACK close_callback(U32 file_handle);
 	static S32 AILCALLBACK seek_callback(U32 file_handle, S32 offset, U32 type);
@@ -51,6 +56,7 @@ private:
 
 	static bool isSlotIndex(uint32_t dwIndex);
 	static int GetEmptySlotIndex();
+#endif
 
 	static bool ms_isSoundFile[SOUND_FILE_MAX_NUM];
 	static CMappedFile ms_SoundFile[SOUND_FILE_MAX_NUM];
