@@ -145,17 +145,17 @@ void CLZObject::BeginCompressInBuffer(const void * pvIn, uint32_t uiInLen, void 
 
 bool CLZObject::Compress()
 {
-	uint32_t iOutLen;
+	lzo_uint iOutLen = 0;
 
 	uint8_t * pbBuffer = m_pbBuffer + sizeof(THeader);
 	*reinterpret_cast<uint32_t *>(pbBuffer) = ms_dwFourCC;
 	pbBuffer += sizeof(uint32_t);
 
 #if defined(LZO1X_999_MEM_COMPRESS)
-	int r = lzo1x_999_compress(const_cast<uint8_t *>(m_pbIn), m_pHeader->dwRealSize, pbBuffer, reinterpret_cast<lzo_uint *>(&iOutLen),
+	int r = lzo1x_999_compress(const_cast<uint8_t *>(m_pbIn), m_pHeader->dwRealSize, pbBuffer, &iOutLen,
 							   CLZO::Instance().GetWorkMemory());
 #else
-	int r = lzo1x_1_compress((uint8_t *) m_pbIn, m_pHeader->dwRealSize, pbBuffer, (lzo_uint *) &iOutLen, CLZO::Instance().GetWorkMemory());
+	int r = lzo1x_1_compress((uint8_t *) m_pbIn, m_pHeader->dwRealSize, pbBuffer, &iOutLen, CLZO::Instance().GetWorkMemory());
 #endif
 
 	if (LZO_E_OK != r)
@@ -164,7 +164,13 @@ bool CLZObject::Compress()
 		return false;
 	}
 
-	m_pHeader->dwCompressedSize = iOutLen;
+	if (iOutLen > static_cast<lzo_uint>(0xFFFFFFFFu))
+	{
+		TraceError("LZO: compressed size exceeds uint32_t");
+		return false;
+	}
+
+	m_pHeader->dwCompressedSize = static_cast<uint32_t>(iOutLen);
 	m_bCompressed = true;
 	return true;
 }
@@ -233,7 +239,7 @@ private:
 
 bool CLZObject::Decompress(uint32_t * pdwKey)
 {
-	uint32_t uiSize;
+	lzo_uint uiSize = static_cast<lzo_uint>(m_pHeader->dwRealSize);
 	int r;
 
 	if (m_pHeader->dwEncryptSize)
@@ -252,7 +258,7 @@ bool CLZObject::Decompress(uint32_t * pdwKey)
 
 		if (LZO_E_OK !=
 			(r = lzo1x_decompress(pbDecryptedBuffer + sizeof(uint32_t), m_pHeader->dwCompressedSize, m_pbBuffer,
-								  reinterpret_cast<lzo_uint *>(&uiSize), nullptr)))
+								  &uiSize, nullptr)))
 		{
 			TraceError("LZObject: Decompress failed(decrypt) ret %d\n", r);
 			return false;
@@ -263,14 +269,14 @@ bool CLZObject::Decompress(uint32_t * pdwKey)
 		uiSize = m_pHeader->dwRealSize;
 
 		if (LZO_E_OK !=
-			(r = lzo1x_decompress(m_pbIn, m_pHeader->dwCompressedSize, m_pbBuffer, reinterpret_cast<lzo_uint *>(&uiSize), nullptr)))
+			(r = lzo1x_decompress(m_pbIn, m_pHeader->dwCompressedSize, m_pbBuffer, &uiSize, nullptr)))
 		{
 			TraceError("LZObject: Decompress failed : ret %d, CompressedSize %d\n", r, m_pHeader->dwCompressedSize);
 			return false;
 		}
 	}
 
-	if (uiSize != m_pHeader->dwRealSize)
+	if (uiSize != static_cast<lzo_uint>(m_pHeader->dwRealSize))
 	{
 		TraceError("LZObject: Size differs");
 		return false;

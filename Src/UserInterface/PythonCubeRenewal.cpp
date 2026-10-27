@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "PythonLocaleString.h"
 #include "PythonCubeRenewal.h"
 #include "PythonNetworkStream.h"
 #include "Packet.h"
@@ -282,7 +283,7 @@ PyObject* cuberenewalGetInfo(PyObject* poSelf, PyObject* poArgs)
 				PyDict_SetItemString(dictInfo, "percent", Py_BuildValue("i", data->percent));
 				PyDict_SetItemString(dictInfo, "gold", Py_BuildValue("i", data->gold));
 				PyDict_SetItemString(dictInfo, "gem", Py_BuildValue("i", data->gem));
-				PyDict_SetItemString(dictInfo, "category", Py_BuildValue("s", data->category.c_str()));
+				PyDict_SetItemString(dictInfo, "category", Py_BuildLocaleStringUI(data->category.c_str()));
 				PyDict_SetItemString(dictInfo, "set_value", Py_BuildValue("i", data->set_value));
 				PyDict_SetItemString(dictInfo, "can_stack", Py_BuildValue("i", IsStackableItem(data->reward[0].vnum) == 1));
 				PyDict_SetItemString(dictInfo, "allow_copy", Py_BuildValue("i", data->allow_copy));
@@ -308,7 +309,7 @@ PyObject* cuberenewalGetInfo(PyObject* poSelf, PyObject* poArgs)
 				//	TraceError("vnum: %d, name: %s", data->reward[0].vnum, stName.c_str());
 				}
 
-				PyDict_SetItemString(dictInfo, "name", Py_BuildValue("s", stName.c_str()));
+				PyDict_SetItemString(dictInfo, "name", Py_BuildLocaleStringUI(stName.c_str()));
 
 				PyList_Append(poList, dictInfo);
 			}

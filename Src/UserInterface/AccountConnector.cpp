@@ -358,57 +358,128 @@ bool CAccountConnector::__AuthState_RecvAuthFailure()
 #ifdef _IMPROVED_PACKET_ENCRYPTION_
 bool CAccountConnector::__AuthState_RecvKeyAgreement()
 {
-	TPacketKeyAgreement packet;
-	if (!Recv(sizeof(packet), &packet))
-		return false;
+TPacketKeyAgreement packet;
 
-	Tracenf("KEY_AGREEMENT RECV %u", packet.wDataLength);
+if (!Recv(sizeof(packet), &packet))
+{
+TraceError("AC DH DEBUG 01: server key packet RECV FAILED");
+return false;
+}
 
-	TPacketKeyAgreement packetToSend;
-	size_t dataLength = TPacketKeyAgreement::MAX_DATA_LEN;
-	size_t agreedLength = Prepare(packetToSend.data, &dataLength);
-	if (agreedLength == 0)
-	{
-		// �ʱ�ȭ ����
-		Disconnect();
-		return false;
-	}
-	assert(dataLength <= TPacketKeyAgreement::MAX_DATA_LEN);
+TraceError(
+"AC DH DEBUG 02: server key packet received | agreed=%u data=%u",
+packet.wAgreedLength,
+packet.wDataLength);
 
-	if (Activate(packet.wAgreedLength, packet.data, packet.wDataLength))
-	{
-		// Key agreement ����, ���� ����
-		packetToSend.bHeader = HEADER_CG_KEY_AGREEMENT;
-		packetToSend.wAgreedLength = static_cast<uint16_t>(agreedLength);
-		packetToSend.wDataLength = static_cast<uint16_t>(dataLength);
+TPacketKeyAgreement packetToSend;
 
-		if (!Send(sizeof(packetToSend), &packetToSend))
-		{
-			Tracen(" CAccountConnector::__AuthState_RecvKeyAgreement - SendKeyAgreement Error");
-			return false;
-		}
-		Tracenf("KEY_AGREEMENT SEND %u", packetToSend.wDataLength);
-	}
-	else
-	{
-		// Ű ���� ����
-		Disconnect();
-		return false;
-	}
-	return true;
+size_t dataLength =
+TPacketKeyAgreement::MAX_DATA_LEN;
+
+TraceError(
+"AC DH DEBUG 03: Prepare begin | bufferMax=%zu",
+dataLength);
+
+size_t agreedLength =
+Prepare(
+packetToSend.data,
+&dataLength);
+
+TraceError(
+"AC DH DEBUG 04: Prepare finished | agreed=%zu data=%zu",
+agreedLength,
+dataLength);
+
+if (agreedLength == 0)
+{
+TraceError("AC DH DEBUG 05: Prepare FAILED");
+Disconnect();
+return false;
+}
+
+assert(
+dataLength <=
+TPacketKeyAgreement::MAX_DATA_LEN);
+
+TraceError(
+"AC DH DEBUG 06: Activate begin | serverAgreed=%u serverData=%u",
+packet.wAgreedLength,
+packet.wDataLength);
+
+const bool activateResult =
+Activate(
+packet.wAgreedLength,
+packet.data,
+packet.wDataLength);
+
+TraceError(
+"AC DH DEBUG 07: Activate finished | result=%d",
+activateResult ? 1 : 0);
+
+if (activateResult)
+{
+packetToSend.bHeader =
+HEADER_CG_KEY_AGREEMENT;
+
+packetToSend.wAgreedLength =
+static_cast<uint16_t>(
+agreedLength);
+
+packetToSend.wDataLength =
+static_cast<uint16_t>(
+dataLength);
+
+TraceError(
+"AC DH DEBUG 08: Send key agreement begin | agreed=%u data=%u",
+packetToSend.wAgreedLength,
+packetToSend.wDataLength);
+
+if (!Send(
+sizeof(packetToSend),
+&packetToSend))
+{
+TraceError(
+"AC DH DEBUG 09: Send key agreement FAILED");
+
+return false;
+}
+
+TraceError(
+"AC DH DEBUG 10: Send key agreement OK");
+}
+else
+{
+TraceError(
+"AC DH DEBUG 11: Activate FAILED -> Disconnect");
+
+Disconnect();
+return false;
+}
+
+return true;
 }
 
 bool CAccountConnector::__AuthState_RecvKeyAgreementCompleted()
 {
-	TPacketKeyAgreementCompleted packet;
-	if (!Recv(sizeof(packet), &packet))
-		return false;
+TPacketKeyAgreementCompleted packet;
 
-	Tracenf("KEY_AGREEMENT_COMPLETED RECV");
+if (!Recv(sizeof(packet), &packet))
+{
+TraceError(
+"AC DH DEBUG 12: KEY_AGREEMENT_COMPLETED recv FAILED");
 
-	ActivateCipher();
+return false;
+}
 
-	return true;
+TraceError(
+"AC DH DEBUG 13: KEY_AGREEMENT_COMPLETED received");
+
+ActivateCipher();
+
+TraceError(
+"AC DH DEBUG 14: ActivateCipher finished");
+
+return true;
 }
 #endif // _IMPROVED_PACKET_ENCRYPTION_
 

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "PythonLocaleString.h"
 #include "PythonMiniMap.h"
 
 PyObject * miniMapSetScale(PyObject * poSelf, PyObject * poArgs)
@@ -206,7 +207,22 @@ PyObject * miniMapGetAtlasInfo(PyObject * poSelf, PyObject * poArgs)
 	PR_FLOAT_TO_INT(fPosY, iPosY);
 	iPosX /= 100;
 	iPosY /= 100;
-	return Py_BuildValue("isiili", static_cast<int>(bFind), aString.c_str(), iPosX, iPosY, static_cast<signed>(dwTextColor), dwGuildID);
+	PyObject* pyName = Py_BuildLocaleStringAutoUI(aString.c_str());
+if (!pyName)
+return nullptr;
+
+PyObject* result = Py_BuildValue(
+"iOiili",
+static_cast<int>(bFind),
+pyName,
+iPosX,
+iPosY,
+static_cast<long>(dwTextColor),
+static_cast<int>(dwGuildID)
+);
+
+Py_DECREF(pyName);
+return result;
 }
 
 PyObject * miniMapGetAtlasSize(PyObject * poSelf, PyObject * poArgs)

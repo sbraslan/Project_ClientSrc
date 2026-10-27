@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "PythonLocaleString.h"
 #include "../EterBase/X64Compat.h"
 #include "PythonEventManager.h"
 #include "PythonNetworkStream.h"
@@ -582,14 +583,14 @@ bool CPythonEventManager::ProcessEventSet(TEventSet * pEventSet)
 			const char * name = GetArgument("name", ScriptCommand.argList);
 
 			if (!strcmp(name, "Á¶°¢³­ ¿ëÈ¥¼®?...."))
-				PyCallClassMemberFunc(m_poInterface, "BINARY_RecvQuest", Py_BuildValue("(isss)", idx, name, "highlight", ""));
+				PyCallClassMemberFunc(m_poInterface, "BINARY_RecvQuest", Py_BuildLocaleArgs_ISSS(idx, name, "highlight", ""));
 			else
 			{
 				if (c_rstFile.empty())
-					PyCallClassMemberFunc(m_poInterface, "RecvQuest", Py_BuildValue("(is)", idx, name));
+					PyCallClassMemberFunc(m_poInterface, "RecvQuest", Py_BuildLocaleArgs_IS(idx, name));
 				else
 				{
-					PyCallClassMemberFunc(m_poInterface, "BINARY_RecvQuest", Py_BuildValue("(isss)", idx, name, c_rstType.c_str(), c_rstFile.c_str()));
+					PyCallClassMemberFunc(m_poInterface, "BINARY_RecvQuest", Py_BuildLocaleArgs_ISSS(idx, name, c_rstType.c_str(), c_rstFile.c_str()));
 				}
 			}
 			break;
@@ -940,7 +941,7 @@ void CPythonEventManager::MakeQuestion(TEventSet * pEventSet, script::TArgList &
 	int iIndex = 0;
 	for (auto & rArgument : rArgumentList)
 	{
-		PyCallClassMemberFunc(pEventSet->poEventHandler, "AppendQuestion", Py_BuildValue("(si)", rArgument.strValue.c_str(), iIndex));
+		PyCallClassMemberFunc(pEventSet->poEventHandler, "AppendQuestion", Py_BuildLocaleArgs_SI(rArgument.strValue.c_str(), iIndex));
 		++iIndex;
 	}
 }

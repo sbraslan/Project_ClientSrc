@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "PythonLocaleString.h"
 #include "../EterBase/X64Compat.h"
 #include "resource.h"
 #include "PythonApplication.h"
@@ -454,10 +455,112 @@ PyObject * appAbort(PyObject * poSelf, PyObject * poArgs)
 
 PyObject * appExit(PyObject * poSelf, PyObject * poArgs)
 {
-	CPythonApplication::Instance().Exit();
-	return Py_BuildNone();
+TraceError(
+"PY EXIT DEBUG 01: app.Exit called");
+
+PyFrameObject * frame =
+PyEval_GetFrame();
+
+// PyEval_GetFrame() borrowed reference verir.
+// Stack boyunca guvenli sekilde yuruyebilmek icin
+// ilk frame'i owned reference haline getiriyoruz.
+Py_XINCREF(frame);
+
+int depth = 0;
+
+while (frame && depth < 32)
+{
+PyCodeObject * code =
+PyFrame_GetCode(frame);
+
+PyObject * filenameObj = nullptr;
+PyObject * nameObj = nullptr;
+
+if (code)
+{
+filenameObj =
+PyObject_GetAttrString(
+reinterpret_cast<PyObject *>(code),
+"co_filename");
+
+if (!filenameObj)
+PyErr_Clear();
+
+nameObj =
+PyObject_GetAttrString(
+reinterpret_cast<PyObject *>(code),
+"co_name");
+
+if (!nameObj)
+PyErr_Clear();
 }
 
+const char * filename =
+"<unknown>";
+
+const char * functionName =
+"<unknown>";
+
+if (filenameObj &&
+PyUnicode_Check(filenameObj))
+{
+const char * value =
+PyUnicode_AsUTF8(filenameObj);
+
+if (value)
+filename = value;
+else
+PyErr_Clear();
+}
+
+if (nameObj &&
+PyUnicode_Check(nameObj))
+{
+const char * value =
+PyUnicode_AsUTF8(nameObj);
+
+if (value)
+functionName = value;
+else
+PyErr_Clear();
+}
+
+const int line =
+PyFrame_GetLineNumber(frame);
+
+TraceError(
+"PY EXIT FRAME %02d: %s:%d | %s",
+depth,
+filename,
+line,
+functionName);
+
+Py_XDECREF(filenameObj);
+Py_XDECREF(nameObj);
+Py_XDECREF(code);
+
+PyFrameObject * back =
+PyFrame_GetBack(frame);
+
+Py_DECREF(frame);
+
+frame = back;
+++depth;
+}
+
+// 32 frame limitine ulasilmissa burada hala
+// owned reference olabilir.
+Py_XDECREF(frame);
+
+PyErr_Clear();
+
+TraceError(
+"PY EXIT DEBUG 02: Python stack capture finished");
+
+CPythonApplication::Instance().Exit();
+
+return Py_BuildNone();
+}
 PyObject * appSetCamera(PyObject * poSelf, PyObject * poArgs)
 {
 	float Distance;
@@ -1071,7 +1174,7 @@ PyObject * appGetTextFileLine(PyObject * poSelf, PyObject * poArgs)
 	if (!PyTuple_GetInteger(poArgs, 1, &iLineIndex))
 		return Py_BuildException();
 
-	return Py_BuildValue("s", pTextFileLoader->GetLine(iLineIndex));
+	return Py_BuildLocaleStringAutoUI(pTextFileLoader->GetLine(iLineIndex));
 }
 
 PyObject * appSetGuildMarkPath(PyObject * poSelf, PyObject * poArgs)

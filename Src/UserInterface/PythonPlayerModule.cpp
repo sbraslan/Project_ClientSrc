@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "PythonPlayer.h"
 #include "PythonApplication.h"
+#include "Locale.h"
 #include "../GameLib/GameLibDefines.h"
 #ifdef ENABLE_LOADING_TIP
 #	include "PythonBackground.h"
@@ -2368,7 +2369,7 @@ PyObject * playerGetEmotionIconImage(PyObject * poSelf, PyObject * poArgs)
 	if (m_kMap_iEmotionIndex_pkIconImage.end() == m_kMap_iEmotionIndex_pkIconImage.find(iIndex))
 		return Py_BuildValue("i", 0);
 
-	return Py_BuildValue("i", m_kMap_iEmotionIndex_pkIconImage[iIndex]);
+	return Py_BuildPointer(m_kMap_iEmotionIndex_pkIconImage[iIndex]);
 }
 
 PyObject * playerSetItemData(PyObject * poSelf, PyObject * poArgs)
@@ -3644,7 +3645,25 @@ PyObject* playerGetLoadingTip(PyObject* poSelf, PyObject* poArgs)
 		lMapIndex = CPythonNetworkStream::Instance().GetMapTarget();
 	szLoadingTip = CPythonNetworkStream::Instance().GetLoadingTipVnum(lMapIndex);
 
-	return Py_BuildValue("s", szLoadingTip);
+if (!szLoadingTip)
+return PyUnicode_FromString("");
+
+const std::string stCodec =
+"cp" + std::to_string(LocaleService_GetCodePage());
+
+PyObject* pyLoadingTip = PyUnicode_Decode(
+szLoadingTip,
+static_cast<Py_ssize_t>(strlen(szLoadingTip)),
+stCodec.c_str(),
+"replace");
+
+if (!pyLoadingTip)
+{
+PyErr_Clear();
+return PyUnicode_FromString("");
+}
+
+return pyLoadingTip;
 }
 #endif
 

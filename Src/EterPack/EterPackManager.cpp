@@ -184,7 +184,22 @@ bool CEterPackManager::GetFromPack(CMappedFile & rMappedFile, const char * c_szF
 
 	static std::string strFileName;
 
-	if (0 == ConvertFileName(c_szFileName, strFileName))
+	const int iPathDepth = ConvertFileName(c_szFileName, strFileName);
+
+#if defined(_WIN64)
+	// x64 / CPython 3 runtime:
+	// Prefer migrated loose root files over legacy root.eix/root.epk.
+	// This also covers root/uiscript/... and other migrated subdirectories.
+	{
+		std::string looseRootPath = "pack/root/";
+		looseRootPath += strFileName;
+
+		if (GetFromFile(rMappedFile, looseRootPath.c_str(), pData))
+			return true;
+	}
+#endif
+
+	if (0 == iPathDepth)
 		return m_RootPack.Get(rMappedFile, strFileName.c_str(), pData);
 
 

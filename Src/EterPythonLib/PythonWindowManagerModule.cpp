@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+#include "../UserInterface/Locale.h"
+#include "../UserInterface/PythonLocaleString.h"
 #include "PythonWindow.h"
 #include "PythonSlotWindow.h"
 #include "PythonGridSlotWindow.h"
@@ -1932,7 +1934,7 @@ PyObject * wndTextGetText(PyObject * poSelf, PyObject * poArgs)
 	if (!PyTuple_GetWindow(poArgs, 0, &pWindow))
 		return Py_BuildException();
 
-	return Py_BuildValue("s", (msl::inherit_cast<UI::CTextLine *>(pWindow))->GetText());
+	return Py_BuildLocaleStringAutoUI((msl::inherit_cast<UI::CTextLine *>(pWindow))->GetText());
 }
 
 PyObject * wndTextGetTextSize(PyObject * poSelf, PyObject * poArgs)

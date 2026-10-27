@@ -197,7 +197,9 @@ bool CGrannyModel::LoadMeshs()
 		}
 		m_bHaveBlendThing |= rMesh.HaveBlendThing();
 
-		granny_int32x grni32xTypeCount = GrannyGetTotalTypeSize(pgrnMesh->PrimaryVertexData->VertexType) / 32;
+		const granny_int32x grni32xTypeCount =
+        GrannyGetTotalTypeSize(pgrnMesh->PrimaryVertexData->VertexType) /
+        static_cast<granny_int32x>(sizeof(granny_data_type_definition));
 		int i = 0;
 		while (i < grni32xTypeCount)
 		{

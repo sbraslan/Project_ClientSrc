@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "PythonLocaleString.h"
 #include "PythonCharacterManager.h"
 #include "PythonNonPlayer.h"
 #include "../GameLib/GameLibDefines.h"
@@ -872,7 +873,7 @@ PyObject * chrGetName(PyObject * poSelf, PyObject * poArgs)
 	if (!pCharacterInstance)
 		return Py_BuildValue("i", 0);
 
-	return Py_BuildValue("s", pCharacterInstance->GetNameString());
+	return Py_BuildLocaleStringUI(pCharacterInstance->GetNameString());
 }
 
 PyObject * chrGetNameByVID(PyObject * poSelf, PyObject * poArgs)
@@ -886,7 +887,7 @@ PyObject * chrGetNameByVID(PyObject * poSelf, PyObject * poArgs)
 	if (!pInstance)
 		return Py_BuildValue("s", "None");
 
-	return Py_BuildValue("s", pInstance->GetNameString());
+	return Py_BuildLocaleStringUI(pInstance->GetNameString());
 }
 
 PyObject * chrGetGuildID(PyObject * poSelf, PyObject * poArgs)

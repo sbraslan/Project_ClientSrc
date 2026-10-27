@@ -179,17 +179,49 @@ size_t Cipher::Prepare(void * buffer, size_t * length)
 
 bool Cipher::Activate(bool polarity, size_t agreed_length, const void * buffer, size_t length)
 {
-	assert(activated_ == false);
-	assert(key_agreement_ != nullptr);
-	bool result = false;
-	if (key_agreement_->Agree(agreed_length, buffer, length))
-		result = SetUp(polarity);
-	delete key_agreement_;
-	key_agreement_ = nullptr;
+assert(activated_ == false);
+assert(key_agreement_ != nullptr);
 
-	return result;
+TraceError(
+"CIPHER DEBUG 01: Activate begin | polarity=%d agreed=%zu data=%zu",
+polarity ? 1 : 0,
+agreed_length,
+length);
+
+bool result = false;
+
+TraceError("CIPHER DEBUG 02: DH2 Agree begin");
+
+const bool agreeResult =
+key_agreement_->Agree(
+agreed_length,
+buffer,
+length);
+
+TraceError(
+"CIPHER DEBUG 03: DH2 Agree finished | result=%d",
+agreeResult ? 1 : 0);
+
+if (agreeResult)
+{
+TraceError("CIPHER DEBUG 04: SetUp begin");
+
+result = SetUp(polarity);
+
+TraceError(
+"CIPHER DEBUG 05: SetUp finished | result=%d",
+result ? 1 : 0);
 }
 
+delete key_agreement_;
+key_agreement_ = nullptr;
+
+TraceError(
+"CIPHER DEBUG 06: Activate finished | result=%d",
+result ? 1 : 0);
+
+return result;
+}
 bool Cipher::SetUp(bool polarity)
 {
 	assert(key_agreement_ != nullptr);
@@ -346,40 +378,141 @@ size_t DH2KeyAgreement::Prepare(void * buffer, size_t * length)
 	// dh-unified.zip. Also see http://www.cryptopp.com/wiki/Diffie-Hellman
 	// and http://www.cryptopp.com/wiki/Security_level .
 
-	AutoSeededRandomPool rnd;
+	TraceError("DH2 DEBUG 01: Prepare begin");
 
-	dh_.AccessGroupParameters().Initialize(p, q, g);
+AutoSeededRandomPool rnd;
 
-	if (!dh_.GetGroupParameters().ValidateGroup(rnd, 3))
-	{
-		// Failed to validate prime and generator
-		return 0;
-	}
+TraceError(
+    "DH2 DEBUG 02: RNG constructed | sizeof(rnd)=%zu",
+    sizeof(rnd));
 
-	// size_t count = 0;
+byte probe[16] = {};
 
-	p = dh_.GetGroupParameters().GetModulus();
-	q = dh_.GetGroupParameters().GetSubgroupOrder();
-	g = dh_.GetGroupParameters().GetGenerator();
+TraceError("DH2 DEBUG 03: RNG probe begin");
 
-	// http://groups.google.com/group/sci.crypt/browse_thread/thread/7dc7eeb04a09f0ce
-	Integer v = ModularExponentiation(g, q, p);
+rnd.GenerateBlock(
+    probe,
+    sizeof(probe));
 
-	if (v != Integer::One())
-	{
-		// Failed to verify order of the subgroup
-		return 0;
-	}
+TraceError("DH2 DEBUG 04: RNG probe OK");
 
-	//////////////////////////////////////////////////////////////
+dh_.AccessGroupParameters().Initialize(
+    p,
+    q,
+    g);
 
-	spriv_key_.New(dh2_.StaticPrivateKeyLength());
-	epriv_key_.New(dh2_.EphemeralPrivateKeyLength());
-	SecByteBlock spub_key(dh2_.StaticPublicKeyLength());
-	SecByteBlock epub_key(dh2_.EphemeralPublicKeyLength());
+TraceError("DH2 DEBUG 05: Group Initialize OK");
 
-	dh2_.GenerateStaticKeyPair(rnd, spriv_key_, spub_key);
-	dh2_.GenerateEphemeralKeyPair(rnd, epriv_key_, epub_key);
+TraceError("DH2 DEBUG 06: ValidateGroup(level=1) begin");
+
+const bool groupValid =
+    dh_.GetGroupParameters().ValidateGroup(
+        rnd,
+        1);
+
+TraceError(
+    "DH2 DEBUG 07: ValidateGroup finished | valid=%d",
+    groupValid ? 1 : 0);
+
+if (!groupValid)
+{
+    TraceError("DH2 DEBUG 08: Group validation FAILED");
+    return 0;
+}
+
+// size_t count = 0;
+
+	TraceError("DH2 DEBUG 09: Refresh group parameters begin");
+
+p = dh_.GetGroupParameters().GetModulus();
+q = dh_.GetGroupParameters().GetSubgroupOrder();
+g = dh_.GetGroupParameters().GetGenerator();
+
+TraceError(
+"DH2 DEBUG 10: Refresh group parameters OK | pBits=%u qBits=%u",
+static_cast<unsigned int>(p.BitCount()),
+static_cast<unsigned int>(q.BitCount()));
+
+TraceError("DH2 DEBUG 11: Subgroup ModularExponentiation begin");
+
+Integer v = ModularExponentiation(g, q, p);
+
+TraceError(
+"DH2 DEBUG 12: Subgroup ModularExponentiation finished | valid=%d",
+v == Integer::One() ? 1 : 0);
+
+if (v != Integer::One())
+{
+TraceError("DH2 DEBUG 12B: Subgroup verification FAILED");
+return 0;
+}
+
+//////////////////////////////////////////////////////////////
+
+TraceError("DH2 DEBUG 13: Query key lengths begin");
+
+const size_t staticPrivateLength =
+dh2_.StaticPrivateKeyLength();
+
+const size_t ephemeralPrivateLength =
+dh2_.EphemeralPrivateKeyLength();
+
+const size_t staticPublicLength =
+dh2_.StaticPublicKeyLength();
+
+const size_t ephemeralPublicLength =
+dh2_.EphemeralPublicKeyLength();
+
+TraceError(
+"DH2 DEBUG 14: Key lengths OK | spriv=%zu epriv=%zu spub=%zu epub=%zu",
+staticPrivateLength,
+ephemeralPrivateLength,
+staticPublicLength,
+ephemeralPublicLength);
+
+TraceError("DH2 DEBUG 15: Allocate key buffers begin");
+
+spriv_key_.New(staticPrivateLength);
+epriv_key_.New(ephemeralPrivateLength);
+
+SecByteBlock spub_key(staticPublicLength);
+SecByteBlock epub_key(ephemeralPublicLength);
+
+TraceError("DH2 DEBUG 16: Allocate key buffers OK");
+
+TraceError("DH2 DEBUG 17A: GenerateStaticPrivateKey begin");
+
+dh2_.GenerateStaticPrivateKey(
+rnd,
+spriv_key_);
+
+TraceError("DH2 DEBUG 17B: GenerateStaticPrivateKey OK");
+
+TraceError("DH2 DEBUG 17C: GenerateStaticPublicKey begin");
+
+dh2_.GenerateStaticPublicKey(
+rnd,
+spriv_key_,
+spub_key);
+
+TraceError("DH2 DEBUG 18: GenerateStaticPublicKey OK");
+
+TraceError("DH2 DEBUG 19A: GenerateEphemeralPrivateKey begin");
+
+dh2_.GenerateEphemeralPrivateKey(
+rnd,
+epriv_key_);
+
+TraceError("DH2 DEBUG 19B: GenerateEphemeralPrivateKey OK");
+
+TraceError("DH2 DEBUG 19C: GenerateEphemeralPublicKey begin");
+
+dh2_.GenerateEphemeralPublicKey(
+rnd,
+epriv_key_,
+epub_key);
+
+TraceError("DH2 DEBUG 20: GenerateEphemeralPublicKey OK");
 
 	// Prepare key agreement data
 	const size_t spub_key_length = spub_key.size();
@@ -402,21 +535,59 @@ size_t DH2KeyAgreement::Prepare(void * buffer, size_t * length)
 
 bool DH2KeyAgreement::Agree(size_t agreed_length, const void * buffer, size_t length)
 {
-	if (agreed_length != dh2_.AgreedValueLength())
-	{
-		// Shared secret size mismatch
-		return false;
-	}
-	const size_t spub_key_length = dh2_.StaticPublicKeyLength();
-	const size_t epub_key_length = dh2_.EphemeralPublicKeyLength();
-	if (length != (spub_key_length + epub_key_length))
-	{
-		// Wrong data length
-		return false;
-	}
-	shared_.New(dh2_.AgreedValueLength());
-	const auto * buf = static_cast<const CryptoPP::byte *>(buffer);
-	return dh2_.Agree(shared_, spriv_key_, epriv_key_, buf, buf + spub_key_length);
+const size_t expectedAgreed =
+dh2_.AgreedValueLength();
+
+const size_t spub_key_length =
+dh2_.StaticPublicKeyLength();
+
+const size_t epub_key_length =
+dh2_.EphemeralPublicKeyLength();
+
+TraceError(
+"DH2 DEBUG 30: Agree begin | agreed=%zu expected=%zu data=%zu expectedData=%zu",
+agreed_length,
+expectedAgreed,
+length,
+spub_key_length + epub_key_length);
+
+if (agreed_length != expectedAgreed)
+{
+TraceError("DH2 DEBUG 31: AGREED LENGTH MISMATCH");
+return false;
+}
+
+if (length != (spub_key_length + epub_key_length))
+{
+TraceError("DH2 DEBUG 32: PUBLIC DATA LENGTH MISMATCH");
+return false;
+}
+
+shared_.New(expectedAgreed);
+
+TraceError(
+"DH2 DEBUG 33: Shared buffer allocated | size=%zu",
+shared_.size());
+
+const auto * buf =
+static_cast<const CryptoPP::byte *>(buffer);
+
+TraceError("DH2 DEBUG 34: dh2_.Agree begin");
+
+const bool agreeResult =
+dh2_.Agree(
+shared_,
+spriv_key_,
+epriv_key_,
+buf,
+buf + spub_key_length);
+
+TraceError(
+"DH2 DEBUG 35: dh2_.Agree finished | result=%d shared=%zu",
+agreeResult ? 1 : 0,
+shared_.size());
+
+return agreeResult;
 }
 
 #	pragma warning(pop)

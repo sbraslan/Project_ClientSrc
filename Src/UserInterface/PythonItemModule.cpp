@@ -5,8 +5,80 @@
 #include "../GameLib/GameLibDefines.h"
 #include "InstanceBase.h"
 #include "AbstractApplication.h"
+#include "Locale.h"
 
 extern int TWOHANDED_WEWAPON_ATT_SPEED_DECREASE_VALUE;
+
+static PyObject* Py_BuildLocaleString(const char* text)
+{
+    if (!text || !*text)
+        return PyUnicode_FromString("");
+
+    UINT codePage = static_cast<UINT>(LocaleService_GetCodePage());
+
+    if (codePage == 0)
+        codePage = CP_ACP;
+
+    const int sourceLength = static_cast<int>(strlen(text));
+
+    const int wideLength = MultiByteToWideChar(
+        codePage,
+        0,
+        text,
+        sourceLength,
+        nullptr,
+        0
+    );
+
+    if (wideLength <= 0)
+    {
+        TraceError(
+            "Py_BuildLocaleString: MultiByteToWideChar failed | cp=%u error=%lu",
+            codePage,
+            GetLastError()
+        );
+
+        return PyUnicode_DecodeLatin1(
+            text,
+            static_cast<Py_ssize_t>(sourceLength),
+            "replace"
+        );
+    }
+
+    std::wstring wideText(
+        static_cast<size_t>(wideLength),
+        L'\0'
+    );
+
+    const int convertedLength = MultiByteToWideChar(
+        codePage,
+        0,
+        text,
+        sourceLength,
+        &wideText[0],
+        wideLength
+    );
+
+    if (convertedLength != wideLength)
+    {
+        TraceError(
+            "Py_BuildLocaleString: conversion failed | cp=%u error=%lu",
+            codePage,
+            GetLastError()
+        );
+
+        return PyUnicode_DecodeLatin1(
+            text,
+            static_cast<Py_ssize_t>(sourceLength),
+            "replace"
+        );
+    }
+
+    return PyUnicode_FromWideChar(
+        wideText.c_str(),
+        static_cast<Py_ssize_t>(wideText.size())
+    );
+}
 
 PyObject * itemSetUseSoundFileName(PyObject * poSelf, PyObject * poArgs)
 {
@@ -125,7 +197,7 @@ PyObject* itemGetItemNameByVnum(PyObject* poSelf, PyObject* poArgs)
 		return Py_BuildValue("s", "");
 	}
 
-	return Py_BuildValue("s", CItemManager::Instance().GetSelectedItemDataPointer()->GetName());
+	return Py_BuildLocaleString(CItemManager::Instance().GetSelectedItemDataPointer()->GetName());
 }
 
 PyObject * itemGetItemName(PyObject * poSelf, PyObject * poArgs)
@@ -134,7 +206,7 @@ PyObject * itemGetItemName(PyObject * poSelf, PyObject * poArgs)
 	if (!pItemData)
 		return Py_BuildException("no selected item data");
 
-	return Py_BuildValue("s", pItemData->GetName());
+	return Py_BuildLocaleString(pItemData->GetName());
 }
 
 PyObject * itemGetCurrentItemVnum(PyObject * poSelf, PyObject * poArgs)
@@ -161,7 +233,7 @@ PyObject * itemGetItemDescription(PyObject * poSelf, PyObject * poArgs)
 	if (!pItemData)
 		return Py_BuildException("no selected item data");
 
-	return Py_BuildValue("s", pItemData->GetDescription());
+	return Py_BuildLocaleString(pItemData->GetDescription());
 }
 
 PyObject * itemGetItemSummary(PyObject * poSelf, PyObject * poArgs)
@@ -170,7 +242,7 @@ PyObject * itemGetItemSummary(PyObject * poSelf, PyObject * poArgs)
 	if (!pItemData)
 		return Py_BuildException("no selected item data");
 
-	return Py_BuildValue("s", pItemData->GetSummary());
+	return Py_BuildLocaleString(pItemData->GetSummary());
 }
 
 PyObject * itemGetIconImage(PyObject * poSelf, PyObject * poArgs)
@@ -731,7 +803,30 @@ PyObject* itemGetItemNames(PyObject* poSelf, PyObject* poArgs)
 	{
 		PyObject* item = PyDict_New();
 		PyDict_SetItemString(item, "vnum", Py_BuildValue("i", f->second->GetIndex()));
-		PyDict_SetItemString(item, "name", Py_BuildValue("s", f->second->GetName()));
+	const char* szItemName = f->second->GetName();
+if (!szItemName)
+szItemName = "";
+
+const std::string stCodec =
+"cp" + std::to_string(LocaleService_GetCodePage());
+
+PyObject* pyItemName = PyUnicode_Decode(
+szItemName,
+static_cast<Py_ssize_t>(strlen(szItemName)),
+stCodec.c_str(),
+"replace");
+
+if (!pyItemName)
+{
+PyErr_Clear();
+pyItemName = PyUnicode_FromString("");
+}
+
+if (pyItemName)
+{
+PyDict_SetItemString(item, "name", pyItemName);
+Py_DECREF(pyItemName);
+}
 		PyTuple_SetItem(dict, i++, item);
 		f++;
 	}

@@ -798,7 +798,11 @@ bool PythonRun(const char * lpCmdLine, CPythonLauncher & pyLauncher)
 
 void PythonRegisterCommandLine(const char * lpCmdLine)
 {
+#if defined(_WIN64)
+	PyObject * builtins = PyImport_ImportModule("builtins");
+#else
 	PyObject * builtins = PyImport_ImportModule("__builtin__");
+#endif
 #ifdef NDEBUG // @warme601 _DISTRIBUTE -> NDEBUG
 	PyModule_AddIntConstant(builtins, "__DEBUG__", 0);
 #else
@@ -844,6 +848,10 @@ void PythonRegisterCommandLine(const char * lpCmdLine)
 
 		PyModule_AddStringConstant(builtins, "__COMMAND_LINE__", stCmdLine.c_str());
 	}
+
+	Py_DECREF(builtins);
+
+	TraceError("PYTHON STARTUP: PythonRegisterCommandLine OK");
 }
 
 #if defined(ENABLE_IE11_UPDATE)
@@ -880,6 +888,7 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 #endif
 	OpenLogFile(true);
 	InstallCrashHandler();
+	TraceError("BOOT 01: Main entered; central logger ready");
 #ifdef LOCALE_SERVICE_YMIR
 	extern bool g_isScreenShotKey;
 	g_isScreenShotKey = true;
@@ -911,17 +920,25 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 	ilInit();
 #endif
 
+	TraceError("BOOT 02: Setup begin");
 	if (!Setup(lpCmdLine))
+	{
+		TraceError("BOOT FAILURE: Setup returned false");
 		return false;
+	}
+	TraceError("BOOT 03: Setup OK");
 
 	static CLZO lzo;
 	static CEterPackManager EterPackManager;
 
+	TraceError("BOOT 04: PackInitialize begin");
 	if (!PackInitialize("pack"))
 	{
-		LogBox("Pack Initialization failed. Check log.txt file..");
+		TraceError("BOOT FAILURE: PackInitialize returned false");
+		LogBox("Pack initialization failed. See syserr/client_syserr.txt.");
 		return false;
 	}
+	TraceError("BOOT 05: PackInitialize OK");
 
 #ifdef ENABLE_PYLIB_CHECK
 	if (!__CheckPyLibFiles())
@@ -931,22 +948,42 @@ bool Main(HINSTANCE hInstance, LPSTR lpCmdLine)
 	if (!__CheckMilesFiles())
 		return false;
 #endif
+	TraceError("BOOT 06: CPythonApplication initialize begin");
 	auto app = std::make_unique<CPythonApplication>();
 	app->Initialize(hInstance);
+	TraceError("BOOT 07: CPythonApplication initialize OK");
 
 	// Some third-party/runtime components may replace the process filter.
 	// Re-arm the same central EterBase crash handler after application initialization.
+	TraceError("BOOT 08: crash-handler rearm begin");
+
 	InstallCrashHandler();
+
+	TraceError("BOOT 09: crash-handler rearm OK");
 
 	bool ret = false;
 	{
+		TraceError("BOOT 10: CPythonLauncher construction begin");
+
 		CPythonLauncher pyLauncher;
+
+		TraceError("BOOT 11: CPythonLauncher construction OK");
 		CPythonExceptionSender pyExceptionSender;
 		SetExceptionSender(&pyExceptionSender);
 
 		if (pyLauncher.Create())
 		{
-			ret = RunMainScript(pyLauncher, lpCmdLine); //°ÔÀÓ ½ÇÇàÁß¿£ ÇÔ¼ö°¡ ³¡³ªÁö ¾Ê´Â´Ù.
+			TraceError("PYTHON STARTUP: launcher Create succeeded");
+
+			ret = RunMainScript(pyLauncher, lpCmdLine);
+
+			TraceError(
+				"PYTHON STARTUP: RunMainScript returned %s",
+				ret ? "true" : "false");
+		}
+		else
+		{
+			TraceError("PYTHON STARTUP: launcher Create FAILED");
 		}
 
 		//°ÔÀÓ Á¾·á½Ã.
@@ -1108,7 +1145,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	WebBrowser_Startup(hInstance);
 #endif
 
-#ifndef ENABLE_PYLIB_CHECK
+#if !defined(ENABLE_PYLIB_CHECK) && !defined(_WIN64)
 	if (!CheckPythonLibraryFilenames())
 	{
 		__ErrorPythonLibraryIsNotExist();

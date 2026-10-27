@@ -200,37 +200,54 @@ void TraceError(const char * c_szFormat, ...)
 
 	va_list args;
 	va_start(args, c_szFormat);
-	_vsnprintf_s(szMessage, sizeof(szMessage), _TRUNCATE, c_szFormat, args);
+
+	_vsnprintf_s(
+		szMessage,
+		sizeof(szMessage),
+		_TRUNCATE,
+		c_szFormat,
+		args);
+
 	va_end(args);
 
 	time_t ct = time(nullptr);
 	struct tm ctm{};
-	localtime_s(&ctm, &ct);
+
+	localtime_s(
+		&ctm,
+		&ct);
 
 	fprintf(
 		stderr,
-		"%02d%02d %02d:%02d:%05u :: %s\n",
+		"%04d-%02d-%02d %02d:%02d:%02d "
+		"[ERROR] [PID=%lu] [TID=%lu] %s\n",
+		ctm.tm_year + 1900,
 		ctm.tm_mon + 1,
 		ctm.tm_mday,
 		ctm.tm_hour,
 		ctm.tm_min,
-		ELTimer_GetMSec() % 60000,
+		ctm.tm_sec,
+		GetCurrentProcessId(),
+		GetCurrentThreadId(),
 		szMessage);
+
 	fflush(stderr);
 
 #ifdef _DEBUG
-	char szDebug[DEBUG_STRING_MAX_LEN + 16] = {};
-	_snprintf_s(szDebug, sizeof(szDebug), _TRUNCATE, "SYSERR: %s\n", szMessage);
-	OutputDebugStringA(szDebug);
-	fputs(szDebug, stdout);
-#endif
+	char szDebug[
+		DEBUG_STRING_MAX_LEN + 32
+	] = {};
 
-	if (isLogFile)
-	{
-		char szLog[DEBUG_STRING_MAX_LEN + 16] = {};
-		_snprintf_s(szLog, sizeof(szLog), _TRUNCATE, "SYSERR: %s\n", szMessage);
-		LogFile(szLog);
-	}
+	_snprintf_s(
+		szDebug,
+		sizeof(szDebug),
+		_TRUNCATE,
+		"SYSERR: %s\n",
+		szMessage);
+
+	OutputDebugStringA(
+		szDebug);
+#endif
 }
 
 void TraceErrorWithoutEnter(const char * c_szFormat, ...)
@@ -239,51 +256,76 @@ void TraceErrorWithoutEnter(const char * c_szFormat, ...)
 
 	va_list args;
 	va_start(args, c_szFormat);
-	_vsnprintf_s(szMessage, sizeof(szMessage), _TRUNCATE, c_szFormat, args);
-	va_end(args);
 
-	time_t ct = time(nullptr);
-	struct tm ctm{};
-	localtime_s(&ctm, &ct);
+	_vsnprintf_s(
+		szMessage,
+		sizeof(szMessage),
+		_TRUNCATE,
+		c_szFormat,
+		args);
+
+	va_end(args);
 
 	fprintf(
 		stderr,
-		"%02d%02d %02d:%02d:%05u :: %s",
-		ctm.tm_mon + 1,
-		ctm.tm_mday,
-		ctm.tm_hour,
-		ctm.tm_min,
-		ELTimer_GetMSec() % 60000,
+		"%s",
 		szMessage);
+
 	fflush(stderr);
 
 #ifdef _DEBUG
-	OutputDebugStringA(szMessage);
-	fputs(szMessage, stdout);
+	OutputDebugStringA(
+		szMessage);
 #endif
-
-	if (isLogFile)
-		LogFile(szMessage);
 }
 
 void LogBoxf(const char * c_szFormat, ...)
 {
 	va_list args;
-	va_start(args, c_szFormat);
 
-	char szBuf[2048];
-	vsnprintf(szBuf, sizeof(szBuf), c_szFormat, args);
+	va_start(
+		args,
+		c_szFormat);
 
-	LogBox(szBuf);
+	char szBuf[2048] = {};
+
+	vsnprintf(
+		szBuf,
+		sizeof(szBuf),
+		c_szFormat,
+		args);
+
+	va_end(args);
+
+	LogBox(
+		szBuf);
 }
 
-void LogBox(const char * c_szMsg, const char * c_szCaption, HWND hWnd)
+void LogBox(
+	const char * c_szMsg,
+	const char * c_szCaption,
+	HWND hWnd)
 {
 	if (!hWnd)
 		hWnd = g_PopupHwnd;
 
-	MessageBox(hWnd, c_szMsg, c_szCaption ? c_szCaption : "LOG", MB_OK);
-	Tracen(c_szMsg);
+	// Popup is UI only.
+	// Actual error storage is central syserr.
+	TraceError(
+		"POPUP: %s",
+		c_szMsg
+			? c_szMsg
+			: "<null>");
+
+	MessageBoxA(
+		hWnd,
+		c_szMsg
+			? c_szMsg
+			: "<null>",
+		c_szCaption
+			? c_szCaption
+			: "METIN2 ERROR",
+		MB_OK | MB_ICONERROR);
 }
 
 void LogFile(const char * c_szMsg)
@@ -303,29 +345,103 @@ void LogFilef(const char * c_szMessage, ...)
 
 void OpenLogFile(bool bUseLogFIle)
 {
-	CreateDirectoryA("./syserr", nullptr);
+	// METIN2_CENTRAL_SYSERR_V3
+	//
+	// ONE FILE OWNER:
+	// EterBase/Debug.cpp
+	//
+	// All stderr contributors end in:
+	// syserr/client_syserr.txt
 
-	time_t rawtime;
-	time(&rawtime);
-	struct tm timeinfoStorage{};
-	localtime_s(&timeinfoStorage, &rawtime);
-	struct tm * timeinfo = &timeinfoStorage;
+	CreateDirectoryA(
+		"./syserr",
+		nullptr);
 
-	char szSyserrPath[128] = {};
-	strftime(
-		szSyserrPath,
-		sizeof(szSyserrPath),
-		"./syserr/%d-%m-%Y-%H-%M-%S-syserr.txt",
-		timeinfo);
+	FILE * redirectedStderr =
+		nullptr;
 
-	FILE* redirectedStderr = nullptr;
-	if (freopen_s(&redirectedStderr, szSyserrPath, "w", stderr) != 0 || redirectedStderr == nullptr)
-		OutputDebugStringA("OpenLogFile: could not open timestamped syserr file.\n");
+	const errno_t openResult =
+		freopen_s(
+			&redirectedStderr,
+			"./syserr/client_syserr.txt",
+			"w",
+			stderr);
 
+	if (
+		openResult != 0 ||
+		redirectedStderr == nullptr)
+	{
+		OutputDebugStringA(
+			"FATAL LOGGER ERROR: "
+			"could not open "
+			"syserr/client_syserr.txt\n");
+	}
+	else
+	{
+		// Do not lose the last crash lines
+		// because of stdio buffering.
+		setvbuf(
+			stderr,
+			nullptr,
+			_IONBF,
+			0);
+
+		time_t rawtime =
+			time(nullptr);
+
+		struct tm tmStorage{};
+
+		localtime_s(
+			&tmStorage,
+			&rawtime);
+
+		char szStarted[64] = {};
+
+		strftime(
+			szStarted,
+			sizeof(szStarted),
+			"%Y-%m-%d %H:%M:%S",
+			&tmStorage);
+
+#if defined(_WIN64)
+		const char * c_szArchitecture =
+			"x64";
+#else
+		const char * c_szArchitecture =
+			"Win32";
+#endif
+
+		fprintf(
+			stderr,
+			"============================================================\n"
+			"METIN2 CLIENT CENTRAL SYSERR V3\n"
+			"============================================================\n"
+			"Started : %s\n"
+			"PID     : %lu\n"
+			"TID     : %lu\n"
+			"Arch    : %s\n"
+			"Build   : %s %s\n"
+			"File    : syserr/client_syserr.txt\n"
+			"============================================================\n",
+			szStarted,
+			GetCurrentProcessId(),
+			GetCurrentThreadId(),
+			c_szArchitecture,
+			__DATE__,
+			__TIME__);
+
+		fflush(
+			stderr);
+	}
+
+	// log.txt remains for ordinary
+	// Trace/Tracef diagnostics only.
 	if (bUseLogFIle)
 	{
 		isLogFile = true;
-		CLogFile::Instance().Initialize();
+
+		CLogFile::Instance()
+			.Initialize();
 	}
 }
 
@@ -675,7 +791,7 @@ void InstallCrashHandler()
 
 		fprintf(
 			stderr,
-			"CRASH LOGGER INITIALIZED | timestamped-syserr=ON | symbols=ON | source-lines=ON | builds=ALL\n");
+			"CRASH HANDLER READY | central-syserr=ON | path=syserr/client_syserr.txt | symbols=ON | source-lines=ON\n");
 		fflush(stderr);
 	}
 

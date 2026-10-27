@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "PythonLocaleString.h"
 #include "../EterBase/X64Compat.h"
 #include "PythonQuest.h"
 
@@ -188,19 +189,56 @@ PyObject * questGetQuestData(PyObject * poSelf, PyObject * poArgs)
 	}
 
 #ifdef ENABLE_QUEST_RENEWAL
-	if (pQuestInstance->c_index == 99)
-		pQuestInstance->c_index = 6;
-
-	return Py_BuildValue("isiisi",	pQuestInstance->dwIndex,
-									pQuestInstance->strTitle.c_str(),
-									pQuestInstance->c_index,
-									pImage,
-									pQuestInstance->strCounterName.c_str(),
-									pQuestInstance->iCounterValue);
-#else
-	return Py_BuildValue("sisi", pQuestInstance->strTitle.c_str(), pImage, pQuestInstance->strCounterName.c_str(),
-						 pQuestInstance->iCounterValue);
+if (pQuestInstance->c_index == 99)
+pQuestInstance->c_index = 6;
 #endif
+
+PyObject* pyTitle =
+Py_BuildLocaleStringAutoUI(
+pQuestInstance->strTitle.c_str()
+);
+
+PyObject* pyImage =
+Py_BuildPointer(pImage);
+
+PyObject* pyCounterName =
+Py_BuildLocaleStringAutoUI(
+pQuestInstance->strCounterName.c_str()
+);
+
+if (!pyTitle || !pyImage || !pyCounterName)
+{
+Py_XDECREF(pyTitle);
+Py_XDECREF(pyImage);
+Py_XDECREF(pyCounterName);
+return nullptr;
+}
+
+#ifdef ENABLE_QUEST_RENEWAL
+PyObject* result = Py_BuildValue(
+"iOiOOi",
+static_cast<int>(pQuestInstance->dwIndex),
+pyTitle,
+static_cast<int>(pQuestInstance->c_index),
+pyImage,
+pyCounterName,
+pQuestInstance->iCounterValue
+);
+#else
+PyObject* result = Py_BuildValue(
+"OOOi",
+pyTitle,
+pyImage,
+pyCounterName,
+pQuestInstance->iCounterValue
+);
+#endif
+
+Py_DECREF(pyTitle);
+Py_DECREF(pyImage);
+Py_DECREF(pyCounterName);
+
+return result;
 }
 
 PyObject * questGetQuestIndex(PyObject * poSelf, PyObject * poArgs)
@@ -231,7 +269,23 @@ PyObject * questGetQuestLastTime(PyObject * poSelf, PyObject * poArgs)
 	if (pQuestInstance->iClockValue >= 0)
 		iLastTime = (pQuestInstance->iStartTime + pQuestInstance->iClockValue) - int(CTimer::Instance().GetCurrentSecond());
 
-	return Py_BuildValue("si", pQuestInstance->strClockName.c_str(), iLastTime);
+	PyObject* pyClockName =
+Py_BuildLocaleStringAutoUI(
+pQuestInstance->strClockName.c_str()
+);
+
+if (!pyClockName)
+return nullptr;
+
+PyObject* result = Py_BuildValue(
+"Oi",
+pyClockName,
+iLastTime
+);
+
+Py_DECREF(pyClockName);
+
+return result;
 }
 
 PyObject * questClear(PyObject * poSelf, PyObject * poArgs)

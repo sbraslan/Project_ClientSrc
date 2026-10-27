@@ -31,7 +31,9 @@ bool CShield::CheckAttackspeed(float attackSpeed, float range, bool twoHanded, b
 #if defined(ENABLE_CHECK_ATTACKSPEED_HACK) || defined(ENABLE_CHECK_MOVESPEED_HACK) && !defined(_DEBUG)
 	inline void CShield::Close()
 	{
-		SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)NULL);
+		TraceError(
+			"CSHIELD: preserving central "
+			"crash handler before forced termination");
 		__asm {
 			mov eax, 0x001
 			jmp eax

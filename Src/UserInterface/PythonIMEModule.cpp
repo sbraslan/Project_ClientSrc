@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "PythonLocaleString.h"
 #include "../EterBase/X64Compat.h"
 #include "PythonIME.h"
 #include "PythonApplication.h"
@@ -65,7 +66,7 @@ PyObject * imeGetText(PyObject * poSelf, PyObject * poArgs)
 
 	std::string strText;
 	CPythonIME::Instance().GetText(strText, bCodePage ? true : false);
-	return Py_BuildValue("s", strText.c_str());
+	return Py_BuildLocaleStringAutoUI(strText.c_str());
 }
 
 PyObject * imeGetCodePage(PyObject * poSelf, PyObject * poArgs)
@@ -98,7 +99,7 @@ PyObject * imeGetReading(PyObject * poSelf, PyObject * poArgs)
 {
 	std::string strText;
 	CPythonIME::Instance().GetReading(strText);
-	return Py_BuildValue("s", strText.c_str());
+	return Py_BuildLocaleStringAutoUI(strText.c_str());
 }
 
 PyObject * imeGetReadingError(PyObject * poSelf, PyObject * poArgs)

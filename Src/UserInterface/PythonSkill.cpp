@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "PythonLocaleString.h"
 #include "PythonSkill.h"
 
 #include "../EterBase/Poly/Poly.h"
@@ -1544,9 +1545,9 @@ PyObject * skillGetSkillName(PyObject * poSelf, PyObject * poArgs)
 
 	if (-1 != iSkillGrade)
 		if (iSkillGrade >= 0 && iSkillGrade < CPythonSkill::SKILL_GRADE_COUNT)
-			return Py_BuildValue("s", c_pSkillData->GradeData[iSkillGrade].strName.c_str());
+			return Py_BuildLocaleStringUI(c_pSkillData->GradeData[iSkillGrade].strName.c_str());
 
-	return Py_BuildValue("s", c_pSkillData->strName.c_str());
+	return Py_BuildLocaleStringUI(c_pSkillData->strName.c_str());
 }
 
 PyObject * skillGetSkillDescription(PyObject * poSelf, PyObject * poArgs)
@@ -1559,7 +1560,7 @@ PyObject * skillGetSkillDescription(PyObject * poSelf, PyObject * poArgs)
 	if (!CPythonSkill::Instance().GetSkillData(iSkillIndex, &c_pSkillData))
 		return Py_BuildException("skill.GetSkillDescription - Failed to find skill by %d", iSkillIndex);
 
-	return Py_BuildValue("s", c_pSkillData->strDescription.c_str());
+	return Py_BuildLocaleStringUI(c_pSkillData->strDescription.c_str());
 }
 
 PyObject * skillGetSkillType(PyObject * poSelf, PyObject * poArgs)
@@ -1605,7 +1606,7 @@ PyObject * skillGetSkillConditionDescription(PyObject * poSelf, PyObject * poArg
 	if (iConditionIndex >= c_pSkillData->ConditionDataVector.size())
 		return Py_BuildValue("None");
 
-	return Py_BuildValue("s", c_pSkillData->ConditionDataVector[iConditionIndex].c_str());
+	return Py_BuildLocaleStringUI(c_pSkillData->ConditionDataVector[iConditionIndex].c_str());
 }
 
 PyObject * skillGetSkillAffectDescriptionCount(PyObject * poSelf, PyObject * poArgs)
@@ -1639,7 +1640,7 @@ PyObject * skillGetSkillAffectDescription(PyObject * poSelf, PyObject * poArgs)
 	if (!CPythonSkill::Instance().GetSkillData(iSkillIndex, &c_pSkillData))
 		return Py_BuildException("skill.GetSkillAffectDescription - Failed to find skill by %d", iSkillIndex);
 
-	return Py_BuildValue("s", c_pSkillData->GetAffectDescription(iAffectIndex, fSkillPoint));
+	return Py_BuildLocaleStringUI(c_pSkillData->GetAffectDescription(iAffectIndex, fSkillPoint));
 }
 
 PyObject * skillGetSkillCoolTime(PyObject * poSelf, PyObject * poArgs)

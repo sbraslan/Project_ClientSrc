@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "PythonUtils.h"
+#include <limits>
 #define PyLong_AsLong PyLong_AsLongLong
 #define PyLong_AsUnsignedLong PyLong_AsUnsignedLongLong
 IPythonExceptionSender * g_pkExceptionSender = nullptr;
@@ -58,32 +59,148 @@ bool PyTuple_GetObject(PyObject * poArgs, int pos, PyObject ** ret)
 	return true;
 }
 
-bool PyTuple_GetLong(PyObject * poArgs, int pos, long * ret)
+// METIN2_PY315_NUMERIC_BRIDGE_V1
+//
+// Python 2 UI code frequently relied on integer division.
+// Under Python 3 the same expressions produce float values.
+//
+// C++ APIs that semantically require integer coordinates,
+// dimensions, slots or indices therefore accept Python numeric
+// values and explicitly convert them to an integer here.
+//
+// Most importantly: never return success while a Python
+// exception is still set.
+
+static bool PyObject_ToSignedIntegerCompat(
+    PyObject* poItem,
+    long long* pValue)
 {
-	if (pos >= PyTuple_Size(poArgs))
-		return false;
+    if (!poItem || !pValue)
+    {
+        PyErr_BadInternalCall();
+        return false;
+    }
 
-	PyObject * poItem = PyTuple_GetItem(poArgs, pos);
+    PyObject* poLong =
+        PyNumber_Long(poItem);
 
-	if (!poItem)
-		return false;
+    if (!poLong)
+        return false;
 
-	*ret = PyLong_AsLong(poItem);
-	return true;
+    const long long value =
+        PyLong_AsLongLong(poLong);
+
+    Py_DECREF(poLong);
+
+    if (PyErr_Occurred())
+        return false;
+
+    *pValue = value;
+
+    return true;
 }
 
-bool PyTuple_GetLongLong(PyObject* poArgs, int pos, long long* ret)
+static bool PyObject_ToUnsignedIntegerCompat(
+    PyObject* poItem,
+    unsigned long long* pValue)
 {
-	if (pos >= PyTuple_Size(poArgs))
-		return false;
+    if (!poItem || !pValue)
+    {
+        PyErr_BadInternalCall();
+        return false;
+    }
 
-	PyObject* poItem = PyTuple_GetItem(poArgs, pos);
+    PyObject* poLong =
+        PyNumber_Long(poItem);
 
-	if (!poItem)
-		return false;
+    if (!poLong)
+        return false;
 
-	*ret = PyLong_AsLong(poItem);
-	return true;
+    const unsigned long long value =
+        PyLong_AsUnsignedLongLong(poLong);
+
+    Py_DECREF(poLong);
+
+    if (PyErr_Occurred())
+        return false;
+
+    *pValue = value;
+
+    return true;
+}
+
+bool PyTuple_GetLong(
+    PyObject* poArgs,
+    int pos,
+    long* ret)
+{
+    if (!ret)
+    {
+        PyErr_BadInternalCall();
+        return false;
+    }
+
+    if (pos < 0 || pos >= PyTuple_Size(poArgs))
+        return false;
+
+    PyObject* poItem =
+        PyTuple_GetItem(poArgs, pos);
+
+    if (!poItem)
+        return false;
+
+    long long value = 0;
+
+    if (!PyObject_ToSignedIntegerCompat(
+            poItem,
+            &value))
+        return false;
+
+    if (
+        value <
+            static_cast<long long>(
+                std::numeric_limits<long>::min())
+        ||
+        value >
+            static_cast<long long>(
+                std::numeric_limits<long>::max())
+    )
+    {
+        PyErr_SetString(
+            PyExc_OverflowError,
+            "integer does not fit C long");
+
+        return false;
+    }
+
+    *ret = static_cast<long>(value);
+
+    return true;
+}
+
+bool PyTuple_GetLongLong(
+    PyObject* poArgs,
+    int pos,
+    long long* ret)
+{
+    if (!ret)
+    {
+        PyErr_BadInternalCall();
+        return false;
+    }
+
+    if (pos < 0 || pos >= PyTuple_Size(poArgs))
+        return false;
+
+    PyObject* poItem =
+        PyTuple_GetItem(poArgs, pos);
+
+    if (!poItem)
+        return false;
+
+    return PyObject_ToSignedIntegerCompat(
+        poItem,
+        ret);
 }
 
 bool PyTuple_GetDouble(PyObject * poArgs, int pos, double * ret)
@@ -138,46 +255,145 @@ bool PyTuple_GetInteger(PyObject * poArgs, int pos, uint16_t * ret)
 	return result;
 }
 
-bool PyTuple_GetInteger(PyObject * poArgs, int pos, int * ret)
+bool PyTuple_GetInteger(
+    PyObject* poArgs,
+    int pos,
+    int* ret)
 {
-	if (pos >= PyTuple_Size(poArgs))
-		return false;
+    if (!ret)
+    {
+        PyErr_BadInternalCall();
+        return false;
+    }
 
-	PyObject * poItem = PyTuple_GetItem(poArgs, pos);
+    if (pos < 0 || pos >= PyTuple_Size(poArgs))
+        return false;
 
-	if (!poItem)
-		return false;
+    PyObject* poItem =
+        PyTuple_GetItem(poArgs, pos);
 
-	*ret = PyLong_AsLong(poItem);
-	return true;
+    if (!poItem)
+        return false;
+
+    long long value = 0;
+
+    if (!PyObject_ToSignedIntegerCompat(
+            poItem,
+            &value))
+        return false;
+
+    if (
+        value <
+            static_cast<long long>(
+                std::numeric_limits<int>::min())
+        ||
+        value >
+            static_cast<long long>(
+                std::numeric_limits<int>::max())
+    )
+    {
+        PyErr_SetString(
+            PyExc_OverflowError,
+            "integer does not fit C int");
+
+        return false;
+    }
+
+    *ret = static_cast<int>(value);
+
+    return true;
 }
 
-bool PyTuple_GetUnsignedLong(PyObject * poArgs, int pos, unsigned long * ret)
+bool PyTuple_GetUnsignedLong(
+    PyObject* poArgs,
+    int pos,
+    unsigned long* ret)
 {
-	if (pos >= PyTuple_Size(poArgs))
-		return false;
+    if (!ret)
+    {
+        PyErr_BadInternalCall();
+        return false;
+    }
 
-	PyObject * poItem = PyTuple_GetItem(poArgs, pos);
+    if (pos < 0 || pos >= PyTuple_Size(poArgs))
+        return false;
 
-	if (!poItem)
-		return false;
+    PyObject* poItem =
+        PyTuple_GetItem(poArgs, pos);
 
-	*ret = PyLong_AsUnsignedLong(poItem);
-	return true;
+    if (!poItem)
+        return false;
+
+    unsigned long long value = 0;
+
+    if (!PyObject_ToUnsignedIntegerCompat(
+            poItem,
+            &value))
+        return false;
+
+    if (
+        value >
+        static_cast<unsigned long long>(
+            std::numeric_limits<unsigned long>::max())
+    )
+    {
+        PyErr_SetString(
+            PyExc_OverflowError,
+            "integer does not fit C unsigned long");
+
+        return false;
+    }
+
+    *ret =
+        static_cast<unsigned long>(value);
+
+    return true;
 }
 
-bool PyTuple_GetUnsignedInteger(PyObject * poArgs, int pos, unsigned int * ret)
+bool PyTuple_GetUnsignedInteger(
+    PyObject* poArgs,
+    int pos,
+    unsigned int* ret)
 {
-	if (pos >= PyTuple_Size(poArgs))
-		return false;
+    if (!ret)
+    {
+        PyErr_BadInternalCall();
+        return false;
+    }
 
-	PyObject * poItem = PyTuple_GetItem(poArgs, pos);
+    if (pos < 0 || pos >= PyTuple_Size(poArgs))
+        return false;
 
-	if (!poItem)
-		return false;
+    PyObject* poItem =
+        PyTuple_GetItem(poArgs, pos);
 
-	*ret = PyLong_AsUnsignedLong(poItem);
-	return true;
+    if (!poItem)
+        return false;
+
+    unsigned long long value = 0;
+
+    if (!PyObject_ToUnsignedIntegerCompat(
+            poItem,
+            &value))
+        return false;
+
+    if (
+        value >
+        static_cast<unsigned long long>(
+            std::numeric_limits<unsigned int>::max())
+    )
+    {
+        PyErr_SetString(
+            PyExc_OverflowError,
+            "integer does not fit C unsigned int");
+
+        return false;
+    }
+
+    *ret =
+        static_cast<unsigned int>(value);
+
+    return true;
 }
 
 bool PyTuple_GetString(PyObject * poArgs, int pos, char ** ret)
@@ -197,18 +413,35 @@ bool PyTuple_GetString(PyObject * poArgs, int pos, char ** ret)
 	return true;
 }
 
-bool PyTuple_GetBoolean(PyObject * poArgs, int pos, bool * ret)
+bool PyTuple_GetBoolean(
+    PyObject* poArgs,
+    int pos,
+    bool* ret)
 {
-	if (pos >= PyTuple_Size(poArgs))
-		return false;
+    if (!ret)
+    {
+        PyErr_BadInternalCall();
+        return false;
+    }
 
-	PyObject * poItem = PyTuple_GetItem(poArgs, pos);
+    if (pos < 0 || pos >= PyTuple_Size(poArgs))
+        return false;
 
-	if (!poItem)
-		return false;
+    PyObject* poItem =
+        PyTuple_GetItem(poArgs, pos);
 
-	*ret = PyLong_AsLong(poItem) ? true : false;
-	return true;
+    if (!poItem)
+        return false;
+
+    const int truth =
+        PyObject_IsTrue(poItem);
+
+    if (truth < 0)
+        return false;
+
+    *ret = (truth != 0);
+
+    return true;
 }
 
 bool PyCallClassMemberFunc(PyObject * poClass, PyObject * poFunc, PyObject * poArgs)

@@ -93,7 +93,29 @@ bool CNetworkStream::__RecvInternalBuffer()
 			return false;
 
 		if (IsSecurityMode())
-			m_cipher.Decrypt(m_recvBuf.data() + m_recvBufInputPos, recvSize);
+		{
+			const unsigned char encryptedFirst =
+				static_cast<unsigned char>(
+					m_recvBuf[m_recvBufInputPos]);
+
+			TraceError(
+				"NET RECV DEBUG 01: encrypted recv | size=%d firstBefore=%u",
+				recvSize,
+				static_cast<unsigned int>(encryptedFirst));
+
+			m_cipher.Decrypt(
+				m_recvBuf.data() + m_recvBufInputPos,
+				recvSize);
+
+			const unsigned char decryptedFirst =
+				static_cast<unsigned char>(
+					m_recvBuf[m_recvBufInputPos]);
+
+			TraceError(
+				"NET RECV DEBUG 02: decrypt finished | size=%d firstAfter=%u",
+				recvSize,
+				static_cast<unsigned int>(decryptedFirst));
+		}
 
 		m_recvBufInputPos += recvSize;
 	}
@@ -2113,6 +2135,42 @@ bool CNetworkStream::Activate(size_t agreed_length, const void * buffer, size_t 
 
 void CNetworkStream::ActivateCipher()
 {
-	return m_cipher.set_activated(true);
+const int pendingEncryptedSize = GetRecvBufferSize();
+
+TraceError(
+"NET CIPHER DEBUG 01: ActivateCipher | pending=%d",
+pendingEncryptedSize);
+
+m_cipher.set_activated(true);
+
+if (pendingEncryptedSize > 0)
+{
+const unsigned char beforeHeader =
+static_cast<unsigned char>(
+m_recvBuf[m_recvBufOutputPos]);
+
+TraceError(
+"NET CIPHER DEBUG 02: decrypt pending begin | size=%d firstBefore=%u",
+pendingEncryptedSize,
+static_cast<unsigned int>(beforeHeader));
+
+m_cipher.Decrypt(
+m_recvBuf.data() + m_recvBufOutputPos,
+pendingEncryptedSize);
+
+const unsigned char afterHeader =
+static_cast<unsigned char>(
+m_recvBuf[m_recvBufOutputPos]);
+
+TraceError(
+"NET CIPHER DEBUG 03: decrypt pending OK | size=%d firstAfter=%u",
+pendingEncryptedSize,
+static_cast<unsigned int>(afterHeader));
+}
+else
+{
+TraceError(
+"NET CIPHER DEBUG 04: no pending encrypted bytes");
+}
 }
 #endif // _IMPROVED_PACKET_ENCRYPTION_

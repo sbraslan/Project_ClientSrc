@@ -248,7 +248,14 @@ PyObject * packGet(PyObject * poSelf, PyObject * poArgs)
 			const void * pData = nullptr;
 
 			if (CEterPackManager::Instance().Get(file, strFileName, &pData))
-				return Py_BuildValue("s#", pData, file.Size());
+				#if defined(_WIN64)
+                                // METIN2_PY315_PACK_GET_BYTES_V2
+                                return PyBytes_FromStringAndSize(
+                                        reinterpret_cast<const char*>(pData),
+                                        static_cast<Py_ssize_t>(file.Size()));
+#else
+                                return Py_BuildValue("s#", pData, file.Size());
+#endif
 		}
 	}
 
