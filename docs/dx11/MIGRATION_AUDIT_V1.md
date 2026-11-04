@@ -224,6 +224,41 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - The normal DX9 path remains the reference; no in-game DX11 rendering
   is claimed.
 
+## Opt-in x64 link and central syserr diagnostics (user evidence, 2026-11-05)
+
+- The user-provided PowerShell transcript at `64a438ac` shows successful
+  `GameLib` Release|x64 **Rebuild** with
+  `EnableDX11LODCapture=true`, followed by successful
+  `UserInterface` Release|x64 **link**, producing
+  `Src/bin/Release/x64/metin2release.exe`.
+- **Backup gate failed before build:** that output EXE did not exist at
+  the backup check; therefore
+  `metin2release_dx9_baseline_backup.exe` was **not** created.
+  A later `Get-Item` reported the missing backup. The successful
+  diagnostic build must NOT be presented as a backed-up baseline.
+  PowerShell was run interactively line-by-line so it continued despite
+  a preceding thrown error.
+- Central `client_syserr.txt` confirms an x64 Python 3.15 client
+  launched from the **game runtime folder** (`Project_Client`), which
+  differs from the MSBuild output folder (`Project_ClientSrc/Src/bin/Release/x64`).
+  Thus the log is NOT evidence that the newly linked opt-in EXE ran.
+- The syserr has **nine** `UnicodeDecodeError` tracebacks from
+  `game.py:1613` `SaveScreen`: byte `0xFC` decoded as UTF-8
+  (likely Windows narrow-path handling of `ü`). Inspect the exact
+  Python call and C++ extension before editing; preserve Unicode paths.
+- Also contains **146** `Damage is equal or below 0.` messages and
+  about **2,376** each of receive/decrypt DEBUG messages. Diagnostic
+  events are logged with `[ERROR]` level and should not all be
+  counted as crashes. The log ends with
+  `PYTHON STARTUP: RunMainScript returned true`; no native
+  crash stack is present. It does not independently prove normal exit.
+- Before real capture, back up the **actually running** game client EXE,
+  separately preserve the opt-in link artifact, verify build/runtime
+  hashes, and fix the screenshot path/encoding mismatch in a separate
+  locale-safe patch. Capture is **not yet evidenced**.
+- No claims of in-game DX11 terrain rendering or sustained performance
+  benchmarks follow from these logs.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -359,7 +394,10 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Full UserInterface Release x64 with Capture OFF builds and links metin2release.exe.
 - [x] User screenshots show D3D9 rendering world terrain, actors, UI and combat effects.
 - [ ] Verify runtime EXE identity, clean exit and syserr; collect timed FPS metrics.
-- [ ] Build/link separate opt-in test client before runtime capture.
+- [x] User opt-in x64 GameLib rebuild + UserInterface link passed.
+- [ ] Preserve known working DX9 runtime EXE: prior backup attempt FAILED.
+- [ ] Verify runtime EXE identity/hash and a clean normal DX9 exit.
+- [ ] Run isolated capture only after backup and controlled opt-in runtime verification.
 - [ ] Actual 3-LOD capture generated and validated, only after above gates.
 
 ### Gate 2 - integration boundaries
