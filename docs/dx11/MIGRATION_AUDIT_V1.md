@@ -145,6 +145,35 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
   Nothing here proves actual game terrain or DX11 in-game rendering.
 - No DX9 drawing files, server ABI, locales, Granny or SpeedTree changed.
 
+## Gate 1g — real GameLib LOD capture hook staged, **default-off** (2026-11-05)
+
+- Source hook: `Src/GameLib/MapOutdoorIndexBuffer.cpp`, after LOD 0/1/2
+  CPU index arrays/counts have been built, before the existing DX9 index
+  buffer lock/memcpy/unlock/delete loop.
+- Only `Release|x64` `gamelib.vcxproj` with
+  `/p:EnableDX11LODCapture=true` defines the per-file macro
+  `M2_DX11_LOD_CAPTURE`. The opt-in source compiles without the shared
+  PCH to avoid a per-file /D inconsistency. Default builds compile no
+  capture code; Win32 and WORLD_EDITOR paths remain unchanged.
+- Even in an opt-in build, an exact process environment value
+  `METIN2_DX11_LOD_CAPTURE_ONCE=1` is necessary. An atomic guard limits
+  recording to one attempt per process; no DX9 indices or render state are
+  rewritten.
+- The validated three-LOD snapshot is created as
+  `dx11_terrain_lod_capture.bin` in the game's **working directory**
+  via Win32 `CREATE_NEW`, so an existing file cannot be overwritten.
+  Failure is logged and does not intentionally abort legacy rendering.
+- `.gitignore` excludes this diagnostic file. Detailed gated test
+  procedure: `docs/dx11/REAL_LOD_CAPTURE_GUIDE.md`.
+- **NOT YET Windows built or runtime tested.** Real game capture is
+  explicitly deferred until default and opt-in GameLib build checks,
+  SnapshotProbe verification and baseline DX9 client regression.
+- The user's last visible PowerShell snippet at `5c23e053` confirms
+  `DX11LegacyIndexSnapshot.cpp` built into EterLib and a final success
+  marker, but does not show the independent console test's own output.
+  Re-run and collect its actual output before treating its codec tests
+  as directly evidenced.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -267,6 +296,18 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [ ] User Windows Release x64 EterLib rebuild with codec.
 - [ ] After verification: plan opt-in GameLib pre-upload capture (OFF by default).
 - [ ] Validate captured actual LOD0/1/2 streams and edge stitching.
+
+### Gate 1g - GameLib real LOD diagnostic capture (no gameplay activation)
+- [x] Hook pre-upload CPU index arrays without changing DX9 upload logic.
+- [x] Require opt-in Release x64 compile property and exact runtime environment flag.
+- [x] One-shot non-overwriting binary snapshot + Git ignore rule.
+- [x] Isolate opt-in macro from PCH, document full compile/test workflow.
+- [ ] User Windows x64 SnapshotProbe console output confirmed.
+- [ ] User default-off GameLib Release x64 build.
+- [ ] User explicitly opt-in GameLib Release x64 build.
+- [ ] Rebuild default-off GameLib after opt-in compilation.
+- [ ] Review end-to-end test client linking and DX9 baseline before runtime capture.
+- [ ] Actual 3-LOD capture generated and validated, only after above gates.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
