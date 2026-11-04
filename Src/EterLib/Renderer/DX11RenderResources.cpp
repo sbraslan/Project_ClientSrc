@@ -181,6 +181,8 @@ namespace m2::render
         desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
         desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
         desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+        desc.MaxAnisotropy = 1;
+        desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
         desc.MinLOD = 0.0f;
         desc.MaxLOD = D3D11_FLOAT32_MAX;
 
