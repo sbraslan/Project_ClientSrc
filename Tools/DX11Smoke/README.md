@@ -187,3 +187,39 @@ Repeat the last documented `DX11TerrainProbe.vcxproj` and
 `Src/EterLib/eterlib.vcxproj` x64 Release build commands after a safe
 `git fetch` + `git merge --ff-only`. Confirm both P and W keys and
 report the build log before advancing the integration gate.
+
+## Real LOD-index compatibility probe (NEW: Windows build pending)
+
+The user's screenshots verify the 17x17 **synthetic** patch in both Solid
+and Wireframe modes. They do not show actual game-map data.
+
+Read-only source audit found a crucial distinction:
+- Original `GameLib/MapOutdoorRender.cpp::SelectIndexBuffer` selects
+  **Triangle Strip** at LOD 0 and **Triangle List** at LOD 1/2.
+- Original `GameLib/MapOutdoorIndexBuffer.cpp` uses zig-zag strips with
+  degenerate connectors at LOD 0, and dedicated boundary-skirt/stitch
+  indices via `ADDLvl1*` / `ADDLvl2*` at higher LODs.
+
+`Src/EterLib/Renderer/DX11LegacyTerrainIndices.cpp` now provides a
+DX9-independent *CPU* converter. It preserves strip winding alternation
+across degenerate connectors and checks bounds/format before committing
+its output. This is **not** a live GameLib hook or a substitute for
+the original LOD1/LOD2 index buffers.
+
+`DX11TerrainProbe` now performs additional startup self-checks for LOD0
+strip parity, stitched rows, triangle lists and invalid input. The mesh
+shown on screen remains synthetic. If any check fails, the executable
+reports `Terrain mesh / LOD topology CPU self-check failed` and exits.
+
+Build from the same local `Project_ClientSrc` folder after a safe fetch
+and fast-forward merge:
+
+```powershell
+$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+& $msbuild ".\Tools\DX11Smoke\DX11TerrainProbe.vcxproj" /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+if ($LASTEXITCODE -ne 0) { throw "DX11 terrain build failed" }
+& ".\Tools\DX11Smoke\bin\x64\Release\DX11TerrainProbe.exe"
+if ($LASTEXITCODE -ne 0) { throw "DX11 terrain CPU/runtime probe failed" }
+& $msbuild ".\Src\EterLib\eterlib.vcxproj" /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+if ($LASTEXITCODE -ne 0) { throw "EterLib build failed" }
+```
