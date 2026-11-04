@@ -182,13 +182,13 @@ wireframe view. Only use this test for proving the data and GPU path.
 Real legacy orientation, patch LOD, coordinate conventions and splat layers
 must still be investigated before GameLib hooks or in-game DX11 activation.
 
-The Windows build/runtime **has NOT yet been verified for this update**.
+The user subsequently verified the 17x17 Solid/Wireframe preview screenshots and Release x64 builds.
 Repeat the last documented `DX11TerrainProbe.vcxproj` and
 `Src/EterLib/eterlib.vcxproj` x64 Release build commands after a safe
 `git fetch` + `git merge --ff-only`. Confirm both P and W keys and
 report the build log before advancing the integration gate.
 
-## Real LOD-index compatibility probe (NEW: Windows build pending)
+## Real LOD-index compatibility probe (user-verified at c9db5b2c)
 
 The user's screenshots verify the 17x17 **synthetic** patch in both Solid
 and Wireframe modes. They do not show actual game-map data.
@@ -223,3 +223,47 @@ if ($LASTEXITCODE -ne 0) { throw "DX11 terrain CPU/runtime probe failed" }
 & $msbuild ".\Src\EterLib\eterlib.vcxproj" /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
 if ($LASTEXITCODE -ne 0) { throw "EterLib build failed" }
 ```
+
+## LOD snapshot transport self-test (NEW, Windows validation pending)
+
+The user's `c9db5b2c` log confirms Release x64 terrain and EterLib builds
+passed, including the previous CPU triangle strip/list fixture checks.
+
+`Src/EterLib/Renderer/DX11LegacyIndexSnapshot.h/.cpp` provides a
+**portable CPU-only** file format for the original 3 terrain LOD index
+streams. It preserves the unmodified original indices (LOD 0 strip,
+LOD 1/2 lists), validates their bounds/topologies and protects file
+integrity with a non-cryptographic FNV-1a checksum.
+
+`Tools/DX11Smoke/DX11LODSnapshotProbe.vcxproj` builds an independent
+console executable. By default it does **only an in-memory synthetic
+roundtrip/corruption test** and does not create any files. Later, an
+explicitly captured real LOD file can be checked with:
+
+```powershell
+& ".\Tools\DX11Smoke\bin\x64\Release\DX11LODSnapshotProbe.exe" --verify ".\dx11_terrain_lod_capture.bin"
+```
+
+No capture file exists from this step. There is **no GameLib hook and no
+automatic capture**. The original CPU arrays are constructed in
+`Src/GameLib/MapOutdoorIndexBuffer.cpp::SetIndexBuffer()` then copied
+to `D3DUSAGE_WRITEONLY` GPU index buffers. We will capture from those
+CPU arrays only when a separate, reviewed opt-in diagnostic hook is
+implemented and verified. DX9 must remain unchanged in default builds.
+
+Run from the existing repository root:
+
+```powershell
+$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+& $msbuild ".\Tools\DX11Smoke\DX11LODSnapshotProbe.vcxproj" /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+if ($LASTEXITCODE -ne 0) { throw "Snapshot probe build failed" }
+& ".\Tools\DX11Smoke\bin\x64\Release\DX11LODSnapshotProbe.exe"
+if ($LASTEXITCODE -ne 0) { throw "Snapshot codec self-tests failed" }
+& $msbuild ".\Src\EterLib\eterlib.vcxproj" /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+if ($LASTEXITCODE -ne 0) { throw "EterLib build failed" }
+```
+
+Expected console lines: fixture encode/decode, LOD 0/1/2 index/triangle
+counts, corruption rejection, invalid input rejection, and a final
+`[OK] Snapshot codec self-test complete; no game files written.`
+Capture and integration stages are deliberately separate.
