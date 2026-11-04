@@ -158,3 +158,32 @@ Visual Studio Output/DebugView to read the compilation error.
 The original DX11BridgeProbe and old DX9 game source remain intact. A green
 terrain preview does not prove that the game's actual terrain, UI, Granny or
 SpeedTree renderers have been migrated.
+
+## Legacy 17x17 patch-layout adapter (NEW: not yet Windows-verified)
+
+The legacy `GameLib/TerrainPatch.h` exposes
+`HardwareTransformPatch_SSourceVertex` as position + normal
+(`D3DXVECTOR3` each); `PRTerrainLib/TerrainType.h` specifies a
+16-cell patch (17x17 vertices). The new *independent* CPU adapter is:
+
+- `Src/EterLib/Renderer/DX11LegacyTerrainPatch.h`
+- `Src/EterLib/Renderer/DX11LegacyTerrainPatch.cpp`
+
+It validates 289 tightly packed position/normal pairs, rejects non-finite
+values and zero-length normals, preserves source world-space attributes,
+and generates a **provisional level-0** 16-bit triangle mesh with generated UV.
+There are no Direct3D9 headers in this module. It does **not** yet read
+`CTerrainPatch` objects, the game's real heightmaps or textures.
+
+The existing `DX11TerrainProbe` has been updated to compile this module;
+**press P** to switch between the full synthetic terrain and a smaller
+synthetic **17x17 legacy-layout patch**. Press **W** independently for the
+wireframe view. Only use this test for proving the data and GPU path.
+Real legacy orientation, patch LOD, coordinate conventions and splat layers
+must still be investigated before GameLib hooks or in-game DX11 activation.
+
+The Windows build/runtime **has NOT yet been verified for this update**.
+Repeat the last documented `DX11TerrainProbe.vcxproj` and
+`Src/EterLib/eterlib.vcxproj` x64 Release build commands after a safe
+`git fetch` + `git merge --ff-only`. Confirm both P and W keys and
+report the build log before advancing the integration gate.
