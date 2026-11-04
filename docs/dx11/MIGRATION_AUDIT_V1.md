@@ -1,13 +1,15 @@
 # Metin2 Client - DirectX 11 Migration Audit v1
 Date: 2026-11-04
-Status: INITIAL / PARTIAL STATIC AUDIT (no build or runtime verification)
+Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 
 ## Progress recorded 2026-11-04
 
 - User-provided Windows MSBuild log: `Tools/DX11Smoke/DX11Smoke.vcxproj` compiled in Release x64, **0 errors / 0 warnings**.
 - User confirms a checker-textured triangle was displayed. This is a user-reported runtime result, not an independently reproduced run.
 - EterLib now has an optional hardware-only DX11 render device under `Src/EterLib/Renderer`, registered for x64 compilation.
-- `Tools/DX11Smoke/DX11BridgeProbe.vcxproj` compiles the same EterLib DX11 device source in isolation. **Its build/runtime result is not yet known**.
+- User-provided Windows MSBuild log: `Tools/DX11Smoke/DX11BridgeProbe.vcxproj` compiled in Release x64 with **0 errors / 0 warnings**. The user-provided screenshot shows the expected dark teal DX11 bridge window; the PowerShell command completed with exit code 0.
+- `Src/EterLib/eterlib.vcxproj` compiled in Release x64 with **0 errors / 1 warning** (existing `GrpSubImage.cpp:104` C4267, `size_t` -> `int`). The log confirms `DX11RenderDevice.cpp` included in `EterLib.lib`.
+- The bridge class uses the hardware driver type and does not fall back to WARP. Reported runtime result verifies this probe path only; there is no proof of DX11 in-game rendering yet.
 - The new DX11 device is not instantiated by the production game or selected as an active renderer. DX9 `GrpDevice` / `StateManager` are unchanged.
 
 ## Scope and source of truth
@@ -71,11 +73,13 @@ Status: INITIAL / PARTIAL STATIC AUDIT (no build or runtime verification)
 - [ ] Confirm current game starts, character login and map rendering on baseline.
 
 ### Gate 1 - standalone DX11 smoke
-- [x] Isolated x64 VS v143 smoke-test project and source committed (NOT YET BUILT).
+- [x] Isolated x64 VS v143 smoke-test project and source committed.
 - [x] User-reported Release x64 smoke build success (0 errors / 0 warnings); DX9 classes not replaced.
 - [x] User-reported checker-textured triangle displayed.
-- [ ] Compile and run DX11BridgeProbe against the EterLib DX11 source in x64.
-- [ ] Compile x64 EterLib with the optional DX11 object and confirm legacy DX9 game regressions are absent.
+- [x] User-provided x64 BridgeProbe build: 0 errors / 0 warnings; screenshot and exit status confirm clear/present path.
+- [x] User-provided x64 EterLib build: 0 errors / 1 existing warning C4267 in `GrpSubImage.cpp:104`; new DX11 object included.
+- [ ] Confirm legacy DX9 game build and gameplay regressions are absent (not tested in this checkpoint).
+- [ ] Triage old C4267 warning separately; avoid risk to image loader in renderer migration.
 - [ ] Clear screen + textured triangle + resize/minimize + device errors handled.
 - [ ] Compile shaders and report errors in logs.
 - [ ] Builds with zero errors; outputs a test screenshot.
