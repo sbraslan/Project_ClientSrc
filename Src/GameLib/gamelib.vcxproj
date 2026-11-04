@@ -1130,6 +1130,8 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="MapOutdoorIndexBuffer.cpp">
+      <!-- Opt-in diagnostic ONLY: normal Release x64 keeps this undefined. -->
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11LODCapture)'=='true'">M2_DX11_LOD_CAPTURE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
