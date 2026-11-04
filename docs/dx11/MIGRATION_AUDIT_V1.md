@@ -27,7 +27,15 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - No changes to DX9 `GrpDevice.cpp`, `StateManager.cpp`, Granny, SpeedTree,
   client/server protocol or locale.
 
-## Terrain proof checkpoint (code staged; Windows build NOT yet verified)
+## Terrain probe Windows evidence (user-reported, 2026-11-04)
+
+- The user supplied a Windows PowerShell log at `c4aa81e0`: `DX11TerrainProbe.vcxproj` Release x64 built successfully, and the executable returned normally.
+- The screenshot shows an angled **green synthetic 3D heightfield** with lighting/texture repetitions and a blue background, as designed.
+- The user's log confirms `eterlib.vcxproj` Release x64 build succeeded at the same commit.
+- These results validate the separate 3D probe, **not** Metin2's real `CTerrainPatch`, texture splatting, quadtree, character or game renderer. Wireframe toggle and resize/minimize weren't separately evidenced yet.
+- `/v:minimal` output displayed no warnings; this is not equivalent to a clean-rebuild warning audit.
+
+## Terrain proof checkpoint (source implementation recorded; standalone probe verified)
 
 - Confirmed the legacy client stores terrain as **16x16 patches**
   (`Src/PRTerrainLib/TerrainType.h`), and
@@ -44,9 +52,8 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - Extended the DX11 device with a **renderer-only** RTV access method so the
   3D test can attach a DSV without changing DX9 or the public abstraction.
 - Registered the pure CPU mesh generator in EterLib x64, not Win32.
-- **Still pending:** Windows Release x64 build, actual 3D screenshot and
-  runtime resize/wireframe tests; the code has not been compiled by this
-  assistant. No in-game terrain conversion is claimed.
+- **Confirmed by user's PowerShell log and screenshot:** Windows Release x64 3D terrain probe built and displayed expected synthetic terrain; the EterLib x64 build passed.
+- Wireframe and resize/minimize remain unverified; no in-game terrain conversion is claimed.
 - No changes to `GrpDevice.cpp`, `StateManager.cpp`, `GameLib`,
   DX9 path, server ABI, Granny, SpeedTree or locale.
 
@@ -137,8 +144,10 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Write validated CPU heightfield-to-16-bit-indexed mesh builder.
 - [x] Add isolated DX11TerrainProbe build target, keeping BridgeProbe unchanged.
 - [x] Implement depth testing, camera matrix and texture-lit 3D preview.
-- [ ] Windows x64 Release build and 3D/wireframe runtime visual test.
-- [ ] EterLib x64 build and legacy DX9 game regression test.
+- [x] User-reported Windows x64 Release terrain build and 3D visual output.
+- [ ] Wireframe toggle, resize/minimize behavior and clean shutdown regressions.
+- [x] User-reported Release x64 EterLib build succeeded at c4aa81e0.
+- [ ] Legacy DX9 game build and runtime regression test.
 - [ ] Validate resize/minimize and hardware/device loss handling.
 - [ ] After tests: design real CTerrainPatch adapter and texture splat pipeline.
 
