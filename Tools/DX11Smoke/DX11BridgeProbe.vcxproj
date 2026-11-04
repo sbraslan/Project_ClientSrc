@@ -60,6 +60,7 @@
   <ItemGroup>
     <ClCompile Include="BridgeProbe.cpp" />
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11RenderDevice.cpp" />
+    <ClCompile Include="..\..\Src\EterLib\Renderer\DX11RenderResources.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
