@@ -63,6 +63,7 @@
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11RenderResources.cpp" />
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11TerrainMesh.cpp" />
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11LegacyTerrainPatch.cpp" />
+    <ClCompile Include="..\..\Src\EterLib\Renderer\DX11LegacyTerrainIndices.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
