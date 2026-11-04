@@ -7,7 +7,9 @@
 #include <dxgi1_2.h>
 #include <wrl/client.h>
 
+#include <array>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 
 #pragma comment(lib, "d3d11.lib")
@@ -29,37 +31,47 @@ namespace
     ComPtr<ID3D11PixelShader> g_pixelShader;
     ComPtr<ID3D11InputLayout> g_inputLayout;
     ComPtr<ID3D11Buffer> g_vertexBuffer;
+    ComPtr<ID3D11ShaderResourceView> g_checkerView;
+    ComPtr<ID3D11SamplerState> g_sampler;
 
     struct Vertex
     {
         float position[3];
         float color[4];
+        float uv[2];
     };
 
     constexpr Vertex kTriangle[] =
     {
-        {{ 0.0f,  0.65f, 0.0f}, {1.0f, 0.25f, 0.15f, 1.0f}},
-        {{ 0.65f, -0.65f, 0.0f}, {0.2f, 1.0f, 0.3f, 1.0f}},
-        {{-0.65f, -0.65f, 0.0f}, {0.2f, 0.45f, 1.0f, 1.0f}},
+        {{ 0.0f,  0.75f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.0f}},
+        {{ 0.75f, -0.75f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+        {{-0.75f, -0.75f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
     };
 
+    constexpr UINT kCheckerTextureSize = 64;
+
     constexpr char kShaderSource[] = R"HLSL(
+        Texture2D CheckerTexture : register(t0);
+        SamplerState CheckerSampler : register(s0);
         struct VSInput {
             float3 position : POSITION;
             float4 color : COLOR;
+            float2 uv : TEXCOORD0;
         };
         struct VSOutput {
             float4 position : SV_POSITION;
             float4 color : COLOR;
+            float2 uv : TEXCOORD0;
         };
         VSOutput VSMain(VSInput input) {
             VSOutput result;
             result.position = float4(input.position, 1.0f);
             result.color = input.color;
+            result.uv = input.uv;
             return result;
         }
         float4 PSMain(VSOutput input) : SV_TARGET {
-            return input.color;
+            return saturate(input.color * CheckerTexture.Sample(CheckerSampler, input.uv));
         }
     )HLSL";
 
@@ -116,6 +128,56 @@ namespace
         return hr;
     }
 
+    HRESULT CreateCheckerTexture()
+    {
+        // Procedural checkerboard: no binary textures, paths or pack files required.
+        std::array<std::uint8_t, kCheckerTextureSize * kCheckerTextureSize * 4> texels{};
+        for (UINT y = 0; y < kCheckerTextureSize; ++y)
+        {
+            for (UINT x = 0; x < kCheckerTextureSize; ++x)
+            {
+                const bool light = ((x / 8) + (y / 8)) % 2 == 0;
+                const std::size_t i = (static_cast<std::size_t>(y) * kCheckerTextureSize + x) * 4;
+                texels[i + 0] = light ? 235 : 35;  // R
+                texels[i + 1] = light ? 205 : 90;  // G
+                texels[i + 2] = light ? 70  : 160; // B
+                texels[i + 3] = 255;               // A
+            }
+        }
+
+        D3D11_TEXTURE2D_DESC desc{};
+        desc.Width = kCheckerTextureSize;
+        desc.Height = kCheckerTextureSize;
+        desc.MipLevels = 1;
+        desc.ArraySize = 1;
+        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.Usage = D3D11_USAGE_IMMUTABLE;
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+        D3D11_SUBRESOURCE_DATA initial{};
+        initial.pSysMem = texels.data();
+        initial.SysMemPitch = kCheckerTextureSize * 4;
+
+        ComPtr<ID3D11Texture2D> texture;
+        HRESULT hr = g_device->CreateTexture2D(&desc, &initial, &texture);
+        if (FAILED(hr))
+            return hr;
+
+        hr = g_device->CreateShaderResourceView(texture.Get(), nullptr, &g_checkerView);
+        if (FAILED(hr))
+            return hr;
+
+        D3D11_SAMPLER_DESC sampler{};
+        sampler.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+        sampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sampler.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sampler.MinLOD = 0.0f;
+        sampler.MaxLOD = D3D11_FLOAT32_MAX;
+        return g_device->CreateSamplerState(&sampler, &g_sampler);
+    }
+
     HRESULT CreatePipeline()
     {
         ComPtr<ID3DBlob> vs;
@@ -143,6 +205,8 @@ namespace
                 D3D11_INPUT_PER_VERTEX_DATA, 0},
             {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,
                 D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
+                D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
         };
 
         hr = g_device->CreateInputLayout(
@@ -158,7 +222,10 @@ namespace
 
         D3D11_SUBRESOURCE_DATA data{};
         data.pSysMem = kTriangle;
-        return g_device->CreateBuffer(&desc, &data, &g_vertexBuffer);
+        hr = g_device->CreateBuffer(&desc, &data, &g_vertexBuffer);
+        if (FAILED(hr))
+            return hr;
+        return CreateCheckerTexture();
     }
 
     HRESULT InitializeDX11(HWND hwnd)
@@ -261,7 +328,7 @@ namespace
         viewport.MaxDepth = 1.0f;
         g_context->RSSetViewports(1, &viewport);
 
-        const UINT stride = sizeof(Vertex);
+        const UINT stride = static_cast<UINT>(sizeof(Vertex));
         const UINT offset = 0;
         ID3D11Buffer* vb = g_vertexBuffer.Get();
         g_context->IASetInputLayout(g_inputLayout.Get());
@@ -269,6 +336,10 @@ namespace
         g_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         g_context->VSSetShader(g_vertexShader.Get(), nullptr, 0);
         g_context->PSSetShader(g_pixelShader.Get(), nullptr, 0);
+        ID3D11ShaderResourceView* textureViews[] = {g_checkerView.Get()};
+        ID3D11SamplerState* samplers[] = {g_sampler.Get()};
+        g_context->PSSetShaderResources(0, 1, textureViews);
+        g_context->PSSetSamplers(0, 1, samplers);
         g_context->Draw(ARRAYSIZE(kTriangle), 0);
 
         return g_swapChain->Present(1, 0); // vsync; not a benchmark
@@ -368,6 +439,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
     g_backBufferRTV.Reset();
     g_swapChain.Reset();
     g_vertexBuffer.Reset();
+    g_checkerView.Reset();
+    g_sampler.Reset();
     g_inputLayout.Reset();
     g_vertexShader.Reset();
     g_pixelShader.Reset();
