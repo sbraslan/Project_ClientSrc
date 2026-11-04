@@ -180,6 +180,29 @@ namespace
             if (index >= vertices.size())
                 return false;
         }
+
+        m2::render::HeightField flat;
+        flat.columns = 2;
+        flat.rows = 2;
+        flat.heights = {0.0f, 0.0f, 0.0f, 0.0f};
+        if (!m2::render::DX11TerrainMesh::Build(flat, vertices, indices) ||
+            vertices.size() != 4 || indices.size() != 6)
+            return false;
+
+        for (const auto& vertex : vertices)
+        {
+            if (std::abs(vertex.normal[0]) > 0.0001f ||
+                std::abs(vertex.normal[1] - 1.0f) > 0.0001f ||
+                std::abs(vertex.normal[2]) > 0.0001f)
+                return false;
+        }
+
+        // Invalid input must be rejected without overwriting the last mesh.
+        flat.heights.pop_back();
+        if (m2::render::DX11TerrainMesh::Build(flat, vertices, indices) ||
+            vertices.size() != 4 || indices.size() != 6)
+            return false;
+
         return true;
     }
 
