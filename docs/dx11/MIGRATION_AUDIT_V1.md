@@ -259,6 +259,27 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - No claims of in-game DX11 terrain rendering or sustained performance
   benchmarks follow from these logs.
 
+## Gate B readiness: alternate-name one-shot live LOD capture
+
+- Previous Windows log at `64a438ac` confirmed the opt-in
+  `GameLib` x64 rebuild and full `UserInterface` x64 link.
+  It did NOT produce a verified preserved DX9 baseline EXE:
+  the originally attempted build-folder backup failed.
+- Runtime `client_syserr.txt` identifies the actual launched client
+  in `Project_Client/metin2release.exe`; the compiled opt-in
+  executable is in `Project_ClientSrc/Src/bin/Release/x64/`.
+- Safe next test: copy/hash-verify the **runtime** DX9 EXE first;
+  install the opt-in diagnostic EXE **under a different name** in the
+  same runtime folder; run it with the runtime folder as CWD and a
+  single-process-only environment flag; never overwrite any EXE.
+- Since alternate names may be rejected by launcher/pack assumptions,
+  do not claim a successful in-game run based only on link success.
+- **Not yet verified:** capture file generation, three real LOD
+  counts, `DX11LODSnapshotProbe.exe --verify`, live-client clean
+  exit, and no regression. All remain open gates.
+- A separate `game.py:1613 SaveScreen` narrow-path/UTF-8 traceback
+  was detected; handle it independently from terrain capture.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -377,9 +398,9 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Define bounded versioned 3-LOD snapshot codec with checksum.
 - [x] Add isolated x64 console in-memory roundtrip and malformed-data tests.
 - [x] Compile codec into x64 EterLib with no use from game renderer.
-- [ ] User Windows Release x64 DX11LODSnapshotProbe build and self-test.
-- [ ] User Windows Release x64 EterLib rebuild with codec.
-- [ ] After verification: plan opt-in GameLib pre-upload capture (OFF by default).
+- [x] User Windows Release x64 DX11LODSnapshotProbe build and self-test (all fixture/corruption tests).
+- [x] User Windows Release x64 EterLib build passed with codec.
+- [x] Opt-in GameLib pre-upload capture implemented, built and linked; not yet run.
 - [ ] Validate captured actual LOD0/1/2 streams and edge stitching.
 
 ### Gate 1g - GameLib real LOD diagnostic capture (no gameplay activation)
@@ -398,6 +419,7 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [ ] Preserve known working DX9 runtime EXE: prior backup attempt FAILED.
 - [ ] Verify runtime EXE identity/hash and a clean normal DX9 exit.
 - [ ] Run isolated capture only after backup and controlled opt-in runtime verification.
+- [ ] Run alternate-name copied diagnostic EXE; verify original runtime EXE SHA256 unchanged.
 - [ ] Actual 3-LOD capture generated and validated, only after above gates.
 
 ### Gate 2 - integration boundaries
@@ -426,4 +448,4 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [JTX patch diff](https://github.com/sbraslan/Project_Grafik/blob/import/jtx-v1.6-original/1/jettyx_106.diff)
 - [JTX updated terrain shader](https://github.com/sbraslan/Project_Grafik/blob/import/jtx-v1.6-original/2/FULL_106/After/GameLib/terrainShadowsPS.h)
 
-**Checkpoint:** Synthetic DX11 probes and their x64 builds are confirmed by user logs/screenshots. The real Metin2 DX9 renderer remains active; actual in-game DX11 rendering and the new snapshot codec's Windows build are not yet verified.
+**Checkpoint:** Synthetic DX11 tests, snapshot codec tests and both regular/opt-in x64 client link are evidenced by Windows logs. The real game remains on DX9; the actual real-LOD capture and in-game DX11 terrain rendering remain UNVERIFIED.
