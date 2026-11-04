@@ -174,6 +174,29 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
   Re-run and collect its actual output before treating its codec tests
   as directly evidenced.
 
+## Gate 1g / DX9 full-client build verification (user PowerShell evidence, 2026-11-05)
+
+- At `5277089e`, user supplied complete `DX11LODSnapshotProbe.exe` output:
+  Encode, Decode, preserve original LOD bytes, LOD 0/1/2 conversion,
+  checksum corruption rejection and invalid-source preservation all passed.
+- User supplied successful `EterLib` Release x64 build; `GameLib`
+  Release x64 default-off build; opt-in
+  `/p:EnableDX11LODCapture=true` GameLib build; and full
+  `/t:Rebuild /p:EnableDX11LODCapture=false` restoration.
+  This proves compile/link of static library objects, **not** an opt-in
+  `metin2release.exe` end-to-end link or game capture.
+- A subsequent user PowerShell log shows a clean `git status --short`
+  and successful **full UserInterface Release x64** build with
+  `/p:EnableDX11LODCapture=false`. All dependent projects compiled and
+  the output `Src/bin/Release/x64/metin2release.exe` was produced.
+- **Runtime DX9 login, character/world loading, map rendering, exit and
+  syserr checks are still pending.** The client executable was built but
+  user has not yet supplied evidence of running it in its game runtime
+  directory with pack/locale assets.
+- The real LOD capture file has **not** been generated or validated yet.
+  The diagnostic remains default-off. Do not run capture before the DX9
+  runtime baseline and a successfully linked opt-in test EXE are verified.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -302,11 +325,13 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Require opt-in Release x64 compile property and exact runtime environment flag.
 - [x] One-shot non-overwriting binary snapshot + Git ignore rule.
 - [x] Isolate opt-in macro from PCH, document full compile/test workflow.
-- [ ] User Windows x64 SnapshotProbe console output confirmed.
-- [ ] User default-off GameLib Release x64 build.
-- [ ] User explicitly opt-in GameLib Release x64 build.
-- [ ] Rebuild default-off GameLib after opt-in compilation.
-- [ ] Review end-to-end test client linking and DX9 baseline before runtime capture.
+- [x] User Windows x64 SnapshotProbe console passed (all encode/decode/corruption checks).
+- [x] User default-off GameLib Release x64 build passed.
+- [x] User explicitly opt-in GameLib Release x64 build passed.
+- [x] User rebuilt default-off GameLib after opt-in compilation.
+- [x] Full UserInterface Release x64 with Capture OFF builds and links metin2release.exe.
+- [ ] Run DX9 baseline: login, enter world/map, exit and inspect syserr.
+- [ ] Build/link separate opt-in test client before runtime capture.
 - [ ] Actual 3-LOD capture generated and validated, only after above gates.
 
 ### Gate 2 - integration boundaries
