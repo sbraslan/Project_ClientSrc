@@ -12,6 +12,7 @@
 #include "../../Src/EterLib/Renderer/DX11RenderResources.h"
 #include "../../Src/EterLib/Renderer/DX11TerrainMesh.h"
 #include "../../Src/EterLib/Renderer/DX11LegacyTerrainPatch.h"
+#include "../../Src/EterLib/Renderer/DX11LegacyTerrainIndices.h"
 
 #include <array>
 #include <cmath>
@@ -240,6 +241,57 @@ namespace
             return false;
         return vertices.size() == DX11LegacyTerrainPatch::kVertexCount &&
                indices.size() == DX11LegacyTerrainPatch::kIndexCount;
+    }
+
+    bool ValidateLegacyIndexTopology()
+    {
+        using m2::render::DX11LegacyTerrainIndices;
+        using m2::render::LegacyTerrainPrimitive;
+
+        // First four LOD0 strip indices match the original terrain grid:
+        // 0, rowStride(17), 1, rowStride(17)+1.
+        constexpr std::uint16_t strip[] = {0, 17, 1, 18};
+        std::vector<std::uint16_t> result;
+        if (!DX11LegacyTerrainIndices::ToTriangleList(
+                strip, ARRAYSIZE(strip), 289,
+                LegacyTerrainPrimitive::TriangleStrip, result))
+            return false;
+        if (result != std::vector<std::uint16_t>{0, 17, 1, 1, 17, 18})
+            return false;
+
+        // Real strip rows use repeated indices as degenerate connectors.
+        // Parity must be preserved across every skipped triangle.
+        constexpr std::uint16_t stitched[] = {0, 1, 2, 2, 2, 3, 4, 5};
+        if (!DX11LegacyTerrainIndices::ToTriangleList(
+                stitched, ARRAYSIZE(stitched), 289,
+                LegacyTerrainPrimitive::TriangleStrip, result))
+            return false;
+        if (result != std::vector<std::uint16_t>{
+                0, 1, 2, 2, 3, 4, 4, 3, 5})
+            return false;
+
+        constexpr std::uint16_t list[] = {0, 17, 1, 1, 17, 18};
+        if (!DX11LegacyTerrainIndices::ToTriangleList(
+                list, ARRAYSIZE(list), 289,
+                LegacyTerrainPrimitive::TriangleList, result))
+            return false;
+        if (result != std::vector<std::uint16_t>{0, 17, 1, 1, 17, 18})
+            return false;
+
+        // Reject malformed and out-of-range input, retaining the last mesh.
+        constexpr std::uint16_t bad[] = {0, 17, 289};
+        if (DX11LegacyTerrainIndices::ToTriangleList(
+                bad, ARRAYSIZE(bad), 289,
+                LegacyTerrainPrimitive::TriangleList, result) ||
+            result != std::vector<std::uint16_t>{0, 17, 1, 1, 17, 18})
+            return false;
+
+        if (DX11LegacyTerrainIndices::ToTriangleList(
+                list, ARRAYSIZE(list) - 1, 289,
+                LegacyTerrainPrimitive::TriangleList, result))
+            return false;
+
+        return result == std::vector<std::uint16_t>{0, 17, 1, 1, 17, 18};
     }
 
     bool ValidateTerrainBuilder()
@@ -560,9 +612,9 @@ namespace
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
 {
-    if (!ValidateTerrainBuilder())
+    if (!ValidateTerrainBuilder() || !ValidateLegacyIndexTopology())
     {
-        MessageBoxW(nullptr, L"Terrain mesh CPU self-check failed.", kTitle,
+        MessageBoxW(nullptr, L"Terrain mesh / LOD topology CPU self-check failed.", kTitle,
                     MB_OK | MB_ICONERROR);
         return 1;
     }
