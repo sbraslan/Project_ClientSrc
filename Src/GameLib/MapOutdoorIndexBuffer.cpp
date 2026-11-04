@@ -1,6 +1,87 @@
 ﻿#include "StdAfx.h"
 #include "MapOutdoor.h"
 
+// Completely dormant unless BOTH a dedicated x64 compile switch and a
+// one-shot runtime environment variable are explicitly enabled. Captures
+// CPU-side LOD indices before existing DX9 WRITEONLY buffer upload.
+#if defined(M2_DX11_LOD_CAPTURE) && defined(_WIN64) && !defined(WORLD_EDITOR)
+#include "../EterLib/Renderer/DX11LegacyIndexSnapshot.h"
+#include <array>
+#include <atomic>
+#include <vector>
+
+namespace
+{
+    void TryCaptureOriginalTerrainLOD(
+        const std::array<m2::render::LegacyIndexView, 3>& original)
+    {
+        char enabled[2]{};
+        // Only the exact value "1" enables capture; no configuration file.
+        if (::GetEnvironmentVariableA(
+                "METIN2_DX11_LOD_CAPTURE_ONCE", enabled,
+                static_cast<DWORD>(sizeof(enabled))) != 1 || enabled[0] != '1')
+            return;
+
+        // SetIndexBuffer is allowed to be called more than once; only one
+        // capture attempt per process. Failed captures never affect DX9.
+        static std::atomic<bool> attempted{false};
+        if (attempted.exchange(true))
+            return;
+
+        constexpr char filename[] = "dx11_terrain_lod_capture.bin";
+
+        try
+        {
+            std::vector<std::uint8_t> bytes;
+            if (!m2::render::DX11LegacyIndexSnapshot::Encode(original, bytes))
+            {
+                TraceError("[DX11 LOD CAPTURE] validation failed; DX9 unchanged");
+                return;
+            }
+
+            // CREATE_NEW avoids overwriting an existing diagnostic file.
+            HANDLE file = ::CreateFileA(
+                filename, GENERIC_WRITE, FILE_SHARE_READ, nullptr,
+                CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+            if (file == INVALID_HANDLE_VALUE)
+            {
+                TraceError("[DX11 LOD CAPTURE] cannot create %s; Win32=%lu",
+                           filename, ::GetLastError());
+                return;
+            }
+
+            DWORD written = 0;
+            const bool successfulWrite =
+                bytes.size() <= MAXDWORD &&
+                ::WriteFile(file, bytes.data(),
+                            static_cast<DWORD>(bytes.size()),
+                            &written, nullptr) != FALSE &&
+                static_cast<std::size_t>(written) == bytes.size();
+            const bool successfulClose = ::CloseHandle(file) != FALSE;
+
+            if (!successfulWrite || !successfulClose)
+            {
+                ::DeleteFileA(filename);
+                TraceError("[DX11 LOD CAPTURE] write failed; DX9 unchanged");
+                return;
+            }
+
+            TraceError("[DX11 LOD CAPTURE] created %s (%u bytes, LOD0=%u LOD1=%u LOD2=%u)",
+                       filename, static_cast<unsigned>(written),
+                       static_cast<unsigned>(original[0].count),
+                       static_cast<unsigned>(original[1].count),
+                       static_cast<unsigned>(original[2].count));
+        }
+        catch (...)
+        {
+            // Diagnostics are best-effort: never make the original DX9 map
+            // loader fail because snapshot allocation or I/O failed.
+            TraceError("[DX11 LOD CAPTURE] exception; DX9 unchanged");
+        }
+    }
+}
+#endif
+
 void CMapOutdoor::SetIndexBuffer()
 {
 	void * pIndices;
@@ -188,6 +269,18 @@ void CMapOutdoor::SetIndexBuffer()
 				count2[2] += 4;
 		}
 	}
+
+#if defined(M2_DX11_LOD_CAPTURE) && defined(_WIN64) && !defined(WORLD_EDITOR)
+	// Capture the original three index arrays BEFORE the normal GPU upload
+	// and delete[]. Never change index order, counts or rendering state.
+	static_assert(TERRAINPATCH_LODMAX == 3, "Snapshot format expects 3 LODs");
+	const std::array<m2::render::LegacyIndexView, 3> originalLOD{{
+		{m_pwaIndices[0], count[0]},
+		{m_pwaIndices[1], count[1]},
+		{m_pwaIndices[2], count[2]}
+	}};
+	TryCaptureOriginalTerrainLOD(originalLOD);
+#endif
 
 	for (uci = 0; uci < TERRAINPATCH_LODMAX; ++uci)
 	{
