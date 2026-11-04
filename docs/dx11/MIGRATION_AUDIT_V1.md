@@ -197,6 +197,33 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
   The diagnostic remains default-off. Do not run capture before the DX9
   runtime baseline and a successfully linked opt-in test EXE are verified.
 
+## DX9 in-game baseline screenshots (2026-11-05, user evidence)
+
+- The user provided **seven** gameplay screenshots with an OSD explicitly
+  showing **D3D9**, not D3D11. Rendered scenes include: an extremely
+  crowded mob/item-label cluster, open terrain, character/world UI,
+  enemy models and labels, minimap, and combat particle/skill effects.
+- Approximate *instantaneous* observed OSD values in screenshot order:
+  3 FPS / 461.8 ms, 24 FPS / 37.5 ms, 61 FPS / 16.2 ms,
+  61 FPS / 17.1 ms, 60 FPS / 17.2 ms, 57 FPS / 14.5 ms,
+  59 FPS / 19.1 ms. These are screenshot readings, not a timed
+  benchmark or statistically valid comparison. OSD FPS/frametime
+  snapshots can use different averaging periods.
+- **Observed working:** character/world scene, map terrain and textures,
+  multiple enemy models/labels, UI and visible combat effects.
+  **Not verified:** whether the screenshots were captured using the exact
+  just-built `metin2release.exe` file, prolonged stability, normal exit,
+  current `syserr`, FPS cap or controlled performance methodology.
+- The first crowded screenshots show very low FPS. GPU OSD utilization
+  appears relatively modest, but no CPU-core-level or draw-call data was
+  provided; do not diagnose a CPU bottleneck as fact.
+- **Next gate:** capture a safe baseline report and build/link a
+  `Release|x64` opt-in diagnostic client with
+  `EnableDX11LODCapture=true` but environment flag **unset**. Do not
+  run real LOD capture before this opt-in full-link check.
+- The normal DX9 path remains the reference; no in-game DX11 rendering
+  is claimed.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -330,7 +357,8 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] User explicitly opt-in GameLib Release x64 build passed.
 - [x] User rebuilt default-off GameLib after opt-in compilation.
 - [x] Full UserInterface Release x64 with Capture OFF builds and links metin2release.exe.
-- [ ] Run DX9 baseline: login, enter world/map, exit and inspect syserr.
+- [x] User screenshots show D3D9 rendering world terrain, actors, UI and combat effects.
+- [ ] Verify runtime EXE identity, clean exit and syserr; collect timed FPS metrics.
 - [ ] Build/link separate opt-in test client before runtime capture.
 - [ ] Actual 3-LOD capture generated and validated, only after above gates.
 
