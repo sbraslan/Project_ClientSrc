@@ -1132,6 +1132,8 @@
     <ClCompile Include="MapOutdoorIndexBuffer.cpp">
       <!-- Opt-in diagnostic ONLY: normal Release x64 keeps this undefined. -->
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11LODCapture)'=='true'">M2_DX11_LOD_CAPTURE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- Per-file /D diagnostic flag must not reuse a differently compiled PCH. -->
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11LODCapture)'=='true'">NotUsing</PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
