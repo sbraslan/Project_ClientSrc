@@ -63,7 +63,8 @@ Status: INITIAL / PARTIAL STATIC AUDIT (no build or runtime verification)
 - [ ] Confirm current game starts, character login and map rendering on baseline.
 
 ### Gate 1 - standalone DX11 smoke
-- [ ] Dedicated buildable x64 VS v143 target; **no** `GrpDevice.cpp` or `StateManager.cpp` replacement.
+- [x] Isolated x64 VS v143 smoke-test project and source committed (NOT YET BUILT).
+- [ ] Verify x64 VS v143 target builds; **no** `GrpDevice.cpp` or `StateManager.cpp` replacement.
 - [ ] Clear screen + textured triangle + resize/minimize + device errors handled.
 - [ ] Compile shaders and report errors in logs.
 - [ ] Builds with zero errors; outputs a test screenshot.
