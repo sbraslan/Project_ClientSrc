@@ -27,6 +27,29 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - No changes to DX9 `GrpDevice.cpp`, `StateManager.cpp`, Granny, SpeedTree,
   client/server protocol or locale.
 
+## Terrain proof checkpoint (code staged; Windows build NOT yet verified)
+
+- Confirmed the legacy client stores terrain as **16x16 patches**
+  (`Src/PRTerrainLib/TerrainType.h`), and
+  `HardwareTransformPatch_SSourceVertex` contains position and normal
+  (`Src/GameLib/TerrainPatch.h`). The production patch renderer, texture
+  splatting and quadtree live in `GameLib`.
+- Added an independent **CPU-only** `DX11TerrainMesh` heightfield-to-indexed
+  triangles builder. 16-bit index limits, grid validation, normals and UV
+  generation are explicit.
+- Added `Tools/DX11Smoke/DX11TerrainProbe.vcxproj` and `TerrainProbe.cpp`:
+  procedural 3D terrain, LH view/perspective camera (DirectXMath), depth
+  buffer (D24S8), resize rebuilding, HLSL SM5 lighting/texture pass, wireframe
+  toggle (W), and CPU correctness self-tests.
+- Extended the DX11 device with a **renderer-only** RTV access method so the
+  3D test can attach a DSV without changing DX9 or the public abstraction.
+- Registered the pure CPU mesh generator in EterLib x64, not Win32.
+- **Still pending:** Windows Release x64 build, actual 3D screenshot and
+  runtime resize/wireframe tests; the code has not been compiled by this
+  assistant. No in-game terrain conversion is claimed.
+- No changes to `GrpDevice.cpp`, `StateManager.cpp`, `GameLib`,
+  DX9 path, server ABI, Granny, SpeedTree or locale.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -108,6 +131,16 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [ ] User Windows Release x64 EterLib rebuild (pending).
 - [ ] Characterize resize, fullscreen/minimize and device removal after new resource layer.
 - [ ] Confirm DX9 production client build and runtime unaffected.
+
+### Gate 1c - standalone 3D heightfield preview
+- [x] Inspect source terrain vertex format and 16x16 legacy patch size.
+- [x] Write validated CPU heightfield-to-16-bit-indexed mesh builder.
+- [x] Add isolated DX11TerrainProbe build target, keeping BridgeProbe unchanged.
+- [x] Implement depth testing, camera matrix and texture-lit 3D preview.
+- [ ] Windows x64 Release build and 3D/wireframe runtime visual test.
+- [ ] EterLib x64 build and legacy DX9 game regression test.
+- [ ] Validate resize/minimize and hardware/device loss handling.
+- [ ] After tests: design real CTerrainPatch adapter and texture splat pipeline.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
