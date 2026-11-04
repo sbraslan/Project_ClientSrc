@@ -82,6 +82,41 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
   quadtree and splat textures are **not** integrated. Do not activate
   DX11 for real gameplay.
 
+## 17x17 P/W mode confirmation (user screenshots)
+
+- User supplied separate screenshot captions `17x17 Patch Preview | Solid`
+  and `17x17 Patch Preview | Wireframe`. Both show the expected synthetic
+  17x17 heightfield; the wireframe visibly contains triangle edges.
+- This verifies the P/W **visual modes** and 289-vertex candidate patch
+  preview. It does not establish that live map vertex sources or texture
+  splatting are integrated. Resize/minimize and DX9 runtime parity are
+  still awaiting dedicated tests.
+
+## Real terrain index topology audit and prototype (new code, NOT yet built)
+
+- `Src/GameLib/MapOutdoorRender.cpp::SelectIndexBuffer`: LOD 0 uses
+  `D3DPT_TRIANGLESTRIP`; LOD 1/2 use `D3DPT_TRIANGLELIST`.
+- `Src/GameLib/MapOutdoorIndexBuffer.cpp::SetIndexBuffer`: creates three
+  16-bit GPU index buffers. LOD 0 zig-zags across rows with repeated
+  degenerate connector indices. LOD 1/2 are assembled by special boundary
+  helpers (`ADDLvl1*`, `ADDLvl2*`) rather than simple downsampling.
+  Do not replace original index streams with our provisional regular
+  512-triangle grid for game rendering.
+- `Src/GameLib/MapOutdoorRenderHTP.cpp`: hardware terrain rendering uses
+  distance-based LOD selection and a multipass texture/splat-alpha setup.
+  A single grass texture is insufficient for game-compatible rendering.
+- Added CPU-only `Src/EterLib/Renderer/DX11LegacyTerrainIndices.h/.cpp`
+  to validate and convert original DX9 strip/list index streams to
+  16-bit triangle lists, preserving strip winding parity even over
+  degenerate row connectors, and leaving outputs intact on invalid input.
+- The *existing* `DX11TerrainProbe` runs isolated CPU self-tests for
+  strip parity, stitched rows, triangle-list conversion, invalid indices
+  and output immutability before creating the test window.
+- `DX11TerrainProbe.vcxproj` and x64-only `eterlib.vcxproj` compile this
+  module. **No GameLib hook and no game renderer switch exists yet.**
+- **Windows x64 build/runtime for this new module: PENDING.** The visual
+  screenshots only verified the previous `a73da1fe` P/W preview.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -182,10 +217,18 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Add synthetic 17x17 patch preview to existing terrain probe (P key).
 - [x] Register adapter only on x64 EterLib and standalone terrain probe.
 - [x] User Windows Release x64 build passed at a9df3ba6; original terrain screenshot received.
-- [ ] Window title proves 17x17 patch (P), and wireframe (W), after new build.
+- [x] User screenshots confirm 17x17 Solid and 17x17 Wireframe P/W views.
 - [ ] Resize/minimize and recovery behavior verified after P/W changes.
 - [ ] Verify actual patch source layout, axis/handedness, normal orientation and LOD index topology in GameLib.
 - [ ] Prepare real CTerrainPatch ingestion and splat layering **after** verification; no activation before DX9 regressions.
+
+### Gate 1e - actual topology preservation (CPU-only)
+- [x] Audit all 3 real GameLib LOD index formats and special boundary helpers.
+- [x] Add legacy strip/list to triangle-list conversion with validation.
+- [x] Add strip parity/connector and invalid-data regression tests.
+- [ ] User Windows x64 Release build and terrain probe runtime pass for this new module.
+- [ ] Verify actual map vertex capture and texture splat coordinates without mutating DX9 rendering.
+- [ ] Cross-check LOD edge stitching/orientation against captured legacy streams.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
