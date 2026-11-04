@@ -72,8 +72,12 @@ if ($LASTEXITCODE -ne 0) { throw "DX11BridgeProbe build failed" }
 & ".\Tools\DX11Smoke\bin\x64\Release\DX11BridgeProbe.exe"
 ```
 
-Expected: **solid dark teal window** (not checker triangle), with working
-resize, minimize/restore and clean close. The hardware DX11 renderer in EterLib
+Expected after GPU resources update: **solid dark teal background with a
+centered gold-and-blue checkerboard square**, drawn using an immutable indexed
+quad, 16-bit index buffer, RGBA8 texture, SM5 shaders and explicit DX11 states.
+Resize, minimize/restore and close should still work. The previous
+solid-teal-only BridgeProbe was verified by the user; this *new* indexed
+resource scene has NOT yet been compiled or run. The hardware DX11 renderer in EterLib
 does **not** silently fall back to WARP. If it fails, collect the HRESULT from
 the Visual Studio Debug Output and do not enable DX11 in the main client.
 
@@ -86,3 +90,30 @@ Optional: independently compile the x64 EterLib static library in VS2022:
 The existing `build-smoke.ps1` is optional. If Windows blocks unsigned .ps1
 scripts, use the `MSBuild.exe` command directly; do not change system-wide
 PowerShell execution policy just to run this test.
+
+## Resource layer phase (pending test)
+
+Source of truth:
+- `Src/EterLib/Renderer/DX11RenderResources.h`
+- `Src/EterLib/Renderer/DX11RenderResources.cpp`
+
+This module compiles GPU vertex/index buffers, RGBA8 shader resource views,
+Shader Model 5.0 vertex/pixel shaders and a point sampler. Both
+`DX11BridgeProbe.vcxproj` and the x64 `eterlib.vcxproj` compile the shared
+resource implementation (no need for an additional folder or repository).
+
+From the same project directory, run the two build checks again:
+
+```powershell
+$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+& $msbuild ".\Tools\DX11Smoke\DX11BridgeProbe.vcxproj" /m /p:Configuration=Release /p:Platform=x64
+if ($LASTEXITCODE -ne 0) { throw "DX11BridgeProbe failed" }
+& ".\Tools\DX11Smoke\bin\x64\Release\DX11BridgeProbe.exe"
+if ($LASTEXITCODE -ne 0) { throw "DX11BridgeProbe runtime failed" }
+& $msbuild ".\Src\EterLib\eterlib.vcxproj" /m /p:Configuration=Release /p:Platform=x64
+if ($LASTEXITCODE -ne 0) { throw "EterLib build failed" }
+```
+
+The bridge test uses the hardware backend, **not** WARP. Success here
+still does not imply that Metin2 gameplay, Granny, SpeedTree, locale,
+networking or UI have been ported to DX11.
