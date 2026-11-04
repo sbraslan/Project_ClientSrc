@@ -7,6 +7,7 @@
 #include "../../Src/EterLib/Renderer/DX11RenderDevice.h"
 #include "../../Src/EterLib/Renderer/DX11RenderResources.h"
 #include <array>
+#include <cstddef>
 #include <cstdint>
 
 namespace
