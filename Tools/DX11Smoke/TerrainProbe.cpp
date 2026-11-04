@@ -11,6 +11,7 @@
 #include "../../Src/EterLib/Renderer/DX11RenderDevice.h"
 #include "../../Src/EterLib/Renderer/DX11RenderResources.h"
 #include "../../Src/EterLib/Renderer/DX11TerrainMesh.h"
+#include "../../Src/EterLib/Renderer/DX11LegacyTerrainPatch.h"
 
 #include <array>
 #include <cmath>
@@ -24,12 +25,13 @@ using Microsoft::WRL::ComPtr;
 namespace
 {
     constexpr wchar_t kClassName[] = L"Metin2DX11TerrainProbe";
-    constexpr wchar_t kTitle[] = L"Metin2 DX11 - 3D Terrain Probe (W: Wireframe)";
+    constexpr wchar_t kTitle[] = L"Metin2 DX11 - Terrain (W: Wireframe, P: 17x17 Patch Preview)";
     constexpr UINT kGridSide = 49;
     constexpr float kCellSize = 0.5f;
 
     m2::render::DX11RenderDevice g_renderer;
     m2::render::DX11MeshBuffers g_mesh;
+    m2::render::DX11MeshBuffers g_patchMesh;
     m2::render::DX11Texture g_grass;
     m2::render::DX11ShaderPipeline g_pipeline;
     ComPtr<ID3D11Buffer> g_sceneConstants;
@@ -85,6 +87,7 @@ namespace
 
     bool g_ready = false;
     bool g_wireframe = false;
+    bool g_patchPreview = false;
 
     constexpr char kTerrainShader[] = R"HLSL(
         cbuffer Scene : register(b0)
@@ -163,6 +166,82 @@ namespace
         return field;
     }
 
+    bool MakeLegacyPatchPreview(
+        std::vector<m2::render::TerrainVertex>& vertices,
+        std::vector<std::uint16_t>& indices)
+    {
+        using m2::render::DX11LegacyTerrainPatch;
+
+        m2::render::HeightField heightfield;
+        heightfield.columns = DX11LegacyTerrainPatch::kPatchSide;
+        heightfield.rows = DX11LegacyTerrainPatch::kPatchSide;
+        heightfield.cellSize = 1.2f;
+        heightfield.textureRepeats = 2.0f;
+        heightfield.heights.resize(DX11LegacyTerrainPatch::kVertexCount);
+
+        for (std::uint32_t z = 0; z < heightfield.rows; ++z)
+        {
+            for (std::uint32_t x = 0; x < heightfield.columns; ++x)
+            {
+                const float fx = (static_cast<float>(x) - 8.0f) * heightfield.cellSize;
+                const float fz = (static_cast<float>(z) - 8.0f) * heightfield.cellSize;
+                heightfield.heights[static_cast<std::size_t>(z) * heightfield.columns + x] =
+                    2.0f * std::exp(-(fx * fx + fz * fz) / 28.0f) +
+                    0.25f * std::sin(fx * 0.6f);
+            }
+        }
+
+        std::vector<m2::render::TerrainVertex> sourceVertices;
+        std::vector<std::uint16_t> sourceIndices;
+        if (!m2::render::DX11TerrainMesh::Build(
+                heightfield, sourceVertices, sourceIndices))
+            return false;
+
+        std::vector<m2::render::LegacyPatchVertex> source(
+            DX11LegacyTerrainPatch::kVertexCount);
+        for (std::size_t i = 0; i < source.size(); ++i)
+        {
+            for (unsigned axis = 0; axis < 3; ++axis)
+            {
+                source[i].position[axis] = sourceVertices[i].position[axis];
+                source[i].normal[axis] = sourceVertices[i].normal[axis];
+            }
+        }
+
+        if (!DX11LegacyTerrainPatch::Convert(
+                source.data(), source.size(), 2.0f, vertices, indices))
+            return false;
+
+        if (vertices.size() != DX11LegacyTerrainPatch::kVertexCount ||
+            indices.size() != DX11LegacyTerrainPatch::kIndexCount)
+            return false;
+
+        // Cross-check that the adapter preserved world-space vertex data.
+        for (std::size_t i = 0; i < source.size(); ++i)
+        {
+            for (unsigned axis = 0; axis < 3; ++axis)
+            {
+                if (vertices[i].position[axis] != source[i].position[axis] ||
+                    vertices[i].normal[axis] != source[i].normal[axis])
+                    return false;
+            }
+        }
+        for (const std::uint16_t index : indices)
+        {
+            if (index >= vertices.size())
+                return false;
+        }
+
+        // Invalid normal must be rejected without mutating the output.
+        for (float& component : source.front().normal)
+            component = 0.0f;
+        if (DX11LegacyTerrainPatch::Convert(
+                source.data(), source.size(), 2.0f, vertices, indices))
+            return false;
+        return vertices.size() == DX11LegacyTerrainPatch::kVertexCount &&
+               indices.size() == DX11LegacyTerrainPatch::kIndexCount;
+    }
+
     bool ValidateTerrainBuilder()
     {
         const m2::render::HeightField field = CreateTestHeights();
@@ -203,7 +282,9 @@ namespace
             vertices.size() != 4 || indices.size() != 6)
             return false;
 
-        return true;
+        std::vector<m2::render::TerrainVertex> patchVertices;
+        std::vector<std::uint16_t> patchIndices;
+        return MakeLegacyPatchPreview(patchVertices, patchIndices);
     }
 
     HRESULT CreateTerrain()
@@ -224,6 +305,20 @@ namespace
             static_cast<UINT>(sizeof(m2::render::TerrainVertex)),
             static_cast<UINT>(vertices.size()), indices.data(),
             static_cast<UINT>(indices.size()), g_mesh);
+        if (FAILED(hr))
+            return hr;
+
+        // Secondary 17x17 *synthetic* legacy-layout patch preview.
+        // The real GameLib patch/LOD/splat source is not connected.
+        std::vector<m2::render::TerrainVertex> patchVertices;
+        std::vector<std::uint16_t> patchIndices;
+        if (!MakeLegacyPatchPreview(patchVertices, patchIndices))
+            return E_FAIL;
+        hr = DX11RenderResources::CreateImmutableMesh(
+            device, patchVertices.data(),
+            static_cast<UINT>(sizeof(m2::render::TerrainVertex)),
+            static_cast<UINT>(patchVertices.size()), patchIndices.data(),
+            static_cast<UINT>(patchIndices.size()), g_patchMesh);
         if (FAILED(hr))
             return hr;
 
@@ -319,6 +414,7 @@ namespace
         g_sampler.Reset();
         g_grass.Reset();
         g_pipeline.Reset();
+        g_patchMesh.Reset();
         g_mesh.Reset();
     }
 
@@ -372,10 +468,12 @@ namespace
         context->OMSetDepthStencilState(g_depthState.Get(), 0);
         context->RSSetState(g_wireframe ? g_wire.Get() : g_solid.Get());
 
-        ID3D11Buffer* vb = g_mesh.vertices.Get();
+        const m2::render::DX11MeshBuffers& active =
+            g_patchPreview ? g_patchMesh : g_mesh;
+        ID3D11Buffer* vb = active.vertices.Get();
         const UINT offset = 0;
-        context->IASetVertexBuffers(0, 1, &vb, &g_mesh.stride, &offset);
-        context->IASetIndexBuffer(g_mesh.indices.Get(), DXGI_FORMAT_R16_UINT, 0);
+        context->IASetVertexBuffers(0, 1, &vb, &active.stride, &offset);
+        context->IASetIndexBuffer(active.indices.Get(), DXGI_FORMAT_R16_UINT, 0);
         context->IASetInputLayout(g_pipeline.inputLayout.Get());
         context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -389,7 +487,7 @@ namespace
         context->PSSetShaderResources(0, 1, &texture);
         context->PSSetSamplers(0, 1, &sampler);
 
-        context->DrawIndexed(g_mesh.indexCount, 0, 0);
+        context->DrawIndexed(active.indexCount, 0, 0);
         return g_renderer.Present(true);
     }
 
@@ -400,6 +498,8 @@ namespace
         case WM_KEYDOWN:
             if (wparam == 'W')
                 g_wireframe = !g_wireframe;
+            else if (wparam == 'P')
+                g_patchPreview = !g_patchPreview;
             return 0;
         case WM_SIZE:
             if (g_ready && wparam != SIZE_MINIMIZED)
