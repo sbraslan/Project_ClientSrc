@@ -12,6 +12,21 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - The bridge class uses the hardware driver type and does not fall back to WARP. Reported runtime result verifies this probe path only; there is no proof of DX11 in-game rendering yet.
 - The new DX11 device is not instantiated by the production game or selected as an active renderer. DX9 `GrpDevice` / `StateManager` are unchanged.
 
+## GPU resource layer checkpoint (unverified build, 2026-11-04)
+
+- New `Src/EterLib/Renderer/DX11RenderResources.h/.cpp` provides RAII-owned
+  immutable vertex/index buffers (16-bit index compatibility), packed RGBA8
+  shader resource views, SM5 vertex/pixel shader compilation with explicit input
+  layouts and a point sampler.
+- `Tools/DX11Smoke/BridgeProbe.cpp` now submits an indexed textured quad through
+  this shared resource layer, rather than only clearing the framebuffer.
+- Both `Tools/DX11Smoke/DX11BridgeProbe.vcxproj` and the x64
+  `Src/EterLib/eterlib.vcxproj` explicitly compile the shared resource source.
+- **Not yet validated on the user's Windows machine.** The previously working
+  clear/present probe proves the old phase, not this new shader/mesh module.
+- No changes to DX9 `GrpDevice.cpp`, `StateManager.cpp`, Granny, SpeedTree,
+  client/server protocol or locale.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -84,6 +99,15 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [ ] Compile shaders and report errors in logs.
 - [ ] Builds with zero errors; outputs a test screenshot.
 - [ ] DX9 client remains unchanged and buildable.
+
+### Gate 1b - reusable DX11 GPU resource module
+- [x] Add standalone shared immutable mesh, RGBA8 texture, shader and sampler resource creation.
+- [x] Register new resources only on x64 EterLib; preserve Win32 and DX9.
+- [x] Update BridgeProbe to draw indexed checkerboard quad using shared resource module.
+- [ ] User Windows Release x64 DX11BridgeProbe build and visual test (pending).
+- [ ] User Windows Release x64 EterLib rebuild (pending).
+- [ ] Characterize resize, fullscreen/minimize and device removal after new resource layer.
+- [ ] Confirm DX9 production client build and runtime unaffected.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
