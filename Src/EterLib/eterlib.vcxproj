@@ -626,6 +626,10 @@
       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Renderer\DX11LegacyTerrainIndices.cpp">
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="GrpMath.cpp" />
     <ClCompile Include="GrpScreen.cpp" />
     <ClCompile Include="JpegFile.cpp" />
@@ -718,6 +722,7 @@
     <ClInclude Include="Renderer\DX11RenderResources.h" />
     <ClInclude Include="Renderer\DX11TerrainMesh.h" />
     <ClInclude Include="Renderer\DX11LegacyTerrainPatch.h" />
+    <ClInclude Include="Renderer\DX11LegacyTerrainIndices.h" />
     <ClInclude Include="GrpMath.h" />
     <ClInclude Include="GrpScreen.h" />
     <ClInclude Include="JpegFile.h" />
