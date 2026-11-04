@@ -33,6 +33,7 @@ namespace m2::render
         // IRenderDevice, not Direct3D-specific types.
         ID3D11Device* NativeDevice() const noexcept { return device_.Get(); }
         ID3D11DeviceContext* NativeContext() const noexcept { return context_.Get(); }
+        ID3D11RenderTargetView* NativeRenderTargetView() const noexcept { return renderTarget_.Get(); }
 
     private:
         HRESULT CreateRenderTarget() noexcept;
