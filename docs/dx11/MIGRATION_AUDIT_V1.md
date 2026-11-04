@@ -57,6 +57,24 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - No changes to `GrpDevice.cpp`, `StateManager.cpp`, `GameLib`,
   DX9 path, server ABI, Granny, SpeedTree or locale.
 
+## Legacy 17x17 patch-layout adapter (unverified Windows build)
+
+- `Src/GameLib/TerrainPatch.h` confirms `HardwareTransformPatch_SSourceVertex`
+  consists of a D3DXVECTOR3 position plus D3DXVECTOR3 normal, with 17x17
+  vertices for a 16x16 patch (`Src/PRTerrainLib/TerrainType.h`).
+- Added `Src/EterLib/Renderer/DX11LegacyTerrainPatch.h/.cpp`: no D3D9
+  dependency, packed 24-byte position/normal POD mirror, validation, provisional
+  level-0 triangles/UVs, and preserving original positions/normals.
+- Updated `Tools/DX11Smoke/TerrainProbe.cpp` to upload a second *synthetic*
+  17x17 patch-style mesh and switch to it with **P**; **W** still toggles
+  wireframe. Includes CPU tests for validity, counts, vertex preservation
+  and rejection of degenerate normals without output mutation.
+- `DX11TerrainProbe.vcxproj` and x64 `eterlib.vcxproj` now compile adapter.
+- **Not yet Windows-built or runtime-verified.** The previous 49x49 terrain
+  probe passed, but this update is new code. Real `GameLib` render path,
+  coordinate conversion, LOD stitching, quadtree and splat textures
+  are **not** integrated. Do not activate DX11 for real gameplay.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -150,6 +168,15 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [ ] Legacy DX9 game build and runtime regression test.
 - [ ] Validate resize/minimize and hardware/device loss handling.
 - [ ] After tests: design real CTerrainPatch adapter and texture splat pipeline.
+
+### Gate 1d - legacy patch-format CPU adapter and preview
+- [x] Establish 16-cell patch / 17x17 vertices, source position+normal layout.
+- [x] Add D3D9-independent CPU adapter with fail-without-mutation validation.
+- [x] Add synthetic 17x17 patch preview to existing terrain probe (P key).
+- [x] Register adapter only on x64 EterLib and standalone terrain probe.
+- [ ] User Windows Release x64 build and runtime screenshot for P/W views.
+- [ ] Verify actual patch source layout, axis/handedness, normal orientation and LOD index topology in GameLib.
+- [ ] Prepare real CTerrainPatch ingestion and splat layering **after** verification; no activation before DX9 regressions.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
