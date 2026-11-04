@@ -152,7 +152,7 @@ namespace
             return hr;
 
         D3D11_BUFFER_DESC desc{};
-        desc.ByteWidth = sizeof(kTriangle);
+        desc.ByteWidth = static_cast<UINT>(sizeof(kTriangle));
         desc.Usage = D3D11_USAGE_IMMUTABLE;
         desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
