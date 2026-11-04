@@ -491,15 +491,41 @@ namespace
         return g_renderer.Present(true);
     }
 
+    void UpdateWindowTitle(HWND window)
+    {
+        // Explicitly identify the active scene; title alone previously only
+        // listed controls, so screenshots couldn't prove the P key was tested.
+        const wchar_t* caption = nullptr;
+        if (g_patchPreview)
+            caption = g_wireframe
+                ? L"Metin2 DX11 | 17x17 Patch Preview | Wireframe | P / W"
+                : L"Metin2 DX11 | 17x17 Patch Preview | Solid | P / W";
+        else
+            caption = g_wireframe
+                ? L"Metin2 DX11 | Full Synthetic Terrain | Wireframe | P / W"
+                : L"Metin2 DX11 | Full Synthetic Terrain | Solid | P / W";
+
+        SetWindowTextW(window, caption);
+    }
+
     LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
     {
         switch (message)
         {
         case WM_KEYDOWN:
+            // Ignore auto-repeat; each physical key press changes mode once.
+            if ((lparam & (1LL << 30)) != 0)
+                return 0;
             if (wparam == 'W')
+            {
                 g_wireframe = !g_wireframe;
+                UpdateWindowTitle(window);
+            }
             else if (wparam == 'P')
+            {
                 g_patchPreview = !g_patchPreview;
+                UpdateWindowTitle(window);
+            }
             return 0;
         case WM_SIZE:
             if (g_ready && wparam != SIZE_MINIMIZED)
@@ -580,6 +606,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
     }
 
     g_ready = true;
+    UpdateWindowTitle(window);
     MSG message{};
     int exitCode = 0;
 
