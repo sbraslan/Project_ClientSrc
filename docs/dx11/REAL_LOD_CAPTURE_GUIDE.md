@@ -1,6 +1,6 @@
 # Real Metin2 LOD capture — guarded diagnostic, not a DX11 gameplay renderer
 
-Status: **code staged, Windows build/runtime validation PENDING**.
+Status: **SnapshotProbe, EterLib, default/off and opt-in GameLib, and opt-in UserInterface x64 link passed user Windows tests. Real LOD capture/runtime remains PENDING.**
 
 ## Proven source location
 
@@ -94,6 +94,47 @@ Only after Gate A and explicit game-link/runtime checks:
   counts, edge topology, normals and real terrain textures.
 - Remove the environment variable, rebuild with the compile flag OFF, and
   repeat the ordinary DX9 login/map regression.
+
+## Gate B update: protect the existing live DX9 client
+
+The user's Windows logs confirm opt-in GameLib rebuild and
+`UserInterface.vcxproj` x64 **link** succeeded, producing
+`Project_ClientSrc/Src/bin/Release/x64/metin2release.exe`.
+The prior DX9 EXE backup attempt **failed** because that build-output EXE
+was missing *at the time of the backup*. The actual gameplay `syserr`
+identifies the running executable at
+`Project_Seferihisar/Project_Client/metin2release.exe`.
+
+For a controlled local capture, preserve and SHA256-verify **that**
+running `Project_Client/metin2release.exe`, not merely the compiled
+output. Never overwrite the existing EXE with the diagnostic build.
+Place a **copy** of the opt-in build beside the original under the
+different filename `metin2release_dx11_lod_probe.exe` (do not
+overwrite pre-existing files), and launch it using the **game runtime
+directory** as `WorkingDirectory`. This keeps the installed packs,
+locale and DLL search path together.
+
+Use `METIN2_DX11_LOD_CAPTURE_ONCE=1` **only for the test process**;
+unset it in the launching PowerShell immediately after process spawn.
+If the game requires a specific EXE name or launcher arguments, the
+alternate name may not start; stop and inspect diagnostics before
+considering any replacement strategy. Never delete the original EXE.
+
+The snapshot path is
+`Project_Client/dx11_terrain_lod_capture.bin`, which is created
+at most once using Win32 `CREATE_NEW`. If it exists, inspect it;
+do **not** overwrite/delete/rotate it automatically. On successful
+capture, verify with the independent
+`Tools/DX11Smoke/bin/x64/Release/DX11LODSnapshotProbe.exe --verify`,
+which reports source index counts and converted triangle counts for all
+three original LODs. Also compare the original runtime executable's
+SHA256 with its pre-capture value.
+
+Important: the user's `client_syserr.txt` contains a separate
+`game.py:1613 SaveScreen` UnicodeDecodeError related to legacy
+path decoding, not verified to involve this capture. Keep any fix
+to that code in a separate tested change. **Do not call the capture
+successful until a real snapshot exists and the verifier passes.**
 
 ## Not yet done
 
