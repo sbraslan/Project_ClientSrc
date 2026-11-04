@@ -117,6 +117,34 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - **Windows x64 build/runtime for this new module: PENDING.** The visual
   screenshots only verified the previous `a73da1fe` P/W preview.
 
+## Gate 1e Windows evidence and Gate 1f snapshot codec (2026-11-05)
+
+- The user supplied a successful Release x64 build log at `c9db5b2c`
+  for `DX11TerrainProbe.vcxproj` and `eterlib.vcxproj`; the executable
+  closed with exit code 0 and did not report CPU LOD self-test failure.
+  This verifies the small strip/list validation fixtures, **not** a
+  captured complete GameLib index stream.
+- Source audit confirms `GameLib/MapOutdoorIndexBuffer.cpp::SetIndexBuffer`
+  temporarily owns original CPU `m_pwaIndices[0..2]` and `count[0..2]`
+  before uploading to DX9 and freeing them. `EterLib/GrpIndexBuffer.cpp`
+  creates the GPU index buffer with `D3DUSAGE_WRITEONLY`: do **not**
+  attempt late GPU readback as a general capture strategy.
+- Added isolated, versioned, little-endian `DX11LegacyIndexSnapshot`
+  codec in `EterLib/Renderer` with strict 289-vertex/3-LOD bounds,
+  index topology validation, FNV-1a accidental corruption checksum,
+  fail-without-output-mutation decode, and explicit opt-in file I/O.
+- Added `Tools/DX11Smoke/DX11LODSnapshotProbe.vcxproj` and
+  `LODSnapshotProbe.cpp`: a CPU-only console target that checks
+  in-memory roundtrip, output equality, checksum corruption rejection,
+  invalid source rejection and optionally verifies a supplied capture.
+- No GameLib hook is installed and no snapshot is automatically written.
+  Real map capture (at the source CPU buffers before upload) will require
+  a separate **explicitly disabled-by-default** diagnostic hook **after**
+  these standalone Windows build/tests pass.
+- This snapshot codec and new console target are **NOT YET WINDOWS BUILT**.
+  Nothing here proves actual game terrain or DX11 in-game rendering.
+- No DX9 drawing files, server ABI, locales, Granny or SpeedTree changed.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -226,9 +254,19 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Audit all 3 real GameLib LOD index formats and special boundary helpers.
 - [x] Add legacy strip/list to triangle-list conversion with validation.
 - [x] Add strip parity/connector and invalid-data regression tests.
-- [ ] User Windows x64 Release build and terrain probe runtime pass for this new module.
+- [x] User Windows Release x64 terrain/LOD CPU probe and EterLib build passed at c9db5b2c.
 - [ ] Verify actual map vertex capture and texture splat coordinates without mutating DX9 rendering.
 - [ ] Cross-check LOD edge stitching/orientation against captured legacy streams.
+
+### Gate 1f - verified index snapshot transport (no GameLib hook)
+- [x] Locate actual CPU LOD index streams before WRITEONLY DX9 upload.
+- [x] Define bounded versioned 3-LOD snapshot codec with checksum.
+- [x] Add isolated x64 console in-memory roundtrip and malformed-data tests.
+- [x] Compile codec into x64 EterLib with no use from game renderer.
+- [ ] User Windows Release x64 DX11LODSnapshotProbe build and self-test.
+- [ ] User Windows Release x64 EterLib rebuild with codec.
+- [ ] After verification: plan opt-in GameLib pre-upload capture (OFF by default).
+- [ ] Validate captured actual LOD0/1/2 streams and edge stitching.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
@@ -256,4 +294,4 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [JTX patch diff](https://github.com/sbraslan/Project_Grafik/blob/import/jtx-v1.6-original/1/jettyx_106.diff)
 - [JTX updated terrain shader](https://github.com/sbraslan/Project_Grafik/blob/import/jtx-v1.6-original/2/FULL_106/After/GameLib/terrainShadowsPS.h)
 
-**No compile, runtime test, branch merge, game-code edit or DX11 renderer is claimed at this point.**
+**Checkpoint:** Synthetic DX11 probes and their x64 builds are confirmed by user logs/screenshots. The real Metin2 DX9 renderer remains active; actual in-game DX11 rendering and the new snapshot codec's Windows build are not yet verified.
