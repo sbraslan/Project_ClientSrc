@@ -1113,6 +1113,19 @@ namespace
 
     void UpdateWindowTitle(HWND window)
     {
+        if (g_adjacentLoaded && g_adjacentPreview)
+        {
+            wchar_t caption[320]{};
+            swprintf_s(caption, ARRAYSIZE(caption),
+                L"Metin2 DX11 | TWO REAL NEIGHBORS | A:LOD%u (%u tris) B:LOD%u (%u tris) | %s | 1/2/3 M J W C",
+                static_cast<unsigned>(g_activeRealLOD),
+                static_cast<unsigned>(g_adjacentLODMeshes[0][g_activeRealLOD].indexCount / 3u),
+                static_cast<unsigned>(g_adjacentBLOD),
+                static_cast<unsigned>(g_adjacentLODMeshes[1][g_adjacentBLOD].indexCount / 3u),
+                g_wireframe ? L"Wireframe" : L"Solid");
+            SetWindowTitleWithCull(window, caption);
+            return;
+        }
         // Explicitly identify the active scene; title alone previously only
         // listed controls, so screenshots couldn't prove the P key was tested.
         if (g_realLODLoaded && g_realLODPreview)
@@ -1165,14 +1178,28 @@ namespace
                 g_cullingMode = (g_cullingMode + 1u) % 3u;
                 UpdateWindowTitle(window);
             }
+            else if (g_adjacentLoaded && wparam == 'J')
+            {
+                g_adjacentPreview = !g_adjacentPreview;
+                g_patchPreview = false;
+                g_realLODPreview = !g_adjacentPreview && g_realLODLoaded;
+                UpdateWindowTitle(window);
+            }
+            else if (g_adjacentLoaded && g_adjacentPreview && wparam == 'M')
+            {
+                g_adjacentBLOD = (g_adjacentBLOD + 1u) % 3u;
+                UpdateWindowTitle(window);
+            }
             else if (wparam == 'P')
             {
+                g_adjacentPreview = false;
                 g_patchPreview = !g_patchPreview;
                 g_realLODPreview = false;
                 UpdateWindowTitle(window);
             }
             else if (g_realLODLoaded && g_realPatchLoaded && wparam == 'V')
             {
+                g_adjacentPreview = false;
                 g_realPatchPreview = !g_realPatchPreview;
                 g_realLODPreview = true;
                 g_patchPreview = false;
@@ -1180,6 +1207,7 @@ namespace
             }
             else if (g_realLODLoaded && wparam == 'R')
             {
+                g_adjacentPreview = false;
                 g_realLODPreview = !g_realLODPreview;
                 if (g_realLODPreview)
                     g_patchPreview = false;
@@ -1188,7 +1216,9 @@ namespace
             else if (g_realLODLoaded && wparam >= '1' && wparam <= '3')
             {
                 g_activeRealLOD = static_cast<std::size_t>(wparam - '1');
-                g_realLODPreview = true;
+                g_adjacentBLOD = g_activeRealLOD;
+                if (!g_adjacentPreview)
+                    g_realLODPreview = true;
                 g_patchPreview = false;
                 UpdateWindowTitle(window);
             }
