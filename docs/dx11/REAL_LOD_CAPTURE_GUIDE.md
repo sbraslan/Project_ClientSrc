@@ -474,6 +474,68 @@ After that, capture two spatially adjacent real patches with
 recorded origins in a separate compile+runtime-gated diagnostic,
 without overwriting existing snapshots or default DX9 game behavior.
 
+## Gate H — source-neighbor 17x17 seam capture (STAGED; Windows tests required)
+
+User screenshots verify LOD0/1/2, all **solid**, with
+`C:BACK/FRONT_CW`: 512/216/184 triangles visible in
+the isolated D3D11 viewer. The culling comparison for the
+sample's current camera is now passed.
+
+A new **separate opt-in** capture pathway and CPU-only seam
+validator have been committed. No default game/renderer code is
+enabled, and previous LOD and single-patch vertex files are
+left unchanged. Its separate runtime files are:
+
+```text
+dx11_terrain_adjacent_A.bin
+dx11_terrain_adjacent_B.bin
+```
+
+Each uses the established `M2PVERT1` original position/normal
+snapshot (6956 bytes, 289 source vertices). In the special
+build only, the sampler compares world coordinate origins,
+accepting exact +/-3200 game units on **one** X or Y axis,
+rather than assuming two consecutive callback invocations
+are neighbors. The search is limited to 256 distinct
+positions and saves one pair with two `CREATE_NEW` writes.
+A single failed acquisition leaves normal DX9 drawing
+untouched, and existing files are never overwritten.
+
+Compile-time gate: opt-in Release x64 **only**
+`/p:EnableDX11AdjacentCapture=true` for `GameLib` and
+`UserInterface`; runtime gate:
+`METIN2_DX11_ADJACENT_CAPTURE_ONCE=1` in the exact
+elevated probe process. The original DX9 executable stays
+in the runtime folder and is hash-checked; the test EXE
+must use a distinct basename. As with previous captures,
+execute the test EXE from the original game working directory,
+then close the game normally before reading `client_syserr.txt`.
+
+**Before any live run, test only the standalone CPU verifier:**
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc'
+git pull --ff-only origin modernization/dx11-renderer
+& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' '.\Tools\DX11Smoke\DX11LODSnapshotProbe.vcxproj' /t:Rebuild /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+& '.\Tools\DX11Smoke\bin\x64\Release\DX11LODSnapshotProbe.exe'
+```
+
+Self-test should pass normal index/vertex codec tests PLUS
+six new neighbor checks: valid right/left/down/up edges,
+deliberately mismatched seam height rejection, and
+non-neighbor origins rejection. The live pair acquisition
+and `--audit-adjacent patchA.bin patchB.bin` must
+remain **PENDING** until this fresh Windows rebuild passes.
+
+The new validator refuses non-neighbor origin and compares
+all 17 original border positions, their maximum gap and
+normal differences. It detects and reports discontinuities
+without fixing them. If two neighbors fall across separate
+game-map instances with coincident world coordinates, a
+future map identifier must be added before claiming
+full-world provenance. Texture splatting and DX9 renderer
+state are unchanged.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
