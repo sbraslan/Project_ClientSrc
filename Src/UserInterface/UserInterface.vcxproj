@@ -647,8 +647,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="UserInterface.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true'">M2_DX11_MAIN_WINDOW_BOOTSTRAP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- Avoid stale PCH preprocessor defines on the early WinMain gate. -->
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true' and '$(EnableDX11MapPackProbe)'!='true'">M2_DX11_MAIN_WINDOW_BOOTSTRAP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true' and '$(EnableDX11MapPackProbe)'=='true'">M2_DX11_MAIN_WINDOW_BOOTSTRAP;M2_DX11_MAP_PACK_INSPECT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- No stale PCH defines on this opt-in early WinMain branch. -->
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="DX11MainWindowBootstrap.cpp">
@@ -660,6 +661,16 @@
     <ClCompile Include="DX11ExclusiveTerrainPreview.cpp">
       <!-- No live DX9 changes; compile only with BOTH exclusive+terrain flags. -->
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11MainWindowBootstrap)'!='true' or '$(EnableDX11ExclusiveTerrain)'!='true'">true</ExcludedFromBuild>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="DX11MapPackInspect.cpp">
+      <!-- Read-only original EterPack inspection; excluded by default. -->
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11MainWindowBootstrap)'!='true' or '$(EnableDX11MapPackProbe)'!='true'">true</ExcludedFromBuild>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\EterLib\Renderer\DX11RawTerrainHeight.cpp">
+      <!-- CPU decoder compiled into this special EXE only: EterLib default untouched. -->
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11MainWindowBootstrap)'!='true' or '$(EnableDX11MapPackProbe)'!='true'">true</ExcludedFromBuild>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WeatherInfo.cpp" />
@@ -705,6 +716,7 @@
     <ClInclude Include="DX11InGameProbe.h" />
     <ClInclude Include="DX11MainWindowBootstrap.h" />
     <ClInclude Include="DX11ExclusiveTerrainPreview.h" />
+    <ClInclude Include="DX11MapPackInspect.h" />
     <ClInclude Include="PythonIME.h" />
     <ClInclude Include="PythonSystem.h" />
     <ClInclude Include="GuildMarkDownloader.h" />
