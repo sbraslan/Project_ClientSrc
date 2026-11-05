@@ -136,6 +136,44 @@ path decoding, not verified to involve this capture. Keep any fix
 to that code in a separate tested change. **Do not call the capture
 successful until a real snapshot exists and the verifier passes.**
 
+## Gate B diagnostic v2: compiled hook is present, capture file absent
+
+User-reported SHA256 inspection confirmed the opt-in probe EXE and
+compiled output EXE are byte-for-byte identical and both contain the
+literal capture environment and log strings; the normal DX9 EXE
+contains neither string. However, the prior live test exited 0 without
+a `dx11_terrain_lod_capture.bin` or `[DX11 LOD CAPTURE]` log.
+
+The hook now emits exactly one additional entry *per opt-in process*
+after the original CPU LOD streams are created, independent of the
+runtime capture flag:
+
+```text
+[DX11 LOD DIAG] hook reached | envLength=N | enabled=E | LOD0=N LOD1=N LOD2=N
+```
+
+Interpretation:
+
+- **No `[DX11 LOD DIAG]` log:** either the new diagnostic EXE
+  did not execute/enter a map, the `SetIndexBuffer` path did not
+  execute, or logs were written somewhere other than the file checked.
+  Confirm fresh syserr timestamps and `BOOTTRACE: AFTER SendEnterGamePacket`
+  before inferring a linker problem.
+- **`enabled=0`:** hook reached but the exact one-character runtime
+  flag was not inherited. `envLength=0` means unset or empty;
+  `envLength>1` indicates an unexpected or truncated value.
+- **`enabled=1`:** capture was attempted. Expect a second log
+  containing `created`, `validation failed`, `cannot create`,
+  `write failed`, or `exception`. Also search the actual process
+  working directory, not just the EXE folder, for the snapshot file.
+
+Do not run the stale `metin2release_dx11_lod_probe.exe`: the
+new one-shot diagnostics will not be present in it. Compile and
+link with `/p:EnableDX11LODCapture=true`, then copy the newly
+built EXE under a new distinct name. Verify SHA256 matching and leave
+the original `Project_Client/metin2release.exe` untouched.
+No game/renderer changes are enabled in ordinary builds.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
