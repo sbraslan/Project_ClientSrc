@@ -536,6 +536,59 @@ future map identifier must be added before claiming
 full-world provenance. Texture splatting and DX9 renderer
 state are unchanged.
 
+## Gate I — two verified real neighbors together in an isolated DX11 viewer (STAGED; Windows test pending)
+
+The user ran the special adjacent capture with a verified original
+DX9 backup and obtained two NEW original-source `M2PVERT1`
+files. Same live game session: A origin `(0,0)`, B origin
+`(3200,0)`; each is exactly 6956 bytes. The independent
+CPU verifier accepted both files and compared the 17 shared
+border positions and normals: maximum position gap **0**,
+mismatch count **0**, maximum normal delta **0**, audit exit **0**.
+Do not overwrite or recapture these snapshots.
+
+The standalone `DX11TerrainProbe` now has a strict new optional
+dual-patch command-line mode. The loader reads the LOD, A and B
+snapshots, checks their checksums and valid 17-vertex shared
+edge, and refuses invalid inputs before creating the D3D11
+renderer. The two original arrays are not modified or welded.
+They are independently uploaded to GPU index/vertex buffers
+with a **single shared world-space recentering and scale**.
+This is crucial for genuine visual seam comparisons; independent
+recentering would create artificial disconnections or hide cracks.
+Positions/normals use original `(X,Y,Z)` to preview
+`(X,Z,-Y)` rotation without relative-height exaggeration.
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc'
+git pull --ff-only origin modernization/dx11-renderer
+& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' '.\Tools\DX11Smoke\DX11TerrainProbe.vcxproj' /t:Rebuild /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+& '.\Tools\DX11Smoke\bin\x64\Release\DX11TerrainProbe.exe' --lod-snapshot 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client\dx11_terrain_lod_capture.bin' --adjacent-a 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client\dx11_terrain_adjacent_A.bin' --adjacent-b 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client\dx11_terrain_adjacent_B.bin'
+```
+
+New view title: `TWO REAL NEIGHBORS | A:LOD0 (512 tris)
+B:LOD0 (512 tris) | Wireframe`. Controls:
+`1/2/3` make both A and B LOD0/1/2,
+`M` changes ONLY B's LOD while keeping A fixed,
+`W` toggles wireframe/solid,
+`C` cycles no-cull/CW/CCW states, and
+`J` toggles paired versus original LOD-only synthetic
+viewer. Existing original standalone synthetic and
+single-real-patch commands are unchanged.
+
+Compare equal LOD0 on both, then A=LOD0/B=LOD1 and
+A=LOD0/B=LOD2 in wireframe and solid with
+`C:BACK/FRONT_CW`. Exact border vertices matching at
+source does NOT alone establish there are no cracks
+between different LOD index triangulations (T-junctions).
+Photographic/GPU evidence is still pending.
+
+**No additional in-game capture or GameLib build is needed.**
+Build ONLY the standalone DX11TerrainProbe and use existing
+read-only `.bin` files. Do not claim this Windows build
+passes until the user supplies a build log and screenshots.
+Do not commit binary runtime snapshots.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
