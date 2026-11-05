@@ -1,10 +1,10 @@
 // Exclusive DX11-only FIRST FRAME in the actual Metin2 executable.
 // Compile this source only when Release|x64 EnableDX11MainWindowBootstrap=true.
 // The existing normal game WinMain path is unchanged and remains DX9.
+#include <cstdint> // EterBase/Debug.h declares uint32_t; include it first.
 #include "DX11MainWindowBootstrap.h"
 #include "../EterBase/Debug.h"
 #include "../EterLib/Renderer/DX11RenderDevice.h"
-#include <cstdint>
 
 namespace m2::render
 {
@@ -85,7 +85,7 @@ namespace m2::render
         wc.lpfnWndProc = BootstrapWindowProc;
         wc.hInstance = instance;
         wc.lpszClassName = kWindowClass;
-        wc.hCursor = ::LoadCursorW(nullptr, IDC_ARROW);
+        wc.hCursor = ::LoadCursorW(nullptr, MAKEINTRESOURCEW(32512)); // IDC_ARROW, ANSI-neutral.
         wc.style = CS_HREDRAW | CS_VREDRAW;
         if (!::RegisterClassExW(&wc))
         {
