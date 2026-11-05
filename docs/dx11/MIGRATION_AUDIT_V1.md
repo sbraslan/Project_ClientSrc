@@ -1024,6 +1024,60 @@ their displayed API labels are not authoritative proof; use explicit
 logs, single-window observation and, if available, GPU/debug-layer
 capture. No Windows tests are claimed until user provides output.
 
+## Gate 2d — DX11-only main window 3677 frames PASSED; original patch rendering staged (2026-11-06)
+
+**Observed exclusive test**: User PID=12964, 2026-11-06 00:24:00,
+entered explicitly opt-in DX11-only WinMain before Python/game/D3D9.
+Hardware D3D11 device and main HWND swapchain were READY. Thirty
+frames passed by 00:24:00. Shutdown 00:24:26 reported **3677 D3D11
+frames, exit=0**, with **DX11 EXIT CODE: 0** in PowerShell. This is
+strong evidence for actual hardware DX11 Clear/Present on the sole
+special bootstrap HWND, NOT production gameplay or in-game textures.
+
+**New read-only terrain module on isolated migration branch, Windows
+build/test PENDING**:
+
+- Src/UserInterface/DX11ExclusiveTerrainPreview.h/.cpp
+  uses DX11RenderDevice + DX11RenderResources and existing
+  DX11LegacyIndexSnapshot/LegacyPatchSnapshot codecs.
+- Requires exactly three existing source captures in working directory:
+  dx11_terrain_lod_capture.bin, dx11_terrain_adjacent_A.bin,
+  dx11_terrain_adjacent_B.bin. Exact patch byte count, checksum,
+  right-neighbor delta (3200,0), all 17 original edge vertex
+  positions are checked. Bad/missing data aborts (no synthetic fallback).
+- One common center, uniform scale and Z-up->Y-up coordinate transform
+  converts the 289 original vertices per patch. Keeps three original
+  index-stream LOD levels and separate GPU buffers / draw calls.
+  The CPU edge-alignment and mixed LOD checks already passed in Gate 1u.
+- Shaders are original minimal SM5 terrain-preview shaders: simple
+  procedural per-patch tint, normal lighting, CW front-face and depth.
+  This is NOT original Metin2 terrain-texture splatting.
+- Special build only, both properties required:
+  /p:EnableDX11MainWindowBootstrap=true
+  /p:EnableDX11ExclusiveTerrain=true
+  (and all old capture/sidecar build flags disabled).
+  Run with original --dx11-exclusive-bootstrap and
+  METIN2_DX11_EXCLUSIVE_BOOT=1, plus
+  METIN2_DX11_EXCLUSIVE_TERRAIN=1.
+- W toggles wireframe; keys 1/2/3 choose shared LOD0/1/2;
+  M cycles neighbor B's LOD only. Resize re-creates D3D11 depth.
+- Expected successful log:
+  [DX11 EXCLUSIVE TERRAIN] real adjacent A/B READY;
+  triangles LOD0=512, LOD1=216, LOD2=184 per patch
+  and then
+  [DX11 EXCLUSIVE TERRAIN] 30 real A/B patch GPU frames passed...
+- Invalid files/shader/mesh initialization produce a diagnostic and
+  exit 8. The original game DX9 code path, game EXE and binary
+  snapshots remain unchanged. The default exclusive clear-only path
+  remains available when terrain environment flag is absent.
+
+**Next quality gate**: Windows Release|x64 compile/link, hash-safe
+alternate named EXE, two-patch DX11 sole-window visual screenshot,
+LOD and wireframe toggles, window resize and close with exit 0.
+Do not claim completed terrain rendering before user supplies output.
+Even passing this gate does NOT mean live GameLib map streaming, Python,
+Granny characters, UI, materials or normal Metin2 gameplay is DX11.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
