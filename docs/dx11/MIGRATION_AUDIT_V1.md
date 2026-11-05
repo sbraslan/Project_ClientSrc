@@ -523,6 +523,36 @@ adjacent real patches (stable IDs/provenance) for edge stitching
 comparisons before integrating terrain materials or full DX11
 rendering.
 
+## Gate 1o — real patch solid preview PASSED; controlled backface test staged (2026-11-05)
+
+- User supplied two more screenshots of the REAL captured-vertex
+  LOD0 patch (512 tris): independent D3D11 viewer in **wireframe**
+  and **solid** modes. Both show consistent cliff-shaped terrain,
+  with expected texture on the solid surface, and the D3D11 overlay.
+  The texture is the probe's procedural synthetic grass, **not**
+  original Metin2 terrain splatting or textures.
+- Static source trace: `EterLib/StateManager.cpp::CStateManager::SetDefaultState`
+  sets DX9 `D3DRS_CULLMODE = D3DCULL_CW`. The inspected
+  `MapOutdoorRenderHTP.cpp` and `MapOutdoorRenderSTP.cpp`
+  do not contain a local explicit `D3DRS_CULLMODE` override.
+  This is evidence of the global default, NOT yet proof of every
+  possible runtime render-state modification.
+- The standalone probe's default `D3D11_CULL_NONE` visual path
+  remains unchanged. Its source now provides **optional key C**
+  state cycling: `C:OFF`, `C:BACK/FRONT_CW` and
+  `C:BACK/FRONT_CCW`, with distinct solid/wireframe D3D11
+  rasterizer states. All modes display their name in window title;
+  no mesh/index winding or original snapshot files are mutated.
+- This lets the user visually test both actual DX11 front-facing
+  rasterization conventions under the same camera rather than
+  assume DX9's `D3DCULL_CW` maps mechanically after projection
+  and Z-up to Y-up rotation.
+- **Source committed; Windows Release x64 rebuild and actual C-key
+  comparison screenshots PENDING.** Do not declare production
+  backface policy verified until test results are available.
+- No GameLib / UserInterface / DX9 runtime file was modified by
+  this culling test.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
