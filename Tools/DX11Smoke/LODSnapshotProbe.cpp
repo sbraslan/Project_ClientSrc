@@ -2,17 +2,22 @@
 // Usage: DX11LODSnapshotProbe.exe [--verify dx11_terrain_lod_capture.bin]
 #include "../../Src/EterLib/Renderer/DX11LegacyIndexSnapshot.h"
 #include "../../Src/EterLib/Renderer/DX11LegacyTerrainIndices.h"
+#include "../../Src/EterLib/Renderer/DX11LegacyPatchSnapshot.h"
 
 #include <array>
 #include <cstdint>
+#include <fstream>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <string>
 #include <vector>
 
 namespace
 {
     using m2::render::DX11LegacyIndexSnapshot;
+    using m2::render::DX11LegacyPatchSnapshot;
+    using m2::render::LegacyPatchVertex;
     using m2::render::LegacyIndexSnapshot;
     using m2::render::LegacyIndexView;
     using m2::render::DX11LegacyTerrainIndices;
@@ -47,6 +52,88 @@ namespace
                       << '\n';
         }
         return true;
+    }
+
+    bool RunPatchSelfTest()
+    {
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> source{};
+        for (std::size_t i = 0; i < source.size(); ++i)
+        {
+            source[i].position[0] = static_cast<float>(i % 17u);
+            source[i].position[1] = -static_cast<float>(i / 17u);
+            source[i].position[2] = static_cast<float>(i % 7u) * 0.25f;
+            source[i].normal[0] = 0.0f;
+            source[i].normal[1] = 0.0f;
+            source[i].normal[2] = 1.0f;
+        }
+
+        std::vector<std::uint8_t> bytes;
+        if (!Check("Patch vertex encode fixture",
+                   DX11LegacyPatchSnapshot::Encode(
+                       source.data(), source.size(), bytes) &&
+                   bytes.size() == DX11LegacyPatchSnapshot::kFileBytes))
+            return false;
+
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> decoded{};
+        if (!Check("Patch vertex decode fixture",
+                   DX11LegacyPatchSnapshot::Decode(
+                       bytes.data(), bytes.size(), decoded)))
+            return false;
+        if (!Check("Patch vertex roundtrip",
+                   decoded[0].position[0] == source[0].position[0] &&
+                   decoded[128].position[2] == source[128].position[2] &&
+                   decoded.back().normal[2] == 1.0f))
+            return false;
+
+        const auto prior = decoded;
+        bytes[bytes.size() / 2u] ^= 0x40u;
+        if (!Check("Patch checksum corruption rejected",
+                   !DX11LegacyPatchSnapshot::Decode(
+                       bytes.data(), bytes.size(), decoded) &&
+                   decoded[0].position[0] == prior[0].position[0] &&
+                   decoded[128].position[2] == prior[128].position[2]))
+            return false;
+
+        std::vector<std::uint8_t> unchanged{13u, 7u};
+        source[0].normal[2] = 0.0f;
+        if (!Check("Patch invalid normal rejected without mutation",
+                   !DX11LegacyPatchSnapshot::Encode(
+                       source.data(), source.size(), unchanged) &&
+                   unchanged == std::vector<std::uint8_t>{13u, 7u}))
+            return false;
+
+        return true;
+    }
+
+    bool VerifyPatchFile(const char* path)
+    {
+        std::ifstream input(path, std::ios::binary | std::ios::ate);
+        if (!input || input.tellg() !=
+                      static_cast<std::streamoff>(DX11LegacyPatchSnapshot::kFileBytes))
+            return false;
+        std::vector<std::uint8_t> bytes(DX11LegacyPatchSnapshot::kFileBytes);
+        input.seekg(0, std::ios::beg);
+        if (!input.read(reinterpret_cast<char*>(bytes.data()),
+                        static_cast<std::streamsize>(bytes.size())))
+            return false;
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> patch{};
+        if (!DX11LegacyPatchSnapshot::Decode(bytes.data(), bytes.size(), patch))
+            return false;
+
+        float minZ = (std::numeric_limits<float>::max)();
+        float maxZ = (std::numeric_limits<float>::lowest)();
+        for (const auto& vertex : patch)
+        {
+            if (vertex.position[2] < minZ)
+                minZ = vertex.position[2];
+            if (vertex.position[2] > maxZ)
+                maxZ = vertex.position[2];
+        }
+        std::cout << "Real terrain patch: vertices=" << patch.size()
+                  << ", minZ=" << minZ << ", maxZ=" << maxZ
+                  << ", height range=" << (maxZ - minZ)
+                  << ", x/y/z original DX9 axes\n";
+        return Check("Real terrain patch file validated", true);
     }
 
     bool RunSelfTest()
@@ -99,7 +186,9 @@ namespace
                 untouched == std::vector<std::uint8_t>{42, 84}))
             return false;
 
-        std::cout << "[OK] Snapshot codec self-test complete; no game files written.\n";
+        if (!RunPatchSelfTest())
+            return false;
+        std::cout << "[OK] Index + patch vertex snapshot codec self-tests complete; no game files written.\n";
         return true;
     }
 }
@@ -109,9 +198,19 @@ int main(int argc, char** argv)
     if (argc == 1)
         return RunSelfTest() ? 0 : 1;
 
+    if (argc == 3 && std::string(argv[1]) == "--verify-patch")
+    {
+        if (!VerifyPatchFile(argv[2]))
+        {
+            std::cerr << "[FAIL] Invalid patch snapshot or file inaccessible.\n";
+            return 5;
+        }
+        return 0;
+    }
+
     if (argc != 3 || std::string(argv[1]) != "--verify")
     {
-        std::cerr << "Usage: DX11LODSnapshotProbe.exe [--verify capture.bin]\n";
+        std::cerr << "Usage: DX11LODSnapshotProbe.exe [--verify capture.bin | --verify-patch patch.bin]\n";
         return 2;
     }
 
