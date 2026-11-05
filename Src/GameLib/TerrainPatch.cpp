@@ -5,6 +5,104 @@
 #include "StdAfx.h"
 #include "TerrainPatch.h"
 
+// Diagnostic is absent in normal builds and reads ONLY the CPU source
+// before existing DX9 hardware/software vertex buffer upload.
+#if defined(M2_DX11_PATCH_CAPTURE) && defined(_WIN64) && !defined(WORLD_EDITOR)
+#include "../EterLib/Renderer/DX11LegacyPatchSnapshot.h"
+#include <array>
+#include <atomic>
+#include <vector>
+
+namespace
+{
+    void TryCaptureOriginalPatch(const HardwareTransformPatch_SSourceVertex* source)
+    {
+        char flag[2]{};
+        const DWORD flagLength = ::GetEnvironmentVariableA(
+            "METIN2_DX11_PATCH_CAPTURE_ONCE", flag,
+            static_cast<DWORD>(sizeof(flag)));
+        const bool enabled = flagLength == 1 && flag[0] == '1';
+
+        // One entry per instrumented process, even when opt-in flag is absent.
+        static std::atomic<bool> logged{false};
+        if (!logged.exchange(true))
+            TraceError("[DX11 PATCH DIAG] hook reached | envLength=%lu | enabled=%u",
+                       static_cast<unsigned long>(flagLength), enabled ? 1u : 0u);
+        if (!enabled)
+            return;
+
+        static std::atomic<bool> attempted{false};
+        if (attempted.exchange(true))
+            return;
+
+        // Fixed, validated vertex count: 17x17, each original position+normal.
+        static_assert(CTerrainPatch::TERRAIN_VERTEX_COUNT ==
+                      m2::render::DX11LegacyPatchSnapshot::kVertexCount,
+                      "Legacy patch vertex count changed");
+        constexpr char filename[] = "dx11_terrain_patch_capture.bin";
+
+        try
+        {
+            if (!source)
+            {
+                TraceError("[DX11 PATCH CAPTURE] missing source; DX9 unchanged");
+                return;
+            }
+
+            std::array<m2::render::LegacyPatchVertex,
+                       m2::render::DX11LegacyPatchSnapshot::kVertexCount> vertices{};
+            for (std::size_t i = 0; i < vertices.size(); ++i)
+            {
+                vertices[i].position[0] = source[i].kPosition.x;
+                vertices[i].position[1] = source[i].kPosition.y;
+                vertices[i].position[2] = source[i].kPosition.z;
+                vertices[i].normal[0] = source[i].kNormal.x;
+                vertices[i].normal[1] = source[i].kNormal.y;
+                vertices[i].normal[2] = source[i].kNormal.z;
+            }
+
+            std::vector<std::uint8_t> encoded;
+            if (!m2::render::DX11LegacyPatchSnapshot::Encode(
+                    vertices.data(), vertices.size(), encoded))
+            {
+                TraceError("[DX11 PATCH CAPTURE] validation failed; DX9 unchanged");
+                return;
+            }
+
+            HANDLE handle = ::CreateFileA(
+                filename, GENERIC_WRITE, FILE_SHARE_READ, nullptr,
+                CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+            if (handle == INVALID_HANDLE_VALUE)
+            {
+                TraceError("[DX11 PATCH CAPTURE] cannot create %s; Win32=%lu",
+                           filename, ::GetLastError());
+                return;
+            }
+
+            DWORD written = 0;
+            const bool writtenOk = ::WriteFile(
+                handle, encoded.data(), static_cast<DWORD>(encoded.size()),
+                &written, nullptr) != FALSE && written == encoded.size();
+            const bool closedOk = ::CloseHandle(handle) != FALSE;
+            if (!writtenOk || !closedOk)
+            {
+                ::DeleteFileA(filename);
+                TraceError("[DX11 PATCH CAPTURE] write failed; DX9 unchanged");
+                return;
+            }
+
+            TraceError("[DX11 PATCH CAPTURE] created %s (%u bytes, vertices=%u)",
+                       filename, static_cast<unsigned>(written),
+                       static_cast<unsigned>(vertices.size()));
+        }
+        catch (...)
+        {
+            TraceError("[DX11 PATCH CAPTURE] exception; DX9 unchanged");
+        }
+    }
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -79,6 +177,9 @@ void CTerrainPatch::BuildWaterVertexBuffer(SWaterVertex * akSrcVertex, uint32_t 
 
 void CTerrainPatch::BuildTerrainVertexBuffer(HardwareTransformPatch_SSourceVertex * akSrcVertex)
 {
+#if defined(M2_DX11_PATCH_CAPTURE) && defined(_WIN64) && !defined(WORLD_EDITOR)
+    TryCaptureOriginalPatch(akSrcVertex);
+#endif
 	if (SOFTWARE_TRANSFORM_PATCH_ENABLE)
 		__BuildSoftwareTerrainVertexBuffer(akSrcVertex);
 	else
