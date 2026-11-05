@@ -1164,6 +1164,65 @@ proofs unless a genuine geometry regression is observed.
    lifecycle be safely decoupled from D3D9.
    This gate is NOT live streaming and NOT playable Metin2.
 
+## Gate 2f — D3D-neutral original Metin2 RAW HEIGHT decoder + fixtures (source STAGED, Windows test pending)
+
+Original format verified directly against `Src/PRTerrainLib/Terrain.cpp`
+and `Terrain.h` and `Src/GameLib/AreaTerrain.cpp`:
+- `CTerrainImpl::LoadHeightMap` retrieves height.raw via
+  `CEterPackManager::Get`, then memcpy of
+  `131 * 131 * sizeof(uint16_t)` samples (34322 bytes).
+  Raw data is little-endian unsigned 16-bit, no built-in header/
+  checksum. Consumer samples use 1-vertex border:
+  raw[(y+1)*131 + (x+1)] for logical coordinates x/y 0..128.
+- `CTerrain::_CalculateTerrainPatch` loops row-major 17x17,
+  x = +(tileX*128 + patchX*16 + localX)*200,
+  y = -(tileY*128 + patchY*16 + localY)*200,
+  z = rawHeight * `heightscale` (from MapSetting).
+  Normal computation uses central height differences, 400
+  z-vector component, signed-character quantization.
+- 128*128 tiles have 8x8 patch layout, CELLSCALE=200,
+  PATCHSIZE=16. Two horizontal patches share exactly 17
+  boundary samples and should share the same normal samples.
+- A naive call to `GameLib::CTerrain::LoadHeightMap` in exclusive
+  D3D11-only WinMain is NOT safe: it triggers old DX9
+  tiling/normal/splat/resource paths and expects EterPack init.
+
+**Now staged, not Windows validated**:
+- `Src/EterLib/Renderer/DX11RawTerrainHeight.h/.cpp`:
+  CPU-only, no Win32/DX9/DX11 dependencies. Checks exact 34322-byte
+  size and decodes 131x131 LE heights, builds original 17x17 source
+  position/normal patch and right-neighbor pair, with bounds,
+  finite scale, 17-point shared-edge and unchanged-on-failure checks.
+  Does not write game files or interact with CEterPackManager.
+- `Tools/DX11Smoke/RawTerrainHeightProbe.cpp` and
+  `Tools/DX11Smoke/DX11RawTerrainProbe.vcxproj`:
+  independent Release|x64 console CPU selftest with synthetic
+  131x131 height field, original world X/-Y/scale and seam cases.
+  Optional `--inspect "<loose height.raw>" "<heightscale>"`
+  reads the file via std::filesystem; requires actual extracted
+  non-packed raw tile. No input file mutation, no GPU device.
+- The actual DX11-exclusive terrain preview is intentionally NOT
+  connected to this new loader until the CPU test passes. Original
+  captured A/B mode remains the reference regression fixture.
+
+**Validation needed (next user step)**:
+1. Pull branch `migration/dx11-exclusive-bootstrap-v1` and build
+   `Tools/DX11Smoke/DX11RawTerrainProbe.vcxproj` Release|x64.
+2. Run `DX11RawTerrainProbe.exe` with no args; expect individual
+   [OK] checks and exit code zero.
+3. Search only READ-ONLY for loose `height.raw` inside client
+   installation. If absent, inspect map configuration and existing
+   pack system; do NOT assume `height.raw` is a normal filesystem
+   file, do not write extracted content over game resources.
+4. If an extracted real height.raw is available, obtain its actual
+   MapSetting `heightscale` and use `--inspect` to compare sample
+   heights/border. Then stage a separate opt-in DX11 loader which
+   can consume original `height.raw` without introducing a D3D9
+   device. Future pack reader must reuse the trusted pack format
+   with explicit bounds/checks, not guess archive layout.
+5. A passing test establishes original CPU math and data-format
+   adapter only; it is not yet real-time map streaming or gameplay.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
