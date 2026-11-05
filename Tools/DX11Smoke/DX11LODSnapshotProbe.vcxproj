@@ -61,6 +61,7 @@
     <ClCompile Include="LODSnapshotProbe.cpp" />
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11LegacyTerrainIndices.cpp" />
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11LegacyIndexSnapshot.cpp" />
+    <ClCompile Include="..\..\Src\EterLib\Renderer\DX11LegacyPatchSnapshot.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
