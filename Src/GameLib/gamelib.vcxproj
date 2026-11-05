@@ -1495,6 +1495,9 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11PatchCapture)'=='true'">M2_DX11_PATCH_CAPTURE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- Avoid inheriting stale preprocessor defines from precompiled headers. -->
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11PatchCapture)'=='true'">NotUsing</PrecompiledHeader>
+      <!-- Independent x64-only adjacent pair diagnostics; always OFF by default. -->
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11AdjacentCapture)'=='true'">M2_DX11_ADJACENT_CAPTURE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11AdjacentCapture)'=='true'">NotUsing</PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
