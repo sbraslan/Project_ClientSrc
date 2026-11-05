@@ -123,3 +123,6 @@ desktop.ini
 
 # Opt-in local DX11 terrain LOD diagnostics (never versioned)
 **/dx11_terrain_lod_capture.bin
+
+# Opt-in local DX11 real terrain patch vertex snapshot (never versioned)
+**/dx11_terrain_patch_capture.bin
