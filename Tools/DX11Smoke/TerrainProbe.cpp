@@ -384,15 +384,15 @@ namespace
             double(source[1][0].position[0]) - source[0][0].position[0];
         const double deltaY =
             double(source[1][0].position[1]) - source[0][0].position[1];
-        const auto near = [](double a, double b) {
+        const auto approximatelyEqualCoordinate = [](double a, double b) {
             return std::isfinite(a) && std::isfinite(b) &&
                    std::abs(a - b) <= 0.05;
         };
         int direction = -1;
-        if (near(deltaX, span) && near(deltaY, 0.0)) direction = 0;
-        else if (near(deltaX, -span) && near(deltaY, 0.0)) direction = 1;
-        else if (near(deltaX, 0.0) && near(deltaY, -span)) direction = 2;
-        else if (near(deltaX, 0.0) && near(deltaY, span)) direction = 3;
+        if (approximatelyEqualCoordinate(deltaX, span) && approximatelyEqualCoordinate(deltaY, 0.0)) direction = 0;
+        else if (approximatelyEqualCoordinate(deltaX, -span) && approximatelyEqualCoordinate(deltaY, 0.0)) direction = 1;
+        else if (approximatelyEqualCoordinate(deltaX, 0.0) && approximatelyEqualCoordinate(deltaY, -span)) direction = 2;
+        else if (approximatelyEqualCoordinate(deltaX, 0.0) && approximatelyEqualCoordinate(deltaY, span)) direction = 3;
         if (direction < 0)
             return false;
 
@@ -408,7 +408,7 @@ namespace
             else { ia = i; ib = 16u * side + i; }
             for (unsigned axis = 0; axis < 3u; ++axis)
             {
-                if (!near(source[0][ia].position[axis],
+                if (!approximatelyEqualCoordinate(source[0][ia].position[axis],
                           source[1][ib].position[axis]))
                     return false;
             }
