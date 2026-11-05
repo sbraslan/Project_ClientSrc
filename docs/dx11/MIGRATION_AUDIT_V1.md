@@ -404,6 +404,50 @@ User supplied six screenshots after the Gate 1j Windows build/test:
 - **Next gate pending:** standalone `DX11LODSnapshotProbe.exe --verify-patch dx11_terrain_patch_capture.bin` must return exit code 0. File exists according to game log, but actual snapshot decode/checksum/finite normals and min/max height have NOT yet been tested.
 - Caution: the captured patch vertices come from the first `CTerrainPatch::BuildTerrainVertexBuffer` call, while the existing real LOD index snapshot is from `CMapOutdoor::SetIndexBuffer`. They share 17x17 indexing, but **this does not establish they were captured at the same spatial map patch**. The GPU preview must be labeled index topology + one sampled real patch; do not call it a full faithful game terrain render without provenance.
 
+## Gate 1L — verified original positions + converted captured index GPU viewer (2026-11-05)
+
+- **User-verified real vertex snapshot:** `dx11_terrain_patch_capture.bin`
+  exists and is **6956 bytes**. Standalone
+  `DX11LODSnapshotProbe.exe --verify-patch` reported `vertices=289`,
+  `minZ=24249`, `maxZ=28585`, `height range=4336`,
+  `[OK] Real terrain patch file validated`, and exit code **0**.
+  The user also ran SHA256 for both captures. The hashes were
+  visibly truncated in the provided console paste; never record
+  unsupported full hash digests.
+- Standalone `Tools/DX11Smoke/TerrainProbe.cpp` now accepts
+  `--lod-snapshot <file> --patch-snapshot <file>` (either option order).
+  Both paths use **Unicode read-only** CreateFileW. Files are
+  individually validated by their existing magic, fixed/versioned
+  snapshot decoders and checksums BEFORE DX11 resources are created.
+  A patch without LOD is rejected; malformed input fails closed.
+- The viewer retains the previous no-argument synthetic mode and
+  LOD-only synthetic heights mode, and creates **three NEW immutable
+  D3D11 meshes** for actual 289 real vertex positions/normals combined
+  with previously captured/converted LOD0/1/2 index sequences.
+- The original DX9 axis basis is **Z-up** (source `AreaTerrain.cpp`),
+  unlike the test preview's **Y-up**. Preview maps **(X,Y,Z) ->
+  (X,Z,-Y)** for positions/normals, centers the patch and applies
+  a **uniform scale** on all axes (no exaggerated height).
+  A camera adapted to the actual height extent prevents clipping.
+  A CPU fixture checks equal XY spacing, vertical normal rotation
+  and fail-without-mutation behavior.
+- `V` toggles actual/synthetic vertices with the *same* captured
+  index topology. `1/2/3` choose actual captured LOD, `W`
+  solid/wireframe, `P` previous synthetic 17x17, `R` previous
+  real-index mode. Window title explicitly distinguishes
+  `REAL PATCH VERTICES` from `SYNTHETIC HEIGHTS`.
+- The captured vertex file is from one sample patch, but
+  the LOD snapshot is emitted during *global* index buffer creation.
+  Combining these is a **structural 17x17 LOD preview**, NOT yet
+  proof of patch adjacency, true texture coordinates or faithful
+  in-game terrain rendering. No production DX9 renderer changes.
+- **Windows build/visual test is pending** for this new viewer; do not
+  mark integration verified until user reports Release x64 compile
+  exit 0 and screenshots of actual vertex+LOD mode.
+- Do NOT run GameLib or UserInterface builds for this step. Only
+  rebuild the isolated `DX11TerrainProbe.vcxproj`. Existing LOD and
+  patch capture files remain untouched.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -574,8 +618,20 @@ User supplied six screenshots after the Gate 1j Windows build/test:
 - [x] User Windows x64 Release standalone verifier rebuild and all self-tests (2026-11-05; build exit 0, test exit 0).
 - [x] User Windows GameLib opt-in + UserInterface link and alternate-name test EXE (2026-11-05).
 - [x] Actual real vertex capture file generated with opt-in flag, 6956-byte format (289 vertices; process PID 11484).
-- [ ] Independently verify captured positions/normals and full original DX9 game regressions.
+- [x] Independently verify captured positions/normals and file checksum (289 vertices, minZ 24249, maxZ 28585, exit 0).
+- [ ] Full original DX9 game runtime regression after isolated capture.
 - [ ] Visually render real terrain vertex heights combined with the verified real LOD snapshot.
+
+### Gate 1L - verified real patch vertex GPU preview
+- [x] Verify captured 289-vertex patch file against fixed snapshot decoder, checksum, finite values (user Windows exit 0).
+- [x] Implement separate read-only Unicode real patch loader with fail-closed behavior.
+- [x] Add rotated, recentered original Z-up to viewer Y-up CPU adapter and synthetic math regressions.
+- [x] Compose captured original patch vertices with all 3 verified original index topology streams in isolated immutable DX11 meshes.
+- [x] Retain unmodified no-argument synthetic, synthetic-patch and previous LOD-only modes.
+- [ ] User Windows Release x64 standalone DX11TerrainProbe compilation and link successful.
+- [ ] User screenshot: LOD0/1/2 real patch vertex views; compare V synthetic/actual and W wireframe/solid.
+- [ ] Verify capture files unchanged (hash), clean DX11 test exit and original working DX9 runtime EXE unchanged.
+- [ ] Verify original game patch neighborhood seams / winding and splat layers separately.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
