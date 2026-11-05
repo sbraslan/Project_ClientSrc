@@ -473,12 +473,55 @@ User supplied six screenshots after the Gate 1j Windows build/test:
   checksummed sources and reports X/Y/Z spans, height/horizontal ratio,
   mean Z-up normal, grid-neighbor maximum/steep-edge slopes, and
   projected positive/negative/degenerate winding counts per LOD.
-  This tool has **NOT YET BEEN COMPILED OR RUN ON WINDOWS** after
-  the new audit feature; output metrics are pending.
+  **Windows Release x64 build and the user audit both PASSED**
+  on 2026-11-05: `AUDIT EXIT CODE: 0`.
 - User should compile only the isolated
   `DX11LODSnapshotProbe.vcxproj`, preserve both snapshot files,
   and run the geometry audit from the game working directory.
   The game EXE and DX9 runtime must remain unchanged.
+
+## Gate 1n — actual patch slope/winding QA PASSED (2026-11-05)
+
+User ran the new `DX11LODSnapshotProbe.exe --audit-geometry` on
+**both original captured snapshot files**, producing `AUDIT EXIT CODE: 0`.
+
+Exact source-derived metrics:
+- X = 3200, Y = 3200, Z/height range = 4336 original game units;
+  ratio `Z/max(X,Y) = 1.355`. A tall cliff-like first sample patch
+  is plausible; the viewer is using **uniform scale**, not deliberately
+  exaggerating height.
+- Mean normalized source `Z-up` normal component = **0.750077**.
+- 544 sampled grid-neighbor edges, maximum slope **82.5454 degrees**;
+  **30** edges >=60 degrees and **18** edges >=75 degrees.
+- LOD0: **512** converted triangles, all **512** projected positive,
+  **0** negative, **0** projected-degenerate.
+- LOD1: **216** triangles, all **216** projected positive,
+  **0** negative, **0** projected-degenerate.
+- LOD2: **184** triangles, all **184** projected positive,
+  **0** negative, **0** projected-degenerate.
+- User log: `[OK] Read-only captured geometry audit complete.
+  No runtime files were written.`
+
+**Important limitations:**
+- The positive winding sign describes **projected original DX9 XY
+  coordinates**, not an already verified DX11 front-face policy.
+- The standalone DX11 viewer's wireframe and solid rasterizers
+  currently set `D3D11_CULL_NONE`; visibility there is NOT evidence
+  that production backface culling / `FrontCounterClockwise`
+  are correct. This must be verified before enabling culling.
+- One original 17x17 patch is captured and the LOD index topology is
+  reused for all patches. The audit does **not** verify seams between
+  adjacent patches, shading, true terrain splatting, or production
+  Metin2 rendering / performance.
+- No snapshot files or normal DX9 game executable were modified by
+  the CPU geometry audit.
+
+**Next safe gate:** independently test actual captured patch in
+`W`=solid mode and audit `CullMode` / triangle-facing configuration
+against the game source. Then capture a coordinated pair of
+adjacent real patches (stable IDs/provenance) for edge stitching
+comparisons before integrating terrain materials or full DX11
+rendering.
 
 ## Scope and source of truth
 
