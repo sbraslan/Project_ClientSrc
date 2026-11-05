@@ -1265,7 +1265,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
 
     std::wstring snapshotPath;
     std::wstring realPatchPath;
-    bool validArgs = (argc == 1 || argc == 3 || argc == 5);
+    std::wstring adjacentAPath;
+    std::wstring adjacentBPath;
+    bool validArgs = (argc == 1 || argc == 3 || argc == 5 || argc == 7);
     for (int i = 1; validArgs && i < argc; i += 2)
     {
         if (!argv[i + 1][0])
@@ -1276,20 +1278,32 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
         else if (std::wcscmp(argv[i], L"--patch-snapshot") == 0 &&
                  realPatchPath.empty())
             realPatchPath = argv[i + 1];
+        else if (std::wcscmp(argv[i], L"--adjacent-a") == 0 &&
+                 adjacentAPath.empty())
+            adjacentAPath = argv[i + 1];
+        else if (std::wcscmp(argv[i], L"--adjacent-b") == 0 &&
+                 adjacentBPath.empty())
+            adjacentBPath = argv[i + 1];
         else
             validArgs = false;
     }
     ::LocalFree(argv);
-    // The real patch must always be accompanied by a checked real LOD set;
-    // a single bare vertex snapshot is not silently mixed with toy indices.
+    // Existing single-patch and synthetic modes are unchanged.
     if (!realPatchPath.empty() && snapshotPath.empty())
+        validArgs = false;
+    // Both neighbor snapshots AND the global LOD file are mandatory.
+    // The standalone two-neighbor preview cannot silently mix files.
+    if (adjacentAPath.empty() != adjacentBPath.empty() ||
+        (!adjacentAPath.empty() &&
+         (snapshotPath.empty() || !realPatchPath.empty())))
         validArgs = false;
 
     if (!validArgs)
     {
         MessageBoxW(nullptr,
             L"Usage: DX11TerrainProbe.exe [--lod-snapshot \"LOD.bin\"] [--patch-snapshot \"PATCH.bin\"]\n"
-            L"A patch snapshot requires a LOD snapshot. Both files are read-only.",
+            L"OR --lod-snapshot \"LOD.bin\" --adjacent-a \"A.bin\" --adjacent-b \"B.bin\"\n"
+            L"Only valid, independently checksummed files are accepted; all inputs are read-only.",
             kTitle, MB_OK | MB_ICONERROR);
         return 7;
     }
@@ -1319,9 +1333,33 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
         g_realPatchLoaded = true;
         g_realPatchPreview = true;
     }
+    if (!adjacentAPath.empty())
+    {
+        if (!LoadPatchCaptureFile(adjacentAPath, g_adjacentSnapshots[0]) ||
+            !LoadPatchCaptureFile(adjacentBPath, g_adjacentSnapshots[1]))
+        {
+            MessageBoxW(nullptr,
+                L"Invalid or inaccessible adjacent patch A/B snapshot(s). No fallback.",
+                kTitle, MB_OK | MB_ICONERROR);
+            return 10;
+        }
+        std::array<std::vector<m2::render::TerrainVertex>, 2> previewCheck;
+        if (!BuildAdjacentPatchPreviews(
+                g_adjacentSnapshots, previewCheck, g_adjacentViewDistance))
+        {
+            MessageBoxW(nullptr,
+                L"Invalid neighbor origin or mismatched 17-vertex border. Refusing to render.",
+                kTitle, MB_OK | MB_ICONERROR);
+            return 11;
+        }
+        g_adjacentLoaded = true;
+        g_adjacentPreview = true;
+        g_realLODPreview = false;
+        g_wireframe = true;
+    }
 
     if (!ValidateTerrainBuilder() || !ValidateLegacyIndexTopology() ||
-        !ValidateCapturedPatchTransform())
+        !ValidateCapturedPatchTransform() || !ValidateAdjacentPatchPreview())
     {
         MessageBoxW(nullptr, L"Terrain mesh / LOD topology CPU self-check failed.", kTitle,
                     MB_OK | MB_ICONERROR);
