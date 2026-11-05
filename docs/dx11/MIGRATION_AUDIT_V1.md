@@ -551,12 +551,19 @@ User supplied six screenshots after the Gate 1j Windows build/test:
 - [ ] Verify that capture snapshot SHA256 remains identical, normal DX9 client unchanged.
 - [ ] Cross-check seam/winding behavior; inspect real vertex position/normal layout separately before any runtime integration.
 
+## Gate 1k Windows verification update — 2026-11-05
+
+- User fetched branch through `70921fc3` via fast-forward.
+- `DX11LODSnapshotProbe.vcxproj` `/t:Rebuild` `Release|x64` completed with build exit **0**, compiling both legacy LOD codec and new `DX11LegacyPatchSnapshot.cpp`.
+- No-argument verifier reported all original LOD tests `[OK]`, plus patch vertex encode, decode, roundtrip, FNV checksum-corruption rejection and invalid normal rejection `[OK]`, test exit **0**.
+- All testing was synthetic/CPU only; `dx11_terrain_patch_capture.bin` has **not** been captured or verified. Next required gate is the opt-in GameLib + UserInterface build, then controlled test from the runtime working directory, without overwriting original DX9 EXE or existing LOD snapshot.
+
 ### Gate 1k - first real 17x17 position/normal capture
 - [x] Source audit identified original height-map and normal-map vertex producer before DX9 upload.
 - [x] Isolate snapshot hook to `TerrainPatch.cpp` with explicit compile + process environment switches.
 - [x] Define fixed 289-position/normal float32 snapshot codec and checksum, no game shader changes.
 - [x] Extend existing CPU verifier with synthetic roundtrip and corruption tests.
-- [ ] User Windows x64 Release standalone verifier rebuild and all self-tests.
+- [x] User Windows x64 Release standalone verifier rebuild and all self-tests (2026-11-05; build exit 0, test exit 0).
 - [ ] User Windows GameLib opt-in + UserInterface link and alternate-name test EXE.
 - [ ] Actual real vertex capture file generated with opt-in flag, 6956-byte format.
 - [ ] Independently verify captured positions/normals and full original DX9 game regressions.
