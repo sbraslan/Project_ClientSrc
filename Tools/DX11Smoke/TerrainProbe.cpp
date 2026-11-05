@@ -15,7 +15,9 @@
 #include "../../Src/EterLib/Renderer/DX11LegacyTerrainPatch.h"
 #include "../../Src/EterLib/Renderer/DX11LegacyTerrainIndices.h"
 #include "../../Src/EterLib/Renderer/DX11LegacyIndexSnapshot.h"
+#include "../../Src/EterLib/Renderer/DX11LegacyPatchSnapshot.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -39,7 +41,10 @@ namespace
     m2::render::DX11MeshBuffers g_mesh;
     m2::render::DX11MeshBuffers g_patchMesh;
     std::array<m2::render::DX11MeshBuffers, 3> g_realLODMeshes;
+    std::array<m2::render::DX11MeshBuffers, 3> g_realPatchLODMeshes;
     m2::render::LegacyIndexSnapshot g_realSnapshot;
+    std::array<m2::render::LegacyPatchVertex,
+               m2::render::DX11LegacyPatchSnapshot::kVertexCount> g_realPatchSnapshot{};
     m2::render::DX11Texture g_grass;
     m2::render::DX11ShaderPipeline g_pipeline;
     ComPtr<ID3D11Buffer> g_sceneConstants;
@@ -98,6 +103,9 @@ namespace
     bool g_patchPreview = false;
     bool g_realLODLoaded = false;
     bool g_realLODPreview = false;
+    bool g_realPatchLoaded = false;
+    bool g_realPatchPreview = false;
+    float g_realPatchViewDistance = 21.0f;
     std::size_t g_activeRealLOD = 0;
 
     constexpr char kTerrainShader[] = R"HLSL(
@@ -190,6 +198,161 @@ namespace
         }
 
         return ::CloseHandle(file) != FALSE && valid;
+    }
+
+    // Verified real 17x17 positions/normals (M2PVERT1, exactly 6956 bytes).
+    // Unlike the original DX9 coordinates, the independent DX11 test scene
+    // uses Y as its vertical axis. File read is strictly read-only.
+    bool LoadPatchCaptureFile(
+        const std::wstring& path,
+        std::array<m2::render::LegacyPatchVertex,
+                   m2::render::DX11LegacyPatchSnapshot::kVertexCount>& output)
+    {
+        constexpr std::size_t expected =
+            m2::render::DX11LegacyPatchSnapshot::kFileBytes;
+        HANDLE file = ::CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ,
+                                    nullptr, OPEN_EXISTING,
+                                    FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
+                                    nullptr);
+        if (file == INVALID_HANDLE_VALUE)
+            return false;
+
+        LARGE_INTEGER length{};
+        bool valid = ::GetFileSizeEx(file, &length) != FALSE &&
+                     length.QuadPart == static_cast<LONGLONG>(expected);
+        if (valid)
+        {
+            std::array<std::uint8_t, expected> bytes{};
+            DWORD bytesRead = 0;
+            valid = ::ReadFile(file, bytes.data(),
+                               static_cast<DWORD>(bytes.size()),
+                               &bytesRead, nullptr) != FALSE &&
+                    bytesRead == bytes.size();
+            if (valid)
+                valid = m2::render::DX11LegacyPatchSnapshot::Decode(
+                    bytes.data(), bytes.size(), output);
+        }
+        const bool closed = ::CloseHandle(file) != FALSE;
+        return closed && valid;
+    }
+
+    // Patch vertices are captured from the original game's local+world
+    // coordinates: (DX9 X, DX9 Y, DX9 Z=height), Z-up. Convert to viewer
+    // (X, Z, -Y) -- a pure rotation with positive determinant, NOT a
+    // mirror that would reverse triangle winding. Rotate normals likewise.
+    // Recenter and use ONE uniform scale on all axes; no vertical exaggeration.
+    // This lets tiny 17x17 patches with large DX9 world coordinates fit
+    // the independent camera without changing the physical slope ratios.
+    bool BuildCapturedPatchPreview(
+        const std::array<m2::render::LegacyPatchVertex,
+                         m2::render::DX11LegacyPatchSnapshot::kVertexCount>& source,
+        std::vector<m2::render::TerrainVertex>& output,
+        float& viewDistance)
+    {
+        double minXYZ[3]{source[0].position[0],
+                         source[0].position[1],
+                         source[0].position[2]};
+        double maxXYZ[3]{minXYZ[0], minXYZ[1], minXYZ[2]};
+        for (const auto& v : source)
+        {
+            double normalLength = 0.0;
+            for (unsigned axis = 0; axis < 3; ++axis)
+            {
+                if (!std::isfinite(v.position[axis]) ||
+                    !std::isfinite(v.normal[axis]))
+                    return false;
+                const double p = v.position[axis];
+                minXYZ[axis] = (std::min)(minXYZ[axis], p);
+                maxXYZ[axis] = (std::max)(maxXYZ[axis], p);
+                normalLength += static_cast<double>(v.normal[axis]) *
+                                v.normal[axis];
+            }
+            if (!std::isfinite(normalLength) || normalLength <= 1.0e-8)
+                return false;
+        }
+
+        const double spanX = maxXYZ[0] - minXYZ[0];
+        const double spanY = maxXYZ[1] - minXYZ[1];
+        const double horizontalSpan = (std::max)(spanX, spanY);
+        if (!std::isfinite(horizontalSpan) || horizontalSpan <= 0.0)
+            return false;
+
+        // Same units in X, Y and Z. The horizontal patch spans <=19.2
+        // viewer units; a steep original height range remains steep.
+        const double scale = 19.2 / horizontalSpan;
+        const double centerX = (maxXYZ[0] + minXYZ[0]) * 0.5;
+        const double centerY = (maxXYZ[1] + minXYZ[1]) * 0.5;
+        const double centerZ = (maxXYZ[2] + minXYZ[2]) * 0.5;
+        std::vector<m2::render::TerrainVertex> transformed(source.size());
+        double radiusSquaredMax = 0.0;
+        for (std::size_t i = 0; i < source.size(); ++i)
+        {
+            const auto& vertex = source[i];
+            auto& out = transformed[i];
+            const double x = (static_cast<double>(vertex.position[0]) - centerX) * scale;
+            const double y = (static_cast<double>(vertex.position[2]) - centerZ) * scale;
+            const double z = (centerY - static_cast<double>(vertex.position[1])) * scale;
+            if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z))
+                return false;
+            out.position[0] = static_cast<float>(x);
+            out.position[1] = static_cast<float>(y);
+            out.position[2] = static_cast<float>(z);
+            out.normal[0] = vertex.normal[0];
+            out.normal[1] = vertex.normal[2];
+            out.normal[2] = -vertex.normal[1];
+
+            const std::uint32_t gridX = static_cast<std::uint32_t>(i % 17u);
+            const std::uint32_t gridZ = static_cast<std::uint32_t>(i / 17u);
+            out.uv[0] = static_cast<float>(gridX) * (2.0f / 16.0f);
+            out.uv[1] = static_cast<float>(gridZ) * (2.0f / 16.0f);
+            radiusSquaredMax = (std::max)(radiusSquaredMax,
+                                         x * x + y * y + z * z);
+        }
+
+        const double suggestedDistance = (std::max)(
+            21.0, std::sqrt(radiusSquaredMax) * 3.3);
+        if (!std::isfinite(suggestedDistance) || suggestedDistance > 100000.0)
+            return false;
+        const float candidateDistance = static_cast<float>(suggestedDistance);
+        output.swap(transformed);
+        viewDistance = candidateDistance;
+        return true;
+    }
+
+    bool ValidateCapturedPatchTransform()
+    {
+        std::array<m2::render::LegacyPatchVertex,
+                   m2::render::DX11LegacyPatchSnapshot::kVertexCount> fixture{};
+        for (std::size_t i = 0; i < fixture.size(); ++i)
+        {
+            fixture[i].position[0] = 18000.0f +
+                100.0f * static_cast<float>(i % 17u);
+            fixture[i].position[1] = -12000.0f -
+                100.0f * static_cast<float>(i / 17u);
+            fixture[i].position[2] = 24249.0f +
+                10.0f * static_cast<float>(i % 5u);
+            fixture[i].normal[0] = 0.0f;
+            fixture[i].normal[1] = 0.0f;
+            fixture[i].normal[2] = 1.0f;
+        }
+        std::vector<m2::render::TerrainVertex> vertices;
+        float distance = 0.0f;
+        if (!BuildCapturedPatchPreview(fixture, vertices, distance) ||
+            vertices.size() != fixture.size() || distance < 21.0f)
+            return false;
+
+        // Equivalent DX9 X and -Y cell spacing must survive at equal scale.
+        const float deltaX = vertices[1].position[0] - vertices[0].position[0];
+        const float deltaZ = vertices[17].position[2] - vertices[0].position[2];
+        if (std::abs(deltaX - deltaZ) > 0.0001f ||
+            std::abs(vertices[0].normal[1] - 1.0f) > 0.0001f ||
+            std::abs(vertices[0].normal[2]) > 0.0001f)
+            return false;
+
+        // Malformed source does not overwrite a last successfully built mesh.
+        fixture[0].normal[2] = 0.0f;
+        return !BuildCapturedPatchPreview(fixture, vertices, distance) &&
+               vertices.size() == fixture.size();
     }
 
     m2::render::HeightField CreateTestHeights()
