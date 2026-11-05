@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#if defined(M2_DX11_MAP_PACK_INSPECT) && defined(_WIN64)
+#include "DX11MapPackInspect.h"
+#endif
 #if defined(M2_DX11_MAIN_WINDOW_BOOTSTRAP) && defined(_WIN64)
 #include "DX11MainWindowBootstrap.h"
 #endif
@@ -1055,6 +1058,40 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 {
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_CRT_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
+#if defined(M2_DX11_MAP_PACK_INSPECT) && defined(_WIN64)
+    // Strict CPU/pack INSPECTION path. Before game / GPU initialization:
+    // duplicate the normal client's proven CLZO / pack registration order,
+    // without constructing CPythonApplication or any D3D9 device.
+    // Two opt-ins are necessary: special build property and exact runtime
+    // CLI + environment flag. This mode never starts the game.
+    if (lpCmdLine && strcmp(lpCmdLine, "--dx11-pack-inspect") == 0)
+    {
+        OpenLogFile(true);
+        if (!m2::render::DX11MapPackInspectRequested())
+        {
+            TraceError("[DX11 MAP PACK] blocked: set "
+                       "METIN2_DX11_MAP_PACK_INSPECT=1");
+            return 20;
+        }
+        if (_access("pack", 0) != 0)
+        {
+            TraceError("[DX11 MAP PACK] pack/ directory not found "
+                       "in current working directory");
+            return 21;
+        }
+
+        static CLZO diagnosticLZO;
+        static CEterPackManager diagnosticPackManager;
+        if (!PackInitialize("pack"))
+        {
+            TraceError("[DX11 MAP PACK] PackInitialize failed, "
+                       "no game/DX9 resources started");
+            return 22;
+        }
+        return m2::render::RunDX11MapPackInspect();
+    }
 #endif
 
 #if defined(M2_DX11_MAIN_WINDOW_BOOTSTRAP) && defined(_WIN64)
