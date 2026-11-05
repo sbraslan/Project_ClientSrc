@@ -634,6 +634,10 @@
       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Renderer\DX11LegacyPatchSnapshot.cpp">
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="GrpMath.cpp" />
     <ClCompile Include="GrpScreen.cpp" />
     <ClCompile Include="JpegFile.cpp" />
