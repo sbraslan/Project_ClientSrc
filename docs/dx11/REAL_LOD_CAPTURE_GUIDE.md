@@ -359,6 +359,46 @@ snapshot SHA256 values remain unchanged and process closes
 with exit code 0. If build fails, stop and inspect error;
 DO NOT copy a probe into the production game directory.
 
+## Gate F — screenshots confirm DX11 real vertex geometry; audit steep cliff (2026-11-05)
+
+The user supplied seven independent DX11 TerrainProbe screenshots:
+three **REAL PATCH VERTICES** wireframe modes (LOD0=512, LOD1=216,
+LOD2=184 triangles), one original **captured indices + synthetic
+heights** mode, full synthetic terrain wireframe, and 17x17 synthetic
+patch wireframe/solid. The D3D11 overlay is visible and reports
+~144 FPS **in this isolated test only**. Normal DX9 Metin2 gameplay
+was not changed or benchmarked.
+
+The real 289-vertex patch has a cliff-like silhouette, potentially
+expected given its verified original source height range of 4336
+DX9 units. Rather than alter the viewer's vertical scale or draw
+mode without evidence, use the new **CPU-only** geometry audit:
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc'
+git pull --ff-only origin modernization/dx11-renderer
+& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' '.\Tools\DX11Smoke\DX11LODSnapshotProbe.vcxproj' /t:Rebuild /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+Set-Location -LiteralPath 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client'
+& 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Tools\DX11Smoke\bin\x64\Release\DX11LODSnapshotProbe.exe' --audit-geometry 'dx11_terrain_lod_capture.bin' 'dx11_terrain_patch_capture.bin'
+```
+
+The audit reports original X/Y/Z size, Z/horizontal ratio, source
+normal upward orientation, steep immediate-neighbor edges, and for
+each converted LOD index set its projected triangle winding and
+degenerate counts. Important: the original Y coordinate is negative
+as the terrain rows advance; the audit reports source-space XY
+winding to avoid mistaking the display rotation for source data.
+
+Audit limitations: **one original patch and global LOD topology**,
+not two adjacent map patches. Consistent winding is necessary but not
+sufficient proof that DX11 rasterizer culling matches the DX9 render
+state. No actual terrain textures, splats, material layers, seam
+neighbors, or production renderer have been migrated. Do not modify
+the DX9 game or recapture snapshots on this gate.
+
+Windows rebuild + user audit result for this additional QA code is
+**PENDING**.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
