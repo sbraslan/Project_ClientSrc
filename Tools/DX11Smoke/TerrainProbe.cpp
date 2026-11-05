@@ -4,6 +4,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <Windows.h>
+#include <shellapi.h>
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <wrl/client.h>
@@ -13,12 +14,16 @@
 #include "../../Src/EterLib/Renderer/DX11TerrainMesh.h"
 #include "../../Src/EterLib/Renderer/DX11LegacyTerrainPatch.h"
 #include "../../Src/EterLib/Renderer/DX11LegacyTerrainIndices.h"
+#include "../../Src/EterLib/Renderer/DX11LegacyIndexSnapshot.h"
 
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <cwchar>
+#include <string>
+#include <utility>
 #include <vector>
 
 using Microsoft::WRL::ComPtr;
@@ -33,6 +38,8 @@ namespace
     m2::render::DX11RenderDevice g_renderer;
     m2::render::DX11MeshBuffers g_mesh;
     m2::render::DX11MeshBuffers g_patchMesh;
+    std::array<m2::render::DX11MeshBuffers, 3> g_realLODMeshes;
+    m2::render::LegacyIndexSnapshot g_realSnapshot;
     m2::render::DX11Texture g_grass;
     m2::render::DX11ShaderPipeline g_pipeline;
     ComPtr<ID3D11Buffer> g_sceneConstants;
@@ -89,6 +96,9 @@ namespace
     bool g_ready = false;
     bool g_wireframe = false;
     bool g_patchPreview = false;
+    bool g_realLODLoaded = false;
+    bool g_realLODPreview = false;
+    std::size_t g_activeRealLOD = 0;
 
     constexpr char kTerrainShader[] = R"HLSL(
         cbuffer Scene : register(b0)
@@ -138,6 +148,48 @@ namespace
         wsprintfW(output, L"%s failed (HRESULT 0x%08X)\n",
                   operation, static_cast<unsigned>(hr));
         OutputDebugStringW(output);
+    }
+
+    // Read ONLY a caller-selected, bounded snapshot file. The filename is
+    // wide to preserve non-ASCII Windows paths (e.g. Masaustu with umlaut).
+    // The shared codec verifies magic, version, lengths, checksum and all
+    // index topology before any D3D11 resource can be created.
+    bool LoadCaptureFile(const std::wstring& path,
+                         m2::render::LegacyIndexSnapshot& result)
+    {
+        using m2::render::DX11LegacyIndexSnapshot;
+        constexpr std::size_t kMaxSnapshotBytes =
+            8u + 4u + DX11LegacyIndexSnapshot::kLODCount * 4u +
+            DX11LegacyIndexSnapshot::kLODCount *
+                DX11LegacyIndexSnapshot::kMaxPerLOD * sizeof(std::uint16_t) +
+            4u;
+
+        HANDLE file = ::CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ,
+                                    nullptr, OPEN_EXISTING,
+                                    FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
+                                    nullptr);
+        if (file == INVALID_HANDLE_VALUE)
+            return false;
+
+        LARGE_INTEGER length{};
+        bool valid = ::GetFileSizeEx(file, &length) != FALSE &&
+                     length.QuadPart >= 28 &&
+                     length.QuadPart <= static_cast<LONGLONG>(kMaxSnapshotBytes);
+        if (valid)
+        {
+            std::vector<std::uint8_t> bytes(
+                static_cast<std::size_t>(length.QuadPart));
+            DWORD bytesRead = 0;
+            valid = ::ReadFile(file, bytes.data(),
+                               static_cast<DWORD>(bytes.size()),
+                               &bytesRead, nullptr) != FALSE &&
+                    bytesRead == bytes.size();
+            if (valid)
+                valid = DX11LegacyIndexSnapshot::Decode(
+                    bytes.data(), bytes.size(), result);
+        }
+
+        return ::CloseHandle(file) != FALSE && valid;
     }
 
     m2::render::HeightField CreateTestHeights()
@@ -374,6 +426,37 @@ namespace
         if (FAILED(hr))
             return hr;
 
+        // Captured REAL LOD index streams on the existing SYNTHETIC 17x17
+        // preview vertices. The .bin has indices only: this intentionally
+        // does not claim to render original in-game heights or textures.
+        if (g_realLODLoaded)
+        {
+            if (patchVertices.size() !=
+                m2::render::DX11LegacyIndexSnapshot::kVertexCount)
+                return E_INVALIDARG;
+
+            for (std::size_t lod = 0; lod < g_realLODMeshes.size(); ++lod)
+            {
+                const auto& original = g_realSnapshot.lod[lod];
+                const auto primitive = lod == 0
+                    ? m2::render::LegacyTerrainPrimitive::TriangleStrip
+                    : m2::render::LegacyTerrainPrimitive::TriangleList;
+                std::vector<std::uint16_t> triangles;
+                if (!m2::render::DX11LegacyTerrainIndices::ToTriangleList(
+                        original.data(), original.size(), patchVertices.size(),
+                        primitive, triangles))
+                    return E_INVALIDARG;
+
+                hr = DX11RenderResources::CreateImmutableMesh(
+                    device, patchVertices.data(),
+                    static_cast<UINT>(sizeof(m2::render::TerrainVertex)),
+                    static_cast<UINT>(patchVertices.size()), triangles.data(),
+                    static_cast<UINT>(triangles.size()), g_realLODMeshes[lod]);
+                if (FAILED(hr))
+                    return hr;
+            }
+        }
+
         constexpr D3D11_INPUT_ELEMENT_DESC layout[] =
         {
             {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -466,6 +549,8 @@ namespace
         g_sampler.Reset();
         g_grass.Reset();
         g_pipeline.Reset();
+        for (auto& mesh : g_realLODMeshes)
+            mesh.Reset();
         g_patchMesh.Reset();
         g_mesh.Reset();
     }
@@ -521,7 +606,9 @@ namespace
         context->RSSetState(g_wireframe ? g_wire.Get() : g_solid.Get());
 
         const m2::render::DX11MeshBuffers& active =
-            g_patchPreview ? g_patchMesh : g_mesh;
+            g_realLODPreview && g_realLODLoaded
+                ? g_realLODMeshes[g_activeRealLOD]
+                : (g_patchPreview ? g_patchMesh : g_mesh);
         ID3D11Buffer* vb = active.vertices.Get();
         const UINT offset = 0;
         context->IASetVertexBuffers(0, 1, &vb, &active.stride, &offset);
@@ -547,6 +634,18 @@ namespace
     {
         // Explicitly identify the active scene; title alone previously only
         // listed controls, so screenshots couldn't prove the P key was tested.
+        if (g_realLODLoaded && g_realLODPreview)
+        {
+            wchar_t caption[256]{};
+            swprintf_s(caption, ARRAYSIZE(caption),
+                L"Metin2 DX11 | CAPTURED INDEX LOD%u: %u triangles | SYNTHETIC HEIGHTS | %s | 1/2/3 R P W",
+                static_cast<unsigned>(g_activeRealLOD),
+                static_cast<unsigned>(g_realLODMeshes[g_activeRealLOD].indexCount / 3u),
+                g_wireframe ? L"Wireframe" : L"Solid");
+            SetWindowTextW(window, caption);
+            return;
+        }
+
         const wchar_t* caption = nullptr;
         if (g_patchPreview)
             caption = g_wireframe
@@ -576,6 +675,21 @@ namespace
             else if (wparam == 'P')
             {
                 g_patchPreview = !g_patchPreview;
+                g_realLODPreview = false;
+                UpdateWindowTitle(window);
+            }
+            else if (g_realLODLoaded && wparam == 'R')
+            {
+                g_realLODPreview = !g_realLODPreview;
+                if (g_realLODPreview)
+                    g_patchPreview = false;
+                UpdateWindowTitle(window);
+            }
+            else if (g_realLODLoaded && wparam >= '1' && wparam <= '3')
+            {
+                g_activeRealLOD = static_cast<std::size_t>(wparam - '1');
+                g_realLODPreview = true;
+                g_patchPreview = false;
                 UpdateWindowTitle(window);
             }
             return 0;
@@ -612,6 +726,45 @@ namespace
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
 {
+    // The no-argument synthetic TerrainProbe is intentionally unchanged.
+    // Real LOD is an explicit, read-only option with a quoted Unicode path.
+    int argc = 0;
+    LPWSTR* argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
+    if (!argv)
+        return 7;
+
+    std::wstring snapshotPath;
+    bool validArgs = (argc == 1);
+    if (argc == 3 && std::wcscmp(argv[1], L"--lod-snapshot") == 0 &&
+        argv[2][0] != L'\0')
+    {
+        snapshotPath = argv[2];
+        validArgs = true;
+    }
+    ::LocalFree(argv);
+
+    if (!validArgs)
+    {
+        MessageBoxW(nullptr,
+            L"Usage: DX11TerrainProbe.exe [--lod-snapshot \"C:\\path\\capture.bin\"]",
+            kTitle, MB_OK | MB_ICONERROR);
+        return 7;
+    }
+
+    if (!snapshotPath.empty())
+    {
+        if (!LoadCaptureFile(snapshotPath, g_realSnapshot))
+        {
+            MessageBoxW(nullptr,
+                L"Real LOD snapshot could not be opened or validated. No fallback to synthetic indices.",
+                kTitle, MB_OK | MB_ICONERROR);
+            return 8;
+        }
+        g_realLODLoaded = true;
+        g_realLODPreview = true;
+        g_wireframe = true;
+    }
+
     if (!ValidateTerrainBuilder() || !ValidateLegacyIndexTopology())
     {
         MessageBoxW(nullptr, L"Terrain mesh / LOD topology CPU self-check failed.", kTitle,
