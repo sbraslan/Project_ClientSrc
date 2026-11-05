@@ -824,6 +824,81 @@ claim all possible runtime crack sources are eliminated.
   Keep DX9 source untouched and start with synthetic isolated
   shader/texture fixtures. No texture migration is verified.
 
+## Gate 2a — FIRST in-process DX11 device / swapchain bridge (source committed, Windows test pending)
+
+**Why:** The standalone independent D3D11 TerrainProbe and verified real
+terrain meshes do NOT imply that Metin2's actual `CGraphicDevice` /
+`CPythonApplication` render loop has switched from DX9. The user
+explicitly requested beginning in-game DX11 integration rather than
+more synthetic geometry tests. This gate integrates the existing
+`EterLib/Renderer/DX11RenderDevice` into the **actual game process**
+without stealing the original DX9-owned game HWND.
+
+**Source and gates:**
+- `Src/UserInterface/DX11InGameProbe.h/.cpp`:
+  new minimal isolated bridge creates its own
+  `WS_EX_TOOLWINDOW` window (not the game window), and uses
+  `DX11RenderDevice::Initialize` to create a real hardware D3D11
+  device, IDXGISwapChain1, render target and Clear/Present calls.
+- `Src/UserInterface/PythonApplication.cpp`:
+  the original `CPythonApplication::Process()` calls
+  `DX11InGameProbeTick()` **after** the existing DX9
+  `m_pyGraphic.Show()` path, outside any device-ownership transfer;
+  `Destroy()` calls independent shutdown BEFORE DX9 teardown.
+  Both hooks are behind `M2_DX11_INGAME_PROBE && _WIN64`.
+- `UserInterface.vcxproj` compiles the bridge ONLY in
+  `Release|x64` with
+  `/p:EnableDX11InGameProbe=true` and enables the hook on
+  `PythonApplication.cpp` (per-file PCH disabled only in opt-in
+  builds). When the property is omitted, the new bridge source
+  is excluded from compilation and the original DX9 path remains.
+- **Second gate:** The special executable must see
+  `METIN2_DX11_INGAME_PROBE=1` in its own **elevated process**
+  environment; the setting must be exactly the single character
+  `1`. Without it, no separate window or D3D11 device is created.
+- Diagnostic window has its own swapchain and shows changing
+  clear color (at most 10 fps). Close `X` only destroys the
+  diagnostic HWND; the window proc never calls `PostQuitMessage`,
+  so the main game continues. Init/Clear/Present errors log a
+  single failure and disable the bridge, leaving DX9 untouched.
+  After 30 successful sidecar presents, log
+  `[DX11 INGAME] 30 independent D3D11 Present calls passed ...`.
+- The new Release|x64 conditional link uses
+  `python315.lib;d3d11.lib;dxgi.lib` and the existing EterLib
+  static renderer implementation. Existing test of DX9 device
+  loss/reset is NOT bypassed.
+
+**Windows validation REQUIRED before claiming runtime success:**
+1. Fetch branch. First compile and link `UserInterface Release|x64`
+   with `EnableDX11InGameProbe=true` and all previous capture
+   switches `false`; stop on any compile or link error.
+2. Hash-check original `Project_Client/metin2release.exe`
+   against its version-specific DX9 backup.
+3. Confirm diagnostic log marker in compiled binary; copy compiled
+   EXE into the game folder with a DIFFERENT versioned name.
+   Do not overwrite the original DX9 EXE, or mutate previous
+   LOD/patch/adjacent capture `.bin` files.
+4. Run the alternate EXE in an already elevated PowerShell via
+   `ProcessStartInfo.UseShellExecute=false`,
+   `WorkingDirectory=Project_Client`, and set process
+   environment `METIN2_DX11_INGAME_PROBE=1`.
+5. Confirm separately titled D3D11 test window while actual game
+   continues with its DX9 overlay; enter character/game map,
+   keep running long enough for 30 presents and close the D3D11
+   diagnostic window WITHOUT closing the DX9 game.
+6. Inspect syserr `[DX11 INGAME]` entries, DX9 process exit code,
+   and original EXE checksum. Failure is a stopping point; do not
+   infer success from just compiler output.
+
+**Important scope:** This proves optional D3D11 device + swapchain
++ tick/present lifecycle **inside** the actual game process only.
+The actual DX9 game HWND and present path are still DX9.
+It does NOT mean characters, terrain textures or UI have been
+rendered with DX11 inside Metin2. Next gate after pass:
+derive an explicit `IRenderDevice` lifecycle/ownership switch
+and a controlled terrain-only DX11 route (materials later).
+No production-game renderer replacement until those are tested.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
