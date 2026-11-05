@@ -280,6 +280,32 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - A separate `game.py:1613 SaveScreen` narrow-path/UTF-8 traceback
   was detected; handle it independently from terrain capture.
 
+## Gate 1h — missing real capture root-cause probe (2026-11-05)
+
+- User-provided read-only SHA256 comparison: active normal runtime EXE
+  (`Project_Client/metin2release.exe`) contains **no** capture marker,
+  while `metin2release_dx11_lod_probe.exe` in the game runtime
+  directory and the opt-in build output have **identical SHA256** and
+  both contain the literal capture environment/log marker strings.
+  Original runtime DX9 EXE remains a distinct protected binary.
+- No real `dx11_terrain_lod_capture.bin` exists; the most recent
+  checked syserr had no `[DX11 LOD CAPTURE]` entries. Opt-in link
+  success alone cannot establish that the map initialization path
+  ran or that the environment flag reached the process.
+- Source call chain checked:
+  `CMapOutdoor::CreateTerrainPatchProxyList()` calls
+  `SetIndexBuffer()`, which generates all LOD streams then calls
+  `TryCaptureOriginalTerrainLOD()` before DX9 upload.
+- Added **opt-in x64 only**, once-per-process
+  `[DX11 LOD DIAG] hook reached | envLength=... | enabled=...`
+  trace at the hook, even if runtime flag is absent. This separates
+  no map initialization from missing environment flag and reports
+  LOD 0/1/2 source counts. No diagnostic log in normal DX9 builds.
+- **Windows rebuild and live result PENDING**. The new source
+  diagnostic is not yet confirmed in the user's compiled EXE.
+  Do not mark real LOD capture validated until a real file passes
+  `DX11LODSnapshotProbe.exe --verify`.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
