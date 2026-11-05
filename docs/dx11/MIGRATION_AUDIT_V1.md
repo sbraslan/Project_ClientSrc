@@ -642,6 +642,37 @@ seam integrity. DX9 uses its separate `D3DCULL_CW` default state.
   The audit reports discontinuities rather than silently stitching
   or modifying the terrain.
 
+## Gate 1r — adjacent-patch CPU fixtures PASSED; live probe build next (2026-11-05)
+
+User ran the updated standalone `DX11LODSnapshotProbe.exe` and supplied
+`TEST EXIT CODE: 0`. All preexisting index/patch codec tests passed.
+The six new synthetic neighbor tests explicitly passed:
+`Adjacent patch valid right edge`, `left edge`, `down(-Y) edge`,
+`up(+Y) edge`, `seam height mismatch rejected`, and
+`Nonadjacent patch origins rejected`.
+`[OK] Index + patch vertex snapshot and border seam self-tests complete;
+no game files written.`
+
+These are synthetic fixtures; neither the REAL
+`dx11_terrain_adjacent_A.bin` nor `dx11_terrain_adjacent_B.bin`
+has yet been obtained or checked. Next gate is a Release|x64
+**opt-in special diagnostic build**, compiling `GameLib` with
+`EnableDX11AdjacentCapture=true` (old independent LOD and
+single-patch flags false) and linking `UserInterface` without
+touching the ordinary `Project_Client/metin2release.exe`.
+Inspect the linked new binary for the exact adjacent hook marker;
+copy it under a versioned unique name only after the original
+DX9 runtime hash matches its hash-specific backup. The process
+must inherit `METIN2_DX11_ADJACENT_CAPTURE_ONCE=1` from an
+already elevated PowerShell using `ProcessStartInfo`
+with `UseShellExecute=false` and working directory `Project_Client`.
+This special executable must not be deployed as a normal client.
+
+Only if two non-overwritten REAL new snapshots are created, run
+`DX11LODSnapshotProbe.exe --audit-adjacent A B` from
+`Project_Client`. Interpret nonzero border mismatch as a finding,
+not as a reason to rewrite original height data.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
