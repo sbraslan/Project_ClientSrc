@@ -728,6 +728,51 @@ not as a reason to rewrite original height data.
   success remain unverified until Windows results supplied.
   FPS from this standalone viewer is not an in-game benchmark.
 
+## Gate 1t — real two-patch DX11 GPU visuals passed; numerical LOD seam audit staged (2026-11-05)
+
+**User supplied ten independent D3D11 TerrainProbe screenshots after
+Windows build passed** (initial Win32 `near` macro name collision
+`TerrainProbe.cpp:387 C2513` was corrected in commit `d336eb1a`).
+The independent DX11 window showed `TWO REAL NEIGHBORS`, with
+separate patch GPU draws, and actual captured 289-vertex A and B
+snapshots in a common original world-coordinate transform.
+
+Visible cases:
+- A:LOD0/B:LOD0 wireframe, two views (512 + 512 triangles).
+- A:LOD1/B:LOD1 wireframe (216 + 216 triangles).
+- A:LOD2/B:LOD2 wireframe (184 + 184 triangles).
+- A:LOD2/B:LOD2 solid, culling OFF; then FRONT_CW,
+  then FRONT_CCW (face nearly fully disappears).
+- A:LOD0/B:LOD2 solid with FRONT_CW (512 + 184 triangles).
+- A:LOD0/B:LOD0 solid with FRONT_CW.
+- A:LOD0/B:LOD1 solid with FRONT_CW (512 + 216 triangles).
+
+All expected modes are visibly active; no **large obvious**
+seam tear or missing patch is apparent in the user's chosen camera
+perspective. This is NOT a proof against subpixel cracks or T-junctions
+in mixed levels. The screenshots show ~144 FPS in the isolated
+viewer, NOT the actual Metin2 game's performance.
+
+**Next read-only CPU check implemented, NOT YET WINDOWS-BUILT:**
+`DX11LODSnapshotProbe.exe --audit-lod-seams lod.bin patchA.bin patchB.bin`
+loads the same three verified snapshots. For all NINE A/B LOD
+combinations, it converts the original strip/list topology to
+triangles, identifies the actual shared boundary triangle edges,
+ensures 16 elementary border spans have exactly one covering edge,
+and compares world-coordinate interpolated positions at all
+17 original grid locations. Outputs maximum actual geometric gap,
+A/B border-segment counts and mismatch samples with `[WARN]`
+on discontinuity. Validated input + completed audit exits 0 even
+with warnings; warnings explicitly BLOCK declaring heterogeneous
+LOD transitions crack-free. Malformed/incomplete boundaries fail.
+
+New synthetic fixture cases: a planar 16-segment vs one-segment
+border must agree; an equal original shared border containing
+an intermediate height bump must reveal a coarse-LOD
+T-junction gap; and incomplete edge coverage must be rejected.
+No game/render files or capture snapshots are modified.
+Windows rebuild/selftests + numeric results are PENDING.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
