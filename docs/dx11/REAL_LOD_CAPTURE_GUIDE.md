@@ -250,6 +250,65 @@ a clean close/exit code, and confirmation that the snapshot SHA256 is
 unchanged. Real in-game vertex positions, texture splatting and
 terrain material data have NOT been captured or ported.
 
+## Gate D — guarded REAL 17x17 vertex snapshot (source committed; Windows test PENDING)
+
+The user's six images verify that isolated DX11 TerrainProbe displays the
+**captured** LOD0/1/2 index topology (512/216/184 triangles) over the
+**existing synthetic** 17x17 vertex heights. The ordinary large terrain
+and synthetic patch previews also remain visible. This proves the
+standalone DX11 index-data path only; not actual game terrain positions.
+
+**Read-only source tracing** identified:
+`GameLib/AreaTerrain.cpp::CTerrain::_CalculateTerrainPatch` obtains
+the real heightmap / normal map vertices and calls
+`CTerrainPatch::BuildTerrainVertexBuffer(akSrcTerrainVertex)`.
+The existing entry point in `GameLib/TerrainPatch.cpp` was used for
+the optional capture hook so the potentially legacy-encoded
+`AreaTerrain.cpp` does **not** need rewriting.
+
+Safety conditions:
+
+- The compile property `/p:EnableDX11PatchCapture=true` affects
+  only `TerrainPatch.cpp` in `GameLib` **Release|x64**.
+  Both the define `M2_DX11_PATCH_CAPTURE` and removal of
+  per-file PCH reuse are conditional; default builds remain OFF.
+- The process environment variable must be exactly
+  `METIN2_DX11_PATCH_CAPTURE_ONCE=1`; the hook records one
+  `[DX11 PATCH DIAG]` entry in special builds and creates at most
+  one snapshot. Normal game execution uses no new CPU path.
+- Snapshot: `dx11_terrain_patch_capture.bin` is
+  **6956 bytes**, magic `M2PVERT1`, version 1,
+  289 original position+normal records, 6 IEEE754 float32 per record,
+  little-endian and FNV-1a checksum. This records original
+  game **Z-up** positions and normals without transforming data.
+- File output is `CREATE_NEW` in the test process working
+  directory: never delete or overwrite existing snapshots as
+  part of scripts. Git ignores the file. DX9 vertex allocation,
+  lighting and upload code remain unchanged.
+- Standalone `DX11LODSnapshotProbe` now tests both the old
+  3-LOD index codec **and** a synthetic patch vertex codec with
+  checksum/corruption checks; `--verify-patch <file>` reports
+  original vertex count and Z range. Existing
+  `--verify <lod-file>` continues to work.
+
+**Next Windows validation order:** Fetch the branch and rebuild ONLY
+`Tools/DX11Smoke/DX11LODSnapshotProbe.vcxproj` first. Its
+no-argument selftests MUST pass; re-verify the existing
+`dx11_terrain_lod_capture.bin`. After that, compile the
+`GameLib` opt-in patch flag and link `UserInterface`
+without overwriting the existing working
+`Project_Client/metin2release.exe`. As previously proven,
+the exact process-only environment should be set with CMD
+`set "METIN2_DX11_PATCH_CAPTURE_ONCE=1"`, launching the
+separately named diagnostic EXE from `Project_Client`.
+Only then run the verifier from the game working directory.
+The special build must never be shipped as the production client.
+
+**Windows compiler and in-game patch-capture results have NOT been
+reported yet; do not mark this gate completed.** The next viewer
+step should translate original game Z-up coordinates to DX11
+Y-up after capture validation, using a separate tested adapter.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
