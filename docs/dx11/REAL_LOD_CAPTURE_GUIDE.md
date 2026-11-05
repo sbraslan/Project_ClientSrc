@@ -396,8 +396,26 @@ state. No actual terrain textures, splats, material layers, seam
 neighbors, or production renderer have been migrated. Do not modify
 the DX9 game or recapture snapshots on this gate.
 
-Windows rebuild + user audit result for this additional QA code is
-**PENDING**.
+Windows Release x64 rebuild and actual CPU geometry audit **PASSED**,
+exit code `0`, on 2026-11-05. The real captured patch spans
+3200 x 3200 original XY units and 4336 Z units (ratio 1.355);
+normal mean Z-up 0.750077. All 544 neighbor edges are valid:
+30 >=60 degrees, 18 >=75 degrees, maximum 82.5454 degrees.
+All converted triangles have **positive projected original XY winding**
+(LOD0=512, LOD1=216, LOD2=184; negative=0 and projected degenerate=0).
+
+**Culling caveat:** `Tools/DX11Smoke/TerrainProbe.cpp` currently
+sets `D3D11_CULL_NONE` in both wireframe and solid modes. This
+means screen visibility does not yet prove the matching front-facing
+rasterizer policy. A separate controlled comparison of DX9 cull state
+vs D3D11 front-face mode is required before an in-game renderer swap.
+
+**Next test:** show the captured patch in solid mode (both snapshots
+loaded, press W), compare normals and front/back winding without
+altering saved captures, then test two adjacent real patches with
+their actual IDs/coordinates before edge stitch validation.
+The existing captured index snapshot is a global topology sample,
+not a second real patch.
 
 ## Not yet done
 
