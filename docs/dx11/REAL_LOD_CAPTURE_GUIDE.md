@@ -203,6 +203,53 @@ No game/renderer changes are enabled in ordinary builds.
   matching 17x17 vertex grid, strip parity, winding, LOD edge seams and
   wireframe before in-game renderer integration. No JTX patches yet.
 
+## Gate C — standalone DX11 viewer for the verified REAL LOD indices (NEW; Windows build pending)
+
+Commit series beginning `9d6773d` adds an **opt-in** loader to the
+existing `Tools/DX11Smoke/DX11TerrainProbe.vcxproj` app.
+Only `TerrainProbe.cpp` and its standalone project file were modified;
+there is **no modification** to production GameLib rendering or its
+DX9 shader/state code.
+
+- Unmodified no-argument invocation remains the existing synthetic
+  terrain viewer (P for synthetic 17x17 patch, W for wireframe).
+- `--lod-snapshot "<FULL PATH TO CAPTURE.BIN>"` explicitly opens
+  the file through Unicode `CreateFileW`, with a maximum byte bound
+  and the existing shared snapshot decoder (magic/version, three
+  counts, checksum, index bounds, strip/list topology). Invalid input
+  terminates with an error; it never falls back silently.
+- Only the **captured index topology** is real. The program builds
+  three separate DX11 immutable index/vertex buffers using the
+  snapshot's LOD0 strip, LOD1 list and LOD2 list, converted into
+  triangle lists and assigned to the **pre-existing synthetic 17x17
+  preview vertex heights, normals and procedural grass**.
+- Explicit snapshot launch starts in **wireframe** mode on captured
+  LOD0. Press `1`, `2`, `3` for actual LOD0/1/2 converted
+  index streams; `W` toggles solid/wireframe, `P` switches to the
+  existing synthetic 17x17 preview, and `R` toggles the real-index
+  preview. The title announces `CAPTURED INDEX LOD` and
+  `SYNTHETIC HEIGHTS` to prevent confusing it for real game terrain.
+- The file is **read-only**; no copies of capture data are committed
+  and nothing is written back into the game runtime directory.
+
+Example PowerShell commands, run individually from any ordinary
+(non-administrator) PowerShell window:
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc'
+git pull --ff-only origin modernization/dx11-renderer
+& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' '.\Tools\DX11Smoke\DX11TerrainProbe.vcxproj' /t:Rebuild /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+& '.\Tools\DX11Smoke\bin\x64\Release\DX11TerrainProbe.exe' --lod-snapshot 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client\dx11_terrain_lod_capture.bin'
+```
+
+**Do not count this gate as Windows-verified yet.** The code has been
+reviewed against the project and snapshot codec, but the next
+required evidence is user Windows Release x64 compile/link, a
+screenshot showing each `CAPTURED INDEX LOD0/1/2` in wireframe,
+a clean close/exit code, and confirmation that the snapshot SHA256 is
+unchanged. Real in-game vertex positions, texture splatting and
+terrain material data have NOT been captured or ported.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
