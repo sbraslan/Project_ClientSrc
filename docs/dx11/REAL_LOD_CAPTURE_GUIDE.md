@@ -451,13 +451,28 @@ git pull --ff-only origin modernization/dx11-renderer
 & '.\Tools\DX11Smoke\bin\x64\Release\DX11TerrainProbe.exe' --lod-snapshot 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client\dx11_terrain_lod_capture.bin' --patch-snapshot 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client\dx11_terrain_patch_capture.bin'
 ```
 
-Screenshot initial `LOD0 Solid, C:OFF`, then press `C`
-and screenshot `LOD0 Solid, C:BACK/FRONT_CW`, and
-press `C` again for `LOD0 Solid, C:BACK/FRONT_CCW`.
-Observe disappearance/visible sides while preserving camera,
-LOD selection, and W solid mode. Compare only when all inputs
-match. These screenshots guide final cull choice; no automatic
-production game change follows.
+**User screenshots on 2026-11-05 VERIFIED the LOD0 comparison:**
+
+- C:OFF wireframe and C:OFF solid both render the full captured
+  cliff face (512 triangles).
+- C:BACK/FRONT_CW solid retains the full visible terrain surface.
+- C:BACK/FRONT_CCW solid removes nearly all of that face,
+  leaving thin fragments.
+
+For the isolated DX11 camera/axis transformation, **backface culling
+with front clockwise (`FrontCounterClockwise=FALSE`)** is the
+observed correct visible-facing policy. Do not confuse the DX9
+`D3DCULL_CW` (which winding gets culled) with the DX11
+`FrontCounterClockwise` flag (which winding is front-facing).
+This does **not** yet establish production-game global raster state.
+
+**Next without rebuilding:** launch the existing standalone probe with
+both already captured read-only snapshots, select Solid and
+C:BACK/FRONT_CW, then test **LOD1 via 2** and **LOD2 via 3**.
+Send screenshots of both before integrating any in-game changes.
+After that, capture two spatially adjacent real patches with
+recorded origins in a separate compile+runtime-gated diagnostic,
+without overwriting existing snapshots or default DX9 game behavior.
 
 ## Not yet done
 
