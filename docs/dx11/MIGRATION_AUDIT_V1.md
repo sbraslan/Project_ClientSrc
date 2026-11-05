@@ -899,6 +899,52 @@ derive an explicit `IRenderDevice` lifecycle/ownership switch
 and a controlled terrain-only DX11 route (materials later).
 No production-game renderer replacement until those are tested.
 
+## Gate 2b — FIRST live in-process D3D11 swapchain/Presents PASSED (2026-11-06)
+
+User ran special alternate exe (PID **25504**) on 2026-11-06.
+**Observed, source-grounded outcome:**
+- `00:00:38`: `[DX11 INGAME] opt-in environment detected;
+  DX9 main render path remains unchanged`.
+- `00:00:38`: `[DX11 INGAME] separate DX11 device +
+  swapchain READY; original game window and DX9 device unchanged`.
+- `00:00:42`: `[DX11 INGAME] 30 independent D3D11 Present
+  calls passed inside the actual game process; DX9 still active`.
+- `00:01:31`: `[DX11 INGAME] shutdown: successful D3D11
+  frames=393; original DX9 device teardown remains independent`.
+- Actual process `CLIENT EXIT CODE: 0`.
+- User ran SHA-256 original-executable check:
+  `[OK] ORIGINAL DX9 UNCHANGED`.
+
+**Interpretation:** A real D3D11 device/swapchain lives inside the
+running real Metin2 process and successfully presents a diagnostic
+window. The original game's rendering still uses D3D9. No
+full-game DirectX 11 rendering is yet enabled. The user observed
+alternate "DX9" and "DX11" indicator labels while playing.
+This is compatible with MSI Afterburner/RTSS selecting different
+simultaneous D3D9 game and D3D11 diagnostic window contexts and
+is **not by itself** proof that the main renderer is switching.
+The user did not supply a screenshot of the two windows or a
+confirmed log of closing ONLY the independent DX11 window,
+so that separate-close DX9-continuity case remains UNVERIFIED.
+Diagnostic lines have an `[ERROR]` envelope because the code
+uses `TraceError`, not because `D3D11CreateDevice` or Present
+necessarily failed.
+
+**Next safe gate**: rerun the existing alternate build with the
+same explicit runtime flag, enter world, close ONLY the independent
+D3D11 diagnostic window's X while the DX9 game remains running,
+check the log for
+`[DX11 INGAME] diagnostic window closed; DX9 game continues`,
+and confirm normal gameplay remains visible and usable for at
+least a few subsequent frames. The user's main game overlay
+should remain D3D9 after the separate window is gone; overlay
+behavior may vary by monitoring tool. Do not recapture LODs or
+modify original EXE. Then design guarded DX11 same-HWND
+ownership transition before making any main-window DX11
+claim. Critically, do NOT create a DX11 swapchain directly
+on the already DX9-owned game HWND while DX9 continues
+presenting to it.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
