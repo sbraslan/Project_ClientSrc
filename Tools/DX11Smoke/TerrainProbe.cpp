@@ -620,6 +620,43 @@ namespace
             }
         }
 
+        // An independent GPU mesh for each REAL LOD plus the captured REAL
+        // source patch vertices. The old synthetic LOD meshes remain intact
+        // for toggled comparison. Do not assume the LOD indices and vertices
+        // originate from the exact same world-space patch.
+        if (g_realPatchLoaded)
+        {
+            if (!g_realLODLoaded)
+                return E_INVALIDARG;
+            std::vector<m2::render::TerrainVertex> originalPatchVertices;
+            if (!BuildCapturedPatchPreview(
+                    g_realPatchSnapshot, originalPatchVertices,
+                    g_realPatchViewDistance))
+                return E_INVALIDARG;
+
+            for (std::size_t lod = 0; lod < g_realPatchLODMeshes.size(); ++lod)
+            {
+                const auto& rawIndices = g_realSnapshot.lod[lod];
+                const auto primitive = lod == 0
+                    ? m2::render::LegacyTerrainPrimitive::TriangleStrip
+                    : m2::render::LegacyTerrainPrimitive::TriangleList;
+                std::vector<std::uint16_t> triangles;
+                if (!m2::render::DX11LegacyTerrainIndices::ToTriangleList(
+                        rawIndices.data(), rawIndices.size(),
+                        originalPatchVertices.size(), primitive, triangles))
+                    return E_INVALIDARG;
+
+                hr = DX11RenderResources::CreateImmutableMesh(
+                    device, originalPatchVertices.data(),
+                    static_cast<UINT>(sizeof(m2::render::TerrainVertex)),
+                    static_cast<UINT>(originalPatchVertices.size()),
+                    triangles.data(), static_cast<UINT>(triangles.size()),
+                    g_realPatchLODMeshes[lod]);
+                if (FAILED(hr))
+                    return hr;
+            }
+        }
+
         constexpr D3D11_INPUT_ELEMENT_DESC layout[] =
         {
             {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -714,6 +751,8 @@ namespace
         g_pipeline.Reset();
         for (auto& mesh : g_realLODMeshes)
             mesh.Reset();
+        for (auto& mesh : g_realPatchLODMeshes)
+            mesh.Reset();
         g_patchMesh.Reset();
         g_mesh.Reset();
     }
@@ -736,13 +775,25 @@ namespace
 
         // Left-handed row-vector view/projection (DirectXMath conventions).
         // HLSL expects column-major storage, so upload the transpose.
+        const bool showRealVertices =
+            g_realLODLoaded && g_realLODPreview &&
+            g_realPatchLoaded && g_realPatchPreview;
+        const float distance = showRealVertices
+            ? g_realPatchViewDistance : 21.0f;
         const DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(
-            DirectX::XMVectorSet(0.0f, 12.0f, -21.0f, 1.0f),
-            DirectX::XMVectorSet(0.0f, 0.5f, 0.0f, 1.0f),
+            showRealVertices
+                ? DirectX::XMVectorSet(
+                    0.0f, distance * 0.48f, -distance, 1.0f)
+                : DirectX::XMVectorSet(0.0f, 12.0f, -21.0f, 1.0f),
+            showRealVertices
+                ? DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f)
+                : DirectX::XMVectorSet(0.0f, 0.5f, 0.0f, 1.0f),
             DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
         const float aspect = static_cast<float>(width) / static_cast<float>(height);
+        const float farPlane = showRealVertices
+            ? (std::max)(100.0f, distance * 4.0f) : 100.0f;
         const DirectX::XMMATRIX projection = DirectX::XMMatrixPerspectiveFovLH(
-            DirectX::XM_PIDIV4, aspect, 0.1f, 100.0f);
+            DirectX::XM_PIDIV4, aspect, 0.1f, farPlane);
 
         SceneConstants scene{};
         DirectX::XMStoreFloat4x4(
@@ -770,7 +821,9 @@ namespace
 
         const m2::render::DX11MeshBuffers& active =
             g_realLODPreview && g_realLODLoaded
-                ? g_realLODMeshes[g_activeRealLOD]
+                ? (showRealVertices
+                    ? g_realPatchLODMeshes[g_activeRealLOD]
+                    : g_realLODMeshes[g_activeRealLOD])
                 : (g_patchPreview ? g_patchMesh : g_mesh);
         ID3D11Buffer* vb = active.vertices.Get();
         const UINT offset = 0;
@@ -800,11 +853,18 @@ namespace
         if (g_realLODLoaded && g_realLODPreview)
         {
             wchar_t caption[256]{};
-            swprintf_s(caption, ARRAYSIZE(caption),
-                L"Metin2 DX11 | CAPTURED INDEX LOD%u: %u triangles | SYNTHETIC HEIGHTS | %s | 1/2/3 R P W",
-                static_cast<unsigned>(g_activeRealLOD),
-                static_cast<unsigned>(g_realLODMeshes[g_activeRealLOD].indexCount / 3u),
-                g_wireframe ? L"Wireframe" : L"Solid");
+            if (g_realPatchLoaded && g_realPatchPreview)
+                swprintf_s(caption, ARRAYSIZE(caption),
+                    L"Metin2 DX11 | REAL PATCH VERTICES | CAPTURED LOD%u: %u tris | Z->Y | %s | 1/2/3 V R P W",
+                    static_cast<unsigned>(g_activeRealLOD),
+                    static_cast<unsigned>(g_realPatchLODMeshes[g_activeRealLOD].indexCount / 3u),
+                    g_wireframe ? L"Wireframe" : L"Solid");
+            else
+                swprintf_s(caption, ARRAYSIZE(caption),
+                    L"Metin2 DX11 | CAPTURED INDEX LOD%u: %u triangles | SYNTHETIC HEIGHTS | %s | 1/2/3 R P W",
+                    static_cast<unsigned>(g_activeRealLOD),
+                    static_cast<unsigned>(g_realLODMeshes[g_activeRealLOD].indexCount / 3u),
+                    g_wireframe ? L"Wireframe" : L"Solid");
             SetWindowTextW(window, caption);
             return;
         }
@@ -839,6 +899,13 @@ namespace
             {
                 g_patchPreview = !g_patchPreview;
                 g_realLODPreview = false;
+                UpdateWindowTitle(window);
+            }
+            else if (g_realLODLoaded && g_realPatchLoaded && wparam == 'V')
+            {
+                g_realPatchPreview = !g_realPatchPreview;
+                g_realLODPreview = true;
+                g_patchPreview = false;
                 UpdateWindowTitle(window);
             }
             else if (g_realLODLoaded && wparam == 'R')
@@ -897,19 +964,32 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
         return 7;
 
     std::wstring snapshotPath;
-    bool validArgs = (argc == 1);
-    if (argc == 3 && std::wcscmp(argv[1], L"--lod-snapshot") == 0 &&
-        argv[2][0] != L'\0')
+    std::wstring realPatchPath;
+    bool validArgs = (argc == 1 || argc == 3 || argc == 5);
+    for (int i = 1; validArgs && i < argc; i += 2)
     {
-        snapshotPath = argv[2];
-        validArgs = true;
+        if (!argv[i + 1][0])
+            validArgs = false;
+        else if (std::wcscmp(argv[i], L"--lod-snapshot") == 0 &&
+                 snapshotPath.empty())
+            snapshotPath = argv[i + 1];
+        else if (std::wcscmp(argv[i], L"--patch-snapshot") == 0 &&
+                 realPatchPath.empty())
+            realPatchPath = argv[i + 1];
+        else
+            validArgs = false;
     }
     ::LocalFree(argv);
+    // The real patch must always be accompanied by a checked real LOD set;
+    // a single bare vertex snapshot is not silently mixed with toy indices.
+    if (!realPatchPath.empty() && snapshotPath.empty())
+        validArgs = false;
 
     if (!validArgs)
     {
         MessageBoxW(nullptr,
-            L"Usage: DX11TerrainProbe.exe [--lod-snapshot \"C:\\path\\capture.bin\"]",
+            L"Usage: DX11TerrainProbe.exe [--lod-snapshot \"LOD.bin\"] [--patch-snapshot \"PATCH.bin\"]\n"
+            L"A patch snapshot requires a LOD snapshot. Both files are read-only.",
             kTitle, MB_OK | MB_ICONERROR);
         return 7;
     }
@@ -927,8 +1007,21 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand)
         g_realLODPreview = true;
         g_wireframe = true;
     }
+    if (!realPatchPath.empty())
+    {
+        if (!LoadPatchCaptureFile(realPatchPath, g_realPatchSnapshot))
+        {
+            MessageBoxW(nullptr,
+                L"Real patch position/normal snapshot could not be opened or validated. No fallback.",
+                kTitle, MB_OK | MB_ICONERROR);
+            return 9;
+        }
+        g_realPatchLoaded = true;
+        g_realPatchPreview = true;
+    }
 
-    if (!ValidateTerrainBuilder() || !ValidateLegacyIndexTopology())
+    if (!ValidateTerrainBuilder() || !ValidateLegacyIndexTopology() ||
+        !ValidateCapturedPatchTransform())
     {
         MessageBoxW(nullptr, L"Terrain mesh / LOD topology CPU self-check failed.", kTitle,
                     MB_OK | MB_ICONERROR);
