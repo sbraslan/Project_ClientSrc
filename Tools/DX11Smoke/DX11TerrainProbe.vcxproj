@@ -55,6 +55,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -64,6 +65,7 @@
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11TerrainMesh.cpp" />
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11LegacyTerrainPatch.cpp" />
     <ClCompile Include="..\..\Src\EterLib\Renderer\DX11LegacyTerrainIndices.cpp" />
+    <ClCompile Include="..\..\Src\EterLib\Renderer\DX11LegacyIndexSnapshot.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
