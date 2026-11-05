@@ -459,6 +459,7 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Add legacy strip/list to triangle-list conversion with validation.
 - [x] Add strip parity/connector and invalid-data regression tests.
 - [x] User Windows Release x64 terrain/LOD CPU probe and EterLib build passed at c9db5b2c.
+- [x] Verified real in-game 3-LOD topology (574/648/552 source indices, 512/216/184 converted triangles; decoder exit 0 on 2026-11-05).
 - [ ] Verify actual map vertex capture and texture splat coordinates without mutating DX9 rendering.
 - [ ] Cross-check LOD edge stitching/orientation against captured legacy streams.
 
@@ -491,6 +492,17 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Run isolated opt-in capture after backup and exact environment-variable verification.
 - [x] Run alternate-name copied diagnostic EXE; verify original runtime EXE SHA256 unchanged.
 - [x] Actual 3-LOD capture generated and verified (574/648/552 indices; 512/216/184 triangles).
+
+### Gate 1j - captured real-index DX11 stand-alone preview (implementation; test pending)
+- [x] Add explicit `--lod-snapshot` Windows Unicode snapshot path support to isolated TerrainProbe.
+- [x] Reuse shared bounded, checksummed, topology-aware snapshot decoder; no silent fallback on failure.
+- [x] Build three GPU immutable meshes from real captured LOD0/1/2 index streams with the existing synthetic 17x17 vertex grid.
+- [x] Add controls: 1/2/3 select captured LOD, W wireframe, R real-index mode, P synthetic patch mode.
+- [x] Keep no-argument TerrainProbe mode unchanged; no DX9 runtime/GameLib code changed.
+- [ ] Windows Release x64 clean rebuild and link of standalone DX11TerrainProbe.
+- [ ] Visual wireframe screenshots for captured LOD0 512 triangles, LOD1 216 triangles, LOD2 184 triangles.
+- [ ] Verify that capture snapshot SHA256 remains identical, normal DX9 client unchanged.
+- [ ] Cross-check seam/winding behavior; inspect real vertex position/normal layout separately before any runtime integration.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
