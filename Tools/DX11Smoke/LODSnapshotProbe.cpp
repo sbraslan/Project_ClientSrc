@@ -263,7 +263,21 @@ namespace
             second[i].normal[2] = 1.0f;
         }
         if (!Check("Adjacent patch valid right edge",
-                   CompareAdjacentPatches(first, second, false)))
+                   CompareAdjacentPatches(first, second, false)) ||
+            !Check("Adjacent patch valid left edge",
+                   CompareAdjacentPatches(second, first, false)))
+            return false;
+
+        auto lower = first;
+        for (std::size_t i = 0; i < lower.size(); ++i)
+        {
+            lower[i].position[1] -= 3200.0f;
+            lower[i].position[2] += 16.0f;
+        }
+        if (!Check("Adjacent patch valid down(-Y) edge",
+                   CompareAdjacentPatches(first, lower, false)) ||
+            !Check("Adjacent patch valid up(+Y) edge",
+                   CompareAdjacentPatches(lower, first, false)))
             return false;
         second[0].position[2] += 1.0f;
         if (!Check("Adjacent patch seam height mismatch rejected",
