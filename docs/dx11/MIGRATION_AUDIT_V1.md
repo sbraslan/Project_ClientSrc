@@ -349,6 +349,53 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
   matching 17x17 vertex grid, strip parity, winding, LOD edge seams and
   wireframe before in-game renderer integration. No JTX patches yet.
 
+## Gate 1k — visual real-index topology passed, real patch vertex capture staged (2026-11-05)
+
+User supplied six screenshots after the Gate 1j Windows build/test:
+- Standalone Direct3D11 TerrainProbe title shows **CAPTURED INDEX LOD0**,
+  **512 triangles**, wireframe, over **SYNTHETIC HEIGHTS**.
+- LOD1 title shows **216 triangles**, wireframe; LOD2 shows
+  **184 triangles**, wireframe. Each level visibly changes triangular
+  density/topology, with no obvious missing large mesh regions.
+- Original full-synthetic wireframe mode and 17x17 synthetic patch
+  wireframe/solid modes still render. Screenshots show a
+  ~143-144 FPS D3D11 overlay in this standalone test, **not a
+  benchmark of actual Metin2 DX9/DX11 game frame rates**.
+- **Not yet verified**: exact patch-border seam correctness between
+  neighbors, actual in-game normals/textures/material splats, real
+  vertex position data, or an ordinary DX9 regression run after
+  this screenshot set. No user-supplied exit code in this turn.
+
+**Verified source location for the next gate:**
+- `Src/GameLib/AreaTerrain.cpp::CTerrain::_CalculateTerrainPatch`
+  generates original 17x17 `HardwareTransformPatch_SSourceVertex`
+  values from the real height/normal maps; positions are
+  `(fX, -fY, hgt * heightScale)` (**Z-up**, not the probe's Y-up)
+  with normals read from source map.
+- `Src/GameLib/TerrainPatch.cpp::CTerrainPatch::BuildTerrainVertexBuffer`
+  receives that exact CPU array just before the existing DX9
+  software/hardware vertex buffer path, and its source file contains
+  no known garbled/unrepresentable legacy comment bytes.
+- Stage only an **independent, opt-in patch vertex capture** there:
+  `EnableDX11PatchCapture=true` for Release x64 only, plus
+  `METIN2_DX11_PATCH_CAPTURE_ONCE=1`, one-shot non-overwriting
+  `dx11_terrain_patch_capture.bin`. Snapshot format `M2PVERT1`,
+  version 1, 289 vertices x 6 IEEE754 float32, 6956-byte fixed
+  record with FNV-1a corruption checksum.
+- New codec `DX11LegacyPatchSnapshot.h/.cpp` is platform-neutral,
+  validates finite coordinates/nonzero normals, and preserves outputs
+  on rejected data; new `--verify-patch` mode and in-memory corruption
+  tests were added to the existing standalone
+  `DX11LODSnapshotProbe`.
+- **Status: code committed but NOT Windows compiled or runtime
+  validated.** Treat it as a test-only gate. Normal DX9 renderer
+  stays unchanged; the original verified `dx11_terrain_lod_capture.bin`
+  remains read-only and must not be deleted or overwritten.
+- After Windows builds/tests pass, use both verified vertex and LOD
+  index snapshots in a separate standalone DX11 viewer. Apply
+  explicit original DX9 Z-up to preview Y-up axis conversion and
+  camera recentering, rather than swapping raw axes silently.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -503,6 +550,17 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [ ] Visual wireframe screenshots for captured LOD0 512 triangles, LOD1 216 triangles, LOD2 184 triangles.
 - [ ] Verify that capture snapshot SHA256 remains identical, normal DX9 client unchanged.
 - [ ] Cross-check seam/winding behavior; inspect real vertex position/normal layout separately before any runtime integration.
+
+### Gate 1k - first real 17x17 position/normal capture
+- [x] Source audit identified original height-map and normal-map vertex producer before DX9 upload.
+- [x] Isolate snapshot hook to `TerrainPatch.cpp` with explicit compile + process environment switches.
+- [x] Define fixed 289-position/normal float32 snapshot codec and checksum, no game shader changes.
+- [x] Extend existing CPU verifier with synthetic roundtrip and corruption tests.
+- [ ] User Windows x64 Release standalone verifier rebuild and all self-tests.
+- [ ] User Windows GameLib opt-in + UserInterface link and alternate-name test EXE.
+- [ ] Actual real vertex capture file generated with opt-in flag, 6956-byte format.
+- [ ] Independently verify captured positions/normals and full original DX9 game regressions.
+- [ ] Visually render real terrain vertex heights combined with the verified real LOD snapshot.
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
