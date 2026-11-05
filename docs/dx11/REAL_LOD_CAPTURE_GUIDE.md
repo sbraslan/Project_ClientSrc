@@ -589,6 +589,52 @@ read-only `.bin` files. Do not claim this Windows build
 passes until the user supplies a build log and screenshots.
 Do not commit binary runtime snapshots.
 
+## Gate J — two real neighboring patches visually render, mixed-LOD border audit pending (2026-11-05)
+
+Ten screenshots show the **two verified neighboring world-space patches**
+render in a single independent Direct3D11 TerrainProbe. Same-LOD
+wireframe A/B=LOD0, LOD1, LOD2, and solid LOD2 were confirmed,
+as were mixed **A:LOD0/B:LOD1** and **A:LOD0/B:LOD2**
+in solid mode with `C:BACK/FRONT_CW`. LOD2 FRONT_CCW culling
+makes most of the surface disappear, consistent with prior
+face-direction tests. No large visible crack in the selected
+camera view, but small LOD-edge T-junction cracks remain possible.
+This is not evidence of a live DX11 Metin2 game or production FPS.
+
+**NEW NUMERICAL CHECK, CPU-ONLY** (no extra game capture):
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc'
+git pull --ff-only origin modernization/dx11-renderer
+& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' '.\Tools\DX11Smoke\DX11LODSnapshotProbe.vcxproj' /t:Rebuild /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+& '.\Tools\DX11Smoke\bin\x64\Release\DX11LODSnapshotProbe.exe'
+Set-Location -LiteralPath 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client'
+& 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc\Tools\DX11Smoke\bin\x64\Release\DX11LODSnapshotProbe.exe' --audit-lod-seams 'dx11_terrain_lod_capture.bin' 'dx11_terrain_adjacent_A.bin' 'dx11_terrain_adjacent_B.bin'
+```
+
+The tool validates input checksums, existing source border agreement,
+and all **nine** LOD combinations. It extracts actual outer triangle
+edge intervals on both sides and compares the two **piecewise-linear
+surface boundaries**, instead of merely comparing original 17 stored
+vertices (which previously all matched). It reports border segment
+counts, maximum geometric separation, and samples separated by more
+than 0.05 original game units.
+
+**Interpretation:** `[OK]` means the two interpolated geometric
+boundary lines agree within tolerance. `[WARN]` indicates a potential
+LOD transition crack and is a **blocking finding**, even if the
+process completes the diagnostic with `AUDIT EXIT CODE: 0`.
+`[FAIL]` for invalid file, missing boundary coverage or overlapping
+edges is a structural failure; stop. A successfully completed audit
+alone must not be mistaken for every LOD combination being clean.
+
+New synthetic tests check that a fine/coarse straight border agrees,
+a shared intermediate height bump exposes a T-junction gap,
+and missing border coverage is rejected. These new tests and
+the live nine-pair audit are **NOT YET Windows-verified**.
+Neither `Project_Client/metin2release.exe` nor any of the
+original four saved `.bin` captures should be rewritten.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
