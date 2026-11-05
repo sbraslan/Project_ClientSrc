@@ -3,6 +3,7 @@
 // PRTerrainLib/Terrain.cpp::LoadHeightMap, MapOutdoorLoad.cpp::LoadTerrain.
 // NEVER copies extracted bytes to disk, never invokes CTerrain/Direct3D9.
 #include <cstdint>
+#include "StdAfx.h" // Reuse the project's original EterPack declaration context.
 #include "DX11MapPackInspect.h"
 #include "../EterBase/Debug.h"
 #include "../EterPack/EterPackManager.h"
