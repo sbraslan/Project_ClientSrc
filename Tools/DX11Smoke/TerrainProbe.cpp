@@ -380,7 +380,6 @@ namespace
     {
         constexpr std::size_t side = 17u;
         constexpr double span = 3200.0;
-        constexpr double tolerance = 0.05;
         const double deltaX =
             double(source[1][0].position[0]) - source[0][0].position[0];
         const double deltaY =
