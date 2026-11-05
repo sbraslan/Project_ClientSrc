@@ -17,9 +17,28 @@ namespace
     {
         char enabled[2]{};
         // Only the exact value "1" enables capture; no configuration file.
-        if (::GetEnvironmentVariableA(
-                "METIN2_DX11_LOD_CAPTURE_ONCE", enabled,
-                static_cast<DWORD>(sizeof(enabled))) != 1 || enabled[0] != '1')
+        const DWORD envLength = ::GetEnvironmentVariableA(
+            "METIN2_DX11_LOD_CAPTURE_ONCE", enabled,
+            static_cast<DWORD>(sizeof(enabled)));
+        const bool isEnabled = (envLength == 1 && enabled[0] == '1');
+
+        // Diagnostics compiled ONLY into the explicit x64 capture build.
+        // Even when the runtime flag is missing, log one entry per process
+        // to distinguish "map never loaded" from "flag was not inherited".
+        // Never print the environment value, only its length and validity.
+        static std::atomic<bool> diagnosticLogged{false};
+        if (!diagnosticLogged.exchange(true))
+        {
+            TraceError(
+                "[DX11 LOD DIAG] hook reached | envLength=%lu | enabled=%u | LOD0=%u LOD1=%u LOD2=%u",
+                static_cast<unsigned long>(envLength),
+                isEnabled ? 1u : 0u,
+                static_cast<unsigned>(original[0].count),
+                static_cast<unsigned>(original[1].count),
+                static_cast<unsigned>(original[2].count));
+        }
+
+        if (!isEnabled)
             return;
 
         // SetIndexBuffer is allowed to be called more than once; only one
