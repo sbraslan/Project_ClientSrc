@@ -320,6 +320,35 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - Do not mark real LOD capture validated until a real file passes
   `DX11LODSnapshotProbe.exe --verify`.
 
+## Gate 1i — real in-game 3-LOD snapshot verified (2026-11-05)
+
+- User's new x64 opt-in EXE reached the original CPU index hook in game
+  at **2026-11-05 18:32:51**, PID 17708:
+  `envLength=1 | enabled=1 | LOD0=574 LOD1=648 LOD2=552`.
+- Log confirmed `[DX11 LOD CAPTURE] created dx11_terrain_lod_capture.bin
+  (3576 bytes, LOD0=574 LOD1=648 LOD2=552)`.
+- First attempt to run verifier returned the generic invalid/inaccessible
+  error. The user confirmed the file exists at
+  `Project_Client/dx11_terrain_lod_capture.bin`, length **3576 bytes**.
+  Re-running the verifier from `Project_Client` with an explicit
+  working directory **PASSED**:
+  `LOD0: 574 source indices, 512 converted triangles (STRIP)`;
+  `LOD1: 648 source indices, 216 converted triangles (LIST)`;
+  `LOD2: 552 source indices, 184 converted triangles (LIST)`.
+  The verifier printed `[OK] Capture file validated` and
+  `VERIFIER EXIT CODE: 0`.
+- Combined converted triangle count: **912**. This is an index/topology
+  validation only; no live DX11 GameLib renderer exists yet. The
+  isolated DX11 terrain probe continues to use its own preview data;
+  it does not yet load this snapshot into a GPU mesh.
+- Production runtime `Project_Client/metin2release.exe` was not
+  overwritten; previous hash checks confirmed it was unchanged. Preserve
+  the capture file and avoid sharing/committing it without inspection.
+- **Next**: optional standalone DX11 TerrainProbe path loading the real
+  snapshot, preserving its current synthetic/default mode, verifying
+  matching 17x17 vertex grid, strip parity, winding, LOD edge seams and
+  wireframe before in-game renderer integration. No JTX patches yet.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -440,8 +469,9 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] Compile codec into x64 EterLib with no use from game renderer.
 - [x] User Windows Release x64 DX11LODSnapshotProbe build and self-test (all fixture/corruption tests).
 - [x] User Windows Release x64 EterLib build passed with codec.
-- [x] Opt-in GameLib pre-upload capture implemented, built and linked; not yet run.
-- [ ] Validate captured actual LOD0/1/2 streams and edge stitching.
+- [x] Opt-in GameLib pre-upload capture implemented, built, linked and run in a real game map.
+- [x] Validate captured actual LOD0/1/2 streams using the versioned snapshot and topology converter.
+- [ ] Visually cross-check winding, border seams and edge stitching in the isolated DX11 renderer.
 
 ### Gate 1g - GameLib real LOD diagnostic capture (no gameplay activation)
 - [x] Hook pre-upload CPU index arrays without changing DX9 upload logic.
@@ -456,11 +486,11 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [x] User screenshots show D3D9 rendering world terrain, actors, UI and combat effects.
 - [ ] Verify runtime EXE identity, clean exit and syserr; collect timed FPS metrics.
 - [x] User opt-in x64 GameLib rebuild + UserInterface link passed.
-- [ ] Preserve known working DX9 runtime EXE: prior backup attempt FAILED.
+- [x] Preserve the original working DX9 runtime EXE; version-specific SHA256-matched backup confirmed.
 - [ ] Verify runtime EXE identity/hash and a clean normal DX9 exit.
-- [ ] Run isolated capture only after backup and controlled opt-in runtime verification.
-- [ ] Run alternate-name copied diagnostic EXE; verify original runtime EXE SHA256 unchanged.
-- [ ] Actual 3-LOD capture generated and validated, only after above gates.
+- [x] Run isolated opt-in capture after backup and exact environment-variable verification.
+- [x] Run alternate-name copied diagnostic EXE; verify original runtime EXE SHA256 unchanged.
+- [x] Actual 3-LOD capture generated and verified (574/648/552 indices; 512/216/184 triangles).
 
 ### Gate 2 - integration boundaries
 - [ ] Renderer abstraction agreed using actual call-site inventory.
@@ -488,4 +518,4 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
 - [JTX patch diff](https://github.com/sbraslan/Project_Grafik/blob/import/jtx-v1.6-original/1/jettyx_106.diff)
 - [JTX updated terrain shader](https://github.com/sbraslan/Project_Grafik/blob/import/jtx-v1.6-original/2/FULL_106/After/GameLib/terrainShadowsPS.h)
 
-**Checkpoint:** Synthetic DX11 tests, snapshot codec tests and both regular/opt-in x64 client link are evidenced by Windows logs. The real game remains on DX9; the actual real-LOD capture and in-game DX11 terrain rendering remain UNVERIFIED.
+**Checkpoint (2026-11-05):** Real in-game 3-LOD capture is VERIFIED by the standalone decoder (exit code 0; 912 converted triangles). The real game remains on DX9 and in-game DX11 terrain rendering remains UNVERIFIED.
