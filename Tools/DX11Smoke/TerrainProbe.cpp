@@ -824,6 +824,39 @@ namespace
             }
         }
 
+        // Two original neighboring 17x17 patches use a single scale/origin.
+        // Invalid borders are rejected by BuildAdjacentPatchPreviews.
+        if (g_adjacentLoaded)
+        {
+            if (!g_realLODLoaded)
+                return E_INVALIDARG;
+            std::array<std::vector<m2::render::TerrainVertex>, 2> transformed;
+            if (!BuildAdjacentPatchPreviews(
+                    g_adjacentSnapshots, transformed, g_adjacentViewDistance))
+                return E_INVALIDARG;
+            for (std::size_t patch = 0; patch < transformed.size(); ++patch)
+                for (std::size_t lod = 0; lod < g_adjacentLODMeshes[patch].size(); ++lod)
+                {
+                    const auto primitive = lod == 0
+                        ? m2::render::LegacyTerrainPrimitive::TriangleStrip
+                        : m2::render::LegacyTerrainPrimitive::TriangleList;
+                    const auto& raw = g_realSnapshot.lod[lod];
+                    std::vector<std::uint16_t> triangles;
+                    if (!m2::render::DX11LegacyTerrainIndices::ToTriangleList(
+                            raw.data(), raw.size(), transformed[patch].size(),
+                            primitive, triangles))
+                        return E_INVALIDARG;
+                    hr = DX11RenderResources::CreateImmutableMesh(
+                        device, transformed[patch].data(),
+                        static_cast<UINT>(sizeof(m2::render::TerrainVertex)),
+                        static_cast<UINT>(transformed[patch].size()),
+                        triangles.data(), static_cast<UINT>(triangles.size()),
+                        g_adjacentLODMeshes[patch][lod]);
+                    if (FAILED(hr))
+                        return hr;
+                }
+        }
+
         constexpr D3D11_INPUT_ELEMENT_DESC layout[] =
         {
             {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -942,6 +975,9 @@ namespace
             mesh.Reset();
         for (auto& mesh : g_realPatchLODMeshes)
             mesh.Reset();
+        for (auto& group : g_adjacentLODMeshes)
+            for (auto& mesh : group)
+                mesh.Reset();
         g_patchMesh.Reset();
         g_mesh.Reset();
     }
@@ -964,22 +1000,25 @@ namespace
 
         // Left-handed row-vector view/projection (DirectXMath conventions).
         // HLSL expects column-major storage, so upload the transpose.
-        const bool showRealVertices =
+        const bool showAdjacent = g_adjacentLoaded && g_adjacentPreview;
+        const bool showRealVertices = !showAdjacent &&
             g_realLODLoaded && g_realLODPreview &&
             g_realPatchLoaded && g_realPatchPreview;
-        const float distance = showRealVertices
-            ? g_realPatchViewDistance : 21.0f;
+        const bool actualCoordinates = showRealVertices || showAdjacent;
+        const float distance = showAdjacent
+            ? g_adjacentViewDistance
+            : (showRealVertices ? g_realPatchViewDistance : 21.0f);
         const DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(
-            showRealVertices
+            actualCoordinates
                 ? DirectX::XMVectorSet(
                     0.0f, distance * 0.48f, -distance, 1.0f)
                 : DirectX::XMVectorSet(0.0f, 12.0f, -21.0f, 1.0f),
-            showRealVertices
+            actualCoordinates
                 ? DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f)
                 : DirectX::XMVectorSet(0.0f, 0.5f, 0.0f, 1.0f),
             DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
         const float aspect = static_cast<float>(width) / static_cast<float>(height);
-        const float farPlane = showRealVertices
+        const float farPlane = actualCoordinates
             ? (std::max)(100.0f, distance * 4.0f) : 100.0f;
         const DirectX::XMMATRIX projection = DirectX::XMMatrixPerspectiveFovLH(
             DirectX::XM_PIDIV4, aspect, 0.1f, farPlane);
@@ -1024,10 +1063,6 @@ namespace
                     ? g_realPatchLODMeshes[g_activeRealLOD]
                     : g_realLODMeshes[g_activeRealLOD])
                 : (g_patchPreview ? g_patchMesh : g_mesh);
-        ID3D11Buffer* vb = active.vertices.Get();
-        const UINT offset = 0;
-        context->IASetVertexBuffers(0, 1, &vb, &active.stride, &offset);
-        context->IASetIndexBuffer(active.indices.Get(), DXGI_FORMAT_R16_UINT, 0);
         context->IASetInputLayout(g_pipeline.inputLayout.Get());
         context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -1041,7 +1076,23 @@ namespace
         context->PSSetShaderResources(0, 1, &texture);
         context->PSSetSamplers(0, 1, &sampler);
 
-        context->DrawIndexed(active.indexCount, 0, 0);
+        // Two independent draw calls, preserving original vertex/index data.
+        // The shared edge is never welded or artificially snapped.
+        const auto drawMesh = [context](const m2::render::DX11MeshBuffers& mesh)
+        {
+            ID3D11Buffer* vb = mesh.vertices.Get();
+            const UINT offset = 0;
+            context->IASetVertexBuffers(0, 1, &vb, &mesh.stride, &offset);
+            context->IASetIndexBuffer(mesh.indices.Get(), DXGI_FORMAT_R16_UINT, 0);
+            context->DrawIndexed(mesh.indexCount, 0, 0);
+        };
+        if (showAdjacent)
+        {
+            drawMesh(g_adjacentLODMeshes[0][g_activeRealLOD]);
+            drawMesh(g_adjacentLODMeshes[1][g_adjacentBLOD]);
+        }
+        else
+            drawMesh(active);
         return g_renderer.Present(true);
     }
 
