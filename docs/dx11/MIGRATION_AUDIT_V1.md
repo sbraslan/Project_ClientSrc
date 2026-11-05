@@ -673,6 +673,61 @@ Only if two non-overwritten REAL new snapshots are created, run
 `Project_Client`. Interpret nonzero border mismatch as a finding,
 not as a reason to rewrite original height data.
 
+## Gate 1s — real adjacent seam PASSED; standalone paired DX11 viewer staged (2026-11-05)
+
+**User Windows live capture and audit evidence:**
+- Hash-checked alternate x64 adjacent diagnostic EXE successfully ran
+  under PID 10064, exit code `0`; the user confirmed
+  `[OK] DX9 PROTECTED - ADJACENT PROBE READY`.
+- Log `23:20:38`: `[DX11 ADJACENT DIAG] hook reached |
+  envLength=1 | enabled=1`; followed by
+  `[DX11 ADJACENT CAPTURE] created dx11_terrain_adjacent_A.bin +
+  dx11_terrain_adjacent_B.bin`.
+- Actual original source origins: patch A `(0, 0)`, patch B
+  `(3200, 0)`, delta `(3200, 0)`. Each checksum-capable
+  `M2PVERT1` snapshot was written at **6956 bytes**.
+- `DX11LODSnapshotProbe.exe --audit-adjacent` returned:
+  `relation=right`, `tested boundary vertices=17`,
+  `max position gap=0`, `mismatched points=0`,
+  `max normal delta=0`, `[OK] Real patch border position
+  agreement`, `AUDIT EXIT CODE: 0`.
+- Strong conclusion for this specific captured pair:
+  neighboring source patch border positions AND normals match
+  exactly. Does not yet prove heterogeneous-LOD GPU edges,
+  seam culling, terrain materials, or full-map renderer equivalence.
+
+**Next independent DX11 visualization (source implemented, Windows build PENDING):**
+- `Tools/DX11Smoke/TerrainProbe.cpp` adds explicit
+  `--lod-snapshot LOD.bin --adjacent-a A.bin --adjacent-b B.bin`
+  read-only mode; the old synthetic, single-real-patch and
+  LOD-only modes retain their original command lines and behavior.
+- Both new patch snapshots are decoded via the existing
+  versioned checksum codec; a single file, wrong origin or a
+  mismatched shared 17-vertex border fails CLOSED before opening
+  the D3D11 viewer. No fallback to plausible-looking synthetic
+  terrain for invalid input.
+- Both original sources share one centered **uniform**
+  XYZ scale and an unmodified Z-up -> Y-up axis rotation;
+  independent immutable D3D11 vertex/index buffers are created
+  for each of the two 17x17 patches and each of the three
+  captured LOD index streams. The common edge is not welded,
+  averaged, snapped, or otherwise altered.
+- New startup mode: wireframe, both patches LOD0,
+  `TWO REAL NEIGHBORS` title; `1/2/3` choose SAME
+  LOD on A and B, `M` cycles only B to examine mixed LOD
+  transitions, `W` wireframe/solid, `C` cull options,
+  `J` paired/synthetic-index preview toggle, with prior
+  `P/R/V` still available.
+- New fixture `ValidateAdjacentPatchPreview()` checks a
+  synthetic matched pair and verifies corrupted border
+  rejection without overwriting prior result.
+- User must rebuild **only** `DX11TerrainProbe.vcxproj`
+  Release|x64, test the A/B pair using existing files without
+  running/overwriting the game client, and send paired
+  LOD0 wireframe/solid and mixed-LOD images. Build and GPU
+  success remain unverified until Windows results supplied.
+  FPS from this standalone viewer is not an in-game benchmark.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
