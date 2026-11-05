@@ -945,6 +945,85 @@ claim. Critically, do NOT create a DX11 swapchain directly
 on the already DX9-owned game HWND while DX9 continues
 presenting to it.
 
+## Gate 2c — DX11-ONLY EXCLUSIVE MAIN-WINDOW BOOT (SOURCE STAGED, WINDOWS UNTESTED; 2026-11-06)
+
+**Explicit development target:** Stop repeatedly using the DX9 + sidecar
+DX11 dual-window mode as the primary migration test. Establish an
+exclusive hardware D3D11 swapchain on the *sole visible top-level
+main window of the Metin2 executable*, with zero DX9 CreateDevice calls.
+
+**Safety:** Existing normal launcher/pack/Python/DX9 path is 100%
+unchanged unless BOTH of these are true:
+1. Special **Release|x64** build flag
+   `/p:EnableDX11MainWindowBootstrap=true` was used; and
+2. The process received the exact argument
+   `--dx11-exclusive-bootstrap` AND the exact one-character
+   environment `METIN2_DX11_EXCLUSIVE_BOOT=1`.
+
+The special argument without the exact env is **rejected with exit 12**,
+not silently treated as a DX9 game launch. The special mode branches
+from `UserInterface.cpp::WinMain` **before** normal locale, pack,
+CEF, Python and `Main` initialization; it uses
+`DX11MainWindowBootstrap.cpp` to register a window, create
+`DX11RenderDevice` (D3D11 hardware, DXGI flip swapchain),
+Clear/Present continuously on its OWN **only** window,
+support WM_SIZE/resize and WM_CLOSE, then shutdown and return
+an explicit exit code. It never calls game
+`CPythonApplication::CreateDevice` or the D3D9
+`CGraphicDevice::Create` path.
+
+**Critical limitations:** This is a REAL DX11-only first-window/
+first-frame gate **inside the production executable** but is NOT
+Metin2 login, GameLib terrain, Granny, UI, or gameplay rendering.
+It must display a title ending in `NO DX9 | NO GAMEPLAY`.
+Actual DX11 conversion of the normal `CPythonApplication`
+device ownership and game asset pipeline is still next.
+
+**Source changes (branch migration/dx11-exclusive-bootstrap-v1):**
+- New files:
+  `Src/UserInterface/DX11MainWindowBootstrap.h/.cpp`.
+- Guarded early WinMain branch, `UserInterface.cpp` ONLY when
+  `M2_DX11_MAIN_WINDOW_BOOTSTRAP && _WIN64`.
+- `UserInterface.vcxproj`: the new source excluded by default,
+  enabled exclusively for Release|x64 special property; conditional
+  `d3d11.lib;dxgi.lib` and per-source WinMain macro/PCH settings.
+- Existing `DX11InGameProbe`, LOD tests, game DX9 create/render,
+  and original `metin2release.exe` are untouched.
+
+**Windows smoke gate, PENDING**:
+1. Start from stable branch, `git fetch`, check out
+   `migration/dx11-exclusive-bootstrap-v1`, build
+   `UserInterface.vcxproj Release|x64`
+   with the new property enabled, old in-game sidecar and capture
+   properties disabled. Stop on any Windows compile/link error.
+2. Hash-check the original DX9 executable against its existing
+   `metin2release_dx9_<hash-prefix>.exe` backup, check linked
+   new executable contains `[DX11 EXCLUSIVE]`, and copy it to
+   `Project_Client` with a versioned, non-overwriting
+   `metin2release_dx11_exclusive_<hash>.exe` name.
+3. From an already elevated PowerShell, launch the alternate
+   EXE via ProcessStartInfo with `UseShellExecute=false`,
+   `WorkingDirectory=Project_Client`,
+   `Arguments="--dx11-exclusive-bootstrap"`, and
+   `METIN2_DX11_EXCLUSIVE_BOOT=1` in the direct child environment.
+4. Verify one main window titled
+   `Metin2 | DX11 EXCLUSIVE MAIN WINDOW | NO DX9 | NO GAMEPLAY`.
+   Observe continuously changing blue-violet clear; NO game
+   login or background DX9 game window.
+5. Confirm log
+   `[DX11 EXCLUSIVE] MAIN HWND D3D11 device and swapchain READY`,
+   `[DX11 EXCLUSIVE] 30 D3D11 frames on exclusive main HWND PASSED`,
+   and `[DX11 EXCLUSIVE] shutdown: frames=... exit=0`.
+   Closing X must end with exit code 0.
+6. Confirm original EXE SHA-256 unchanged, no accidental
+   LOD/snapshot writes. If build fails, do NOT run/copy
+   output and fix source on this isolated branch.
+
+**Scope warning:** If game runtime contains monitoring overlay DLLs,
+their displayed API labels are not authoritative proof; use explicit
+logs, single-window observation and, if available, GPU/debug-layer
+capture. No Windows tests are claimed until user provides output.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
