@@ -635,6 +635,44 @@ the live nine-pair audit are **NOT YET Windows-verified**.
 Neither `Project_Client/metin2release.exe` nor any of the
 original four saved `.bin` captures should be rewritten.
 
+## Gate K — 9/9 REAL mixed-LOD border combinations PASSED; texture analysis next
+
+User successfully compiled and ran the independent CPU-only
+`DX11LODSnapshotProbe` after the new LOD seam audit was added.
+Selftests, including a deliberately mismatching synthetic
+fine/coarse T-junction and missing edge coverage, passed:
+`TEST EXIT CODE: 0`.
+
+Actual read-only source audit using the preserved three binary
+captures (`LOD.bin`, adjacent `A.bin`, adjacent `B.bin`):
+**all nine A:LOD0/1/2 by B:LOD0/1/2 boundary combinations
+returned `[OK]`**, each with 16/16 boundary segments,
+maximum geometric gap 0, mismatch samples 0. The audit reported
+`AUDIT EXIT CODE: 0`. This validates the sampled right-neighbor
+pair and original edge topology; it does NOT validate all runtime
+map pairs, rendering depth behavior, texture seams or full DX11
+gameplay.
+
+Do not alter working original `Project_Client/metin2release.exe`
+or the four saved original capture files. Default DX9 rendering
+and the independent DX11 terrain probe remain separate.
+
+**Suggested next gate: READ-ONLY source-level texture/splat audit**
+before attempting any DX11 terrain material port. Original source
+has a layered pipeline in `GameLib/MapOutdoorRenderHTP.cpp`
+(`__HardwareTransformPatch_RenderPatchSplat`) and
+`GameLib/AreaTerrain.cpp` (`RAW_CountTiles`,
+`RAW_GenerateSplat`). It combines tile-map-based layer alpha
+maps, the terrain texture set, two different texture coordinate
+transforms, alpha testing/blending and multiple passes.
+`MapOutdoorRenderSTP.cpp` has a software-transform alternative.
+A fake green/grass checker in the DX11 TerrainProbe is not an
+actual game texture or splat migration. First list exact original
+stage settings and data lifetime, then design separate DX11 test
+shaders/resources behind an explicit opt-in gate. Do not copy
+JTX/Nidavelir2 patches into the live DX9 game merely to obtain
+terrain textures.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
