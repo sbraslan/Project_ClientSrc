@@ -488,8 +488,9 @@
       <Culture>0x0412</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies Condition="'$(EnableDX11InGameProbe)'!='true' and '$(EnableDX11MainWindowBootstrap)'!='true'">python315.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python315.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(EnableDX11InGameProbe)'=='true' or '$(EnableDX11MainWindowBootstrap)'=='true'">python315.lib;d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(EnableDX11MainWindowBootstrap)'=='true' and '$(EnableDX11ExclusiveTerrain)'=='true'">python315.lib;d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -653,6 +654,12 @@
     <ClCompile Include="DX11MainWindowBootstrap.cpp">
       <!-- Build nothing in the default DX9 client, or outside x64 Release. -->
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11MainWindowBootstrap)'!='true'">true</ExcludedFromBuild>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true' and '$(EnableDX11ExclusiveTerrain)'=='true'">M2_DX11_EXCLUSIVE_TERRAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="DX11ExclusiveTerrainPreview.cpp">
+      <!-- No live DX9 changes; compile only with BOTH exclusive+terrain flags. -->
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11MainWindowBootstrap)'!='true' or '$(EnableDX11ExclusiveTerrain)'!='true'">true</ExcludedFromBuild>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WeatherInfo.cpp" />
@@ -697,6 +704,7 @@
     <ClInclude Include="PythonApplication.h" />
     <ClInclude Include="DX11InGameProbe.h" />
     <ClInclude Include="DX11MainWindowBootstrap.h" />
+    <ClInclude Include="DX11ExclusiveTerrainPreview.h" />
     <ClInclude Include="PythonIME.h" />
     <ClInclude Include="PythonSystem.h" />
     <ClInclude Include="GuildMarkDownloader.h" />
