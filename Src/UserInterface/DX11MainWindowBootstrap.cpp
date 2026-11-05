@@ -5,6 +5,9 @@
 #include "DX11MainWindowBootstrap.h"
 #include "../EterBase/Debug.h"
 #include "../EterLib/Renderer/DX11RenderDevice.h"
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+#include "DX11ExclusiveTerrainPreview.h"
+#endif
 
 namespace m2::render
 {
@@ -23,6 +26,10 @@ namespace m2::render
             bool resizeFailed = false;
             HRESULT resizeFailure = S_OK;
             std::uint64_t presentedFrames = 0;
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+            DX11ExclusiveTerrainPreview terrain;
+            bool terrainEnabled = false;
+#endif
         };
 
         LRESULT CALLBACK BootstrapWindowProc(HWND hwnd, UINT message,
@@ -39,7 +46,16 @@ namespace m2::render
                     const unsigned height = HIWORD(lparam);
                     if (width && height)
                     {
-                        const HRESULT hr = state->renderer.Resize(width, height);
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+                        if (state->terrainEnabled)
+                            state->terrain.BeforeResize(state->renderer);
+#endif
+                        HRESULT hr = state->renderer.Resize(width, height);
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+                        if (SUCCEEDED(hr) && state->terrainEnabled)
+                            hr = state->terrain.AfterResize(state->renderer,
+                                                             width, height);
+#endif
                         if (FAILED(hr))
                         {
                             state->resizeFailed = true;
@@ -49,6 +65,26 @@ namespace m2::render
                     }
                 }
                 return 0;
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+            case WM_KEYDOWN:
+                if (state && state->terrainEnabled)
+                {
+                    if (wparam == 'W')
+                        state->terrain.ToggleWireframe();
+                    else if (wparam >= '1' && wparam <= '3')
+                        state->terrain.SetSharedLOD(
+                            static_cast<unsigned>(wparam - '1'));
+                    else if (wparam == 'M')
+                        state->terrain.CycleNeighborLOD();
+                    else
+                        return ::DefWindowProcW(hwnd, message, wparam, lparam);
+                    TraceError("[DX11 EXCLUSIVE TERRAIN] active LOD A=%u B=%u",
+                               state->terrain.MainLOD(),
+                               state->terrain.NeighborLOD());
+                    return 0;
+                }
+                return ::DefWindowProcW(hwnd, message, wparam, lparam);
+#endif
             case WM_CLOSE:
                 ::DestroyWindow(hwnd);
                 return 0;
@@ -132,12 +168,48 @@ namespace m2::render
                   static_cast<unsigned>(client.bottom - client.top))
             : E_INVALIDARG;
         int exitCode = 0;
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+        // Third gate: even the special DX11 bootstrap defaults to a
+        // clear-only frame. Source snapshots are required to opt into
+        // terrain drawing; invalid input fails closed, never synthetic.
+        char terrainFlag[2]{};
+        const DWORD terrainFlagLength = ::GetEnvironmentVariableA(
+            "METIN2_DX11_EXCLUSIVE_TERRAIN", terrainFlag,
+            static_cast<DWORD>(sizeof(terrainFlag)));
+        state.terrainEnabled = terrainFlagLength == 1u &&
+                               terrainFlag[0] == '1';
+        if (SUCCEEDED(hr) && state.terrainEnabled)
+        {
+            hr = state.terrain.Initialize(
+                state.renderer,
+                static_cast<unsigned>(client.right - client.left),
+                static_cast<unsigned>(client.bottom - client.top));
+            if (FAILED(hr))
+            {
+                exitCode = 8;
+                TraceError("[DX11 EXCLUSIVE TERRAIN] capture/shader/mesh "
+                           "init FAILED hr=0x%08lX; no synthetic fallback",
+                           static_cast<unsigned long>(hr));
+            }
+            else
+            {
+                TraceError("[DX11 EXCLUSIVE TERRAIN] real adjacent A/B READY; "
+                           "triangles LOD0=%u, LOD1=%u, LOD2=%u per patch",
+                           state.terrain.TriangleCount(0u, 0u),
+                           state.terrain.TriangleCount(0u, 1u),
+                           state.terrain.TriangleCount(0u, 2u));
+            }
+        }
+#endif
         if (FAILED(hr))
         {
-            TraceError("[DX11 EXCLUSIVE] D3D11 main-window init failed hr=0x%08lX; "
-                       "no DX9 fallback or game resources started",
-                       static_cast<unsigned long>(hr));
-            exitCode = 5;
+            if (exitCode == 0)
+            {
+                TraceError("[DX11 EXCLUSIVE] D3D11 main-window init failed hr=0x%08lX; "
+                           "no DX9 fallback or game resources started",
+                           static_cast<unsigned long>(hr));
+                exitCode = 5;
+            }
         }
         else
         {
@@ -179,9 +251,16 @@ namespace m2::render
                     0.36f + 0.21f * cycle,
                     1.0f
                 };
-                hr = state.renderer.Clear(color);
-                if (SUCCEEDED(hr))
-                    hr = state.renderer.Present(true);
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+                if (state.terrainEnabled)
+                    hr = state.terrain.Draw(state.renderer, hwnd);
+                else
+#endif
+                {
+                    hr = state.renderer.Clear(color);
+                    if (SUCCEEDED(hr))
+                        hr = state.renderer.Present(true);
+                }
                 if (FAILED(hr))
                 {
                     TraceError("[DX11 EXCLUSIVE] Clear/Present FAILED hr=0x%08lX",
@@ -191,8 +270,15 @@ namespace m2::render
                 }
                 ++state.presentedFrames;
                 if (state.presentedFrames == 30u)
+                {
                     TraceError("[DX11 EXCLUSIVE] 30 D3D11 frames on exclusive "
                                "main HWND PASSED; zero DX9 game frames");
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+                    if (state.terrainEnabled)
+                        TraceError("[DX11 EXCLUSIVE TERRAIN] 30 real A/B patch "
+                                   "GPU frames passed on exclusive DX11 main HWND");
+#endif
+                }
             }
 
             if (state.resizeFailed)
@@ -205,6 +291,9 @@ namespace m2::render
 
         state.ready = false;
         ::SetWindowLongPtrW(hwnd, GWLP_USERDATA, 0);
+#if defined(M2_DX11_EXCLUSIVE_TERRAIN) && defined(_WIN64)
+        state.terrain.Shutdown();
+#endif
         state.renderer.Shutdown();
         if (::IsWindow(hwnd))
             ::DestroyWindow(hwnd);
