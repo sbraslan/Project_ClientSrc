@@ -126,3 +126,7 @@ desktop.ini
 
 # Opt-in local DX11 real terrain patch vertex snapshot (never versioned)
 **/dx11_terrain_patch_capture.bin
+
+# Opt-in two-neighbor DX11 terrain snapshots; never commit local game terrain samples
+**/dx11_terrain_adjacent_A.bin
+**/dx11_terrain_adjacent_B.bin
