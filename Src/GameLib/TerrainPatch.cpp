@@ -103,6 +103,171 @@ namespace
 }
 #endif
 
+// Second, strictly independent, compile + process gated capture path for
+// exactly two REAL spatially adjacent source patches. No default DX9 effect.
+// Does NOT overwrite the previously validated single-patch snapshot.
+#if defined(M2_DX11_ADJACENT_CAPTURE) && defined(_WIN64) && !defined(WORLD_EDITOR)
+#include "../EterLib/Renderer/DX11LegacyPatchSnapshot.h"
+#include <array>
+#include <atomic>
+#include <cmath>
+#include <mutex>
+#include <vector>
+
+namespace
+{
+    struct DX11AdjacentPatchCandidate
+    {
+        float worldX = 0.0f;
+        float worldY = 0.0f;
+        std::vector<std::uint8_t> encoded;
+    };
+
+    bool DX11WriteNewBinary(const char* name,
+                            const std::vector<std::uint8_t>& data)
+    {
+        HANDLE handle = ::CreateFileA(
+            name, GENERIC_WRITE, FILE_SHARE_READ, nullptr,
+            CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (handle == INVALID_HANDLE_VALUE)
+            return false;
+        DWORD written = 0;
+        const bool correct = ::WriteFile(
+            handle, data.data(), static_cast<DWORD>(data.size()),
+            &written, nullptr) != FALSE && written == data.size();
+        const bool closed = ::CloseHandle(handle) != FALSE;
+        if (!correct || !closed)
+        {
+            // Our own newly created file only; existing captures are untouched.
+            ::DeleteFileA(name);
+            return false;
+        }
+        return true;
+    }
+
+    void TryCaptureAdjacentPatches(
+        const HardwareTransformPatch_SSourceVertex* source)
+    {
+        char enabledBuffer[2]{};
+        const DWORD envLength = ::GetEnvironmentVariableA(
+            "METIN2_DX11_ADJACENT_CAPTURE_ONCE", enabledBuffer,
+            static_cast<DWORD>(sizeof(enabledBuffer)));
+        const bool enabled = envLength == 1 && enabledBuffer[0] == '1';
+
+        static std::atomic<bool> logOnce{false};
+        if (!logOnce.exchange(true))
+            TraceError("[DX11 ADJACENT DIAG] hook reached | envLength=%lu | enabled=%u",
+                       static_cast<unsigned long>(envLength),
+                       enabled ? 1u : 0u);
+        if (!enabled || !source)
+            return;
+
+        // 17x17 source layout is shared with the verified single-patch codec.
+        static_assert(CTerrainPatch::TERRAIN_VERTEX_COUNT ==
+                      m2::render::DX11LegacyPatchSnapshot::kVertexCount,
+                      "Unexpected original terrain patch dimensions");
+        try
+        {
+            std::array<m2::render::LegacyPatchVertex,
+                       m2::render::DX11LegacyPatchSnapshot::kVertexCount> vertices{};
+            for (std::size_t i = 0; i < vertices.size(); ++i)
+            {
+                vertices[i].position[0] = source[i].kPosition.x;
+                vertices[i].position[1] = source[i].kPosition.y;
+                vertices[i].position[2] = source[i].kPosition.z;
+                vertices[i].normal[0] = source[i].kNormal.x;
+                vertices[i].normal[1] = source[i].kNormal.y;
+                vertices[i].normal[2] = source[i].kNormal.z;
+            }
+            std::vector<std::uint8_t> encoded;
+            if (!m2::render::DX11LegacyPatchSnapshot::Encode(
+                    vertices.data(), vertices.size(), encoded))
+                return;
+
+            static std::mutex candidateMutex;
+            static std::vector<DX11AdjacentPatchCandidate> candidates;
+            static bool finished = false;
+            const std::lock_guard<std::mutex> lock(candidateMutex);
+            if (finished)
+                return;
+
+            constexpr double patchSpan = 3200.0;
+            constexpr double originTolerance = 0.05;
+            const double x = vertices[0].position[0];
+            const double y = vertices[0].position[1];
+            for (const auto& prior : candidates)
+            {
+                const double dx = x - prior.worldX;
+                const double dy = y - prior.worldY;
+                const bool adjacent =
+                    (std::abs(std::abs(dx) - patchSpan) <= originTolerance &&
+                     std::abs(dy) <= originTolerance) ||
+                    (std::abs(std::abs(dy) - patchSpan) <= originTolerance &&
+                     std::abs(dx) <= originTolerance);
+                if (!adjacent)
+                    continue;
+
+                finished = true; // One pair attempt per process.
+                constexpr char first[] = "dx11_terrain_adjacent_A.bin";
+                constexpr char second[] = "dx11_terrain_adjacent_B.bin";
+
+                // A previous independent capture must never be deleted.
+                if (::GetFileAttributesA(first) != INVALID_FILE_ATTRIBUTES ||
+                    ::GetFileAttributesA(second) != INVALID_FILE_ATTRIBUTES)
+                {
+                    TraceError("[DX11 ADJACENT CAPTURE] output exists; no overwrite");
+                    return;
+                }
+                if (!DX11WriteNewBinary(first, prior.encoded))
+                {
+                    TraceError("[DX11 ADJACENT CAPTURE] first write failed; DX9 unchanged");
+                    return;
+                }
+                if (!DX11WriteNewBinary(second, encoded))
+                {
+                    // Only delete first if we created it in this attempt.
+                    ::DeleteFileA(first);
+                    TraceError("[DX11 ADJACENT CAPTURE] second write failed; DX9 unchanged");
+                    return;
+                }
+
+                TraceError("[DX11 ADJACENT CAPTURE] created %s + %s | A origin=(%.0f, %.0f) | B origin=(%.0f, %.0f) | delta=(%.0f, %.0f) | bytes=%u each",
+                           first, second,
+                           static_cast<double>(prior.worldX),
+                           static_cast<double>(prior.worldY),
+                           x, y, dx, dy,
+                           static_cast<unsigned>(encoded.size()));
+                return;
+            }
+
+            // Bounded in-memory search; repeated origins do not accumulate.
+            for (const auto& prior : candidates)
+                if (std::abs(x - prior.worldX) <= originTolerance &&
+                    std::abs(y - prior.worldY) <= originTolerance)
+                    return;
+
+            constexpr std::size_t kMaxCandidates = 256;
+            if (candidates.size() >= kMaxCandidates)
+            {
+                finished = true;
+                TraceError("[DX11 ADJACENT CAPTURE] no neighboring pair in %u candidates",
+                           static_cast<unsigned>(kMaxCandidates));
+                return;
+            }
+            DX11AdjacentPatchCandidate candidate;
+            candidate.worldX = static_cast<float>(x);
+            candidate.worldY = static_cast<float>(y);
+            candidate.encoded.swap(encoded);
+            candidates.push_back(std::move(candidate));
+        }
+        catch (...)
+        {
+            TraceError("[DX11 ADJACENT CAPTURE] exception; DX9 unchanged");
+        }
+    }
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -179,6 +344,9 @@ void CTerrainPatch::BuildTerrainVertexBuffer(HardwareTransformPatch_SSourceVerte
 {
 #if defined(M2_DX11_PATCH_CAPTURE) && defined(_WIN64) && !defined(WORLD_EDITOR)
     TryCaptureOriginalPatch(akSrcVertex);
+#endif
+#if defined(M2_DX11_ADJACENT_CAPTURE) && defined(_WIN64) && !defined(WORLD_EDITOR)
+    TryCaptureAdjacentPatches(akSrcVertex);
 #endif
 	if (SOFTWARE_TRANSFORM_PATCH_ENABLE)
 		__BuildSoftwareTerrainVertexBuffer(akSrcVertex);
