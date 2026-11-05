@@ -51,6 +51,10 @@ namespace
     ComPtr<ID3D11SamplerState> g_sampler;
     ComPtr<ID3D11RasterizerState> g_solid;
     ComPtr<ID3D11RasterizerState> g_wire;
+    // Optional culling tests; default no-cull path is unchanged.
+    // Index 0 = D3D11 FrontCounterClockwise FALSE, index 1 = TRUE.
+    std::array<ComPtr<ID3D11RasterizerState>, 2> g_cullSolid;
+    std::array<ComPtr<ID3D11RasterizerState>, 2> g_cullWire;
     ComPtr<ID3D11DepthStencilState> g_depthState;
 
     struct DepthSurface
@@ -105,6 +109,9 @@ namespace
     bool g_realLODPreview = false;
     bool g_realPatchLoaded = false;
     bool g_realPatchPreview = false;
+    // C toggles: 0 = no culling, 1 = backface cull/front CW,
+    // 2 = backface cull/front CCW. Never silently change default.
+    unsigned g_cullingMode = 0;
     float g_realPatchViewDistance = 21.0f;
     std::size_t g_activeRealLOD = 0;
 
@@ -718,6 +725,24 @@ namespace
         if (FAILED(hr))
             return hr;
 
+        // Do not assume DX9 D3DCULL_CW maps directly to a DX11 setting.
+        // DX11 front-facing is evaluated in render-target coordinates,
+        // so offer BOTH D3D11 front-face conventions, with identical
+        // camera/vertices/indices and no hidden winding rewrite.
+        raster.CullMode = D3D11_CULL_BACK;
+        for (std::size_t face = 0; face < g_cullSolid.size(); ++face)
+        {
+            raster.FrontCounterClockwise = face == 0 ? FALSE : TRUE;
+            raster.FillMode = D3D11_FILL_SOLID;
+            hr = device->CreateRasterizerState(&raster, &g_cullSolid[face]);
+            if (FAILED(hr))
+                return hr;
+            raster.FillMode = D3D11_FILL_WIREFRAME;
+            hr = device->CreateRasterizerState(&raster, &g_cullWire[face]);
+            if (FAILED(hr))
+                return hr;
+        }
+
         D3D11_DEPTH_STENCIL_DESC depthDesc{};
         depthDesc.DepthEnable = TRUE;
         depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -744,6 +769,10 @@ namespace
         g_depth.Reset();
         g_sceneConstants.Reset();
         g_depthState.Reset();
+        for (auto& state : g_cullWire)
+            state.Reset();
+        for (auto& state : g_cullSolid)
+            state.Reset();
         g_wire.Reset();
         g_solid.Reset();
         g_sampler.Reset();
@@ -817,7 +846,17 @@ namespace
         context->OMSetRenderTargets(1, &rtv, dsv);
         context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
         context->OMSetDepthStencilState(g_depthState.Get(), 0);
-        context->RSSetState(g_wireframe ? g_wire.Get() : g_solid.Get());
+        ID3D11RasterizerState* raster = nullptr;
+        if (g_cullingMode == 0)
+            raster = g_wireframe ? g_wire.Get() : g_solid.Get();
+        else
+        {
+            const std::size_t frontFace = g_cullingMode - 1u;
+            raster = g_wireframe
+                ? g_cullWire[frontFace].Get()
+                : g_cullSolid[frontFace].Get();
+        }
+        context->RSSetState(raster);
 
         const m2::render::DX11MeshBuffers& active =
             g_realLODPreview && g_realLODLoaded
@@ -846,6 +885,21 @@ namespace
         return g_renderer.Present(true);
     }
 
+    void SetWindowTitleWithCull(HWND window, const wchar_t* original)
+    {
+        // Visible in screenshots: no-cull, front CW or front CCW.
+        const wchar_t* status = L"OFF";
+        if (g_cullingMode == 1)
+            status = L"BACK/FRONT_CW";
+        else if (g_cullingMode == 2)
+            status = L"BACK/FRONT_CCW";
+
+        wchar_t caption[360]{};
+        swprintf_s(caption, ARRAYSIZE(caption),
+                   L"%s | C:%s", original, status);
+        SetWindowTextW(window, caption);
+    }
+
     void UpdateWindowTitle(HWND window)
     {
         // Explicitly identify the active scene; title alone previously only
@@ -865,7 +919,7 @@ namespace
                     static_cast<unsigned>(g_activeRealLOD),
                     static_cast<unsigned>(g_realLODMeshes[g_activeRealLOD].indexCount / 3u),
                     g_wireframe ? L"Wireframe" : L"Solid");
-            SetWindowTextW(window, caption);
+            SetWindowTitleWithCull(window, caption);
             return;
         }
 
@@ -879,7 +933,7 @@ namespace
                 ? L"Metin2 DX11 | Full Synthetic Terrain | Wireframe | P / W"
                 : L"Metin2 DX11 | Full Synthetic Terrain | Solid | P / W";
 
-        SetWindowTextW(window, caption);
+        SetWindowTitleWithCull(window, caption);
     }
 
     LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
@@ -893,6 +947,11 @@ namespace
             if (wparam == 'W')
             {
                 g_wireframe = !g_wireframe;
+                UpdateWindowTitle(window);
+            }
+            else if (wparam == 'C')
+            {
+                g_cullingMode = (g_cullingMode + 1u) % 3u;
                 UpdateWindowTitle(window);
             }
             else if (wparam == 'P')
