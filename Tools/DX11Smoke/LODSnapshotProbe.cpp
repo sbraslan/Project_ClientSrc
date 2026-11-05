@@ -306,6 +306,333 @@ namespace
         return valid;
     }
 
+    // Numeric boundary topology audit: both patches have matching original
+    // vertex positions, but a coarser LOD may skip intermediate edge heights.
+    // Compare the actual triangle-boundary polyline at each of the 17 original
+    // grid points, without sewing, snapping, or rewriting any game data.
+    enum class BoundarySide { Left, Right, Top, Bottom };
+
+    struct BoundaryInterval
+    {
+        std::size_t first = 0;
+        std::size_t last = 0;
+    };
+
+    std::size_t BoundaryVertex(BoundarySide side, std::size_t coordinate)
+    {
+        constexpr std::size_t grid = 17;
+        switch (side)
+        {
+        case BoundarySide::Left:   return coordinate * grid;
+        case BoundarySide::Right:  return coordinate * grid + grid - 1;
+        case BoundarySide::Top:    return coordinate;
+        case BoundarySide::Bottom: return (grid - 1) * grid + coordinate;
+        }
+        return grid * grid; // invalid sentinel, unreachable with a valid side
+    }
+
+    bool IsBoundaryVertex(std::uint16_t index, BoundarySide side)
+    {
+        switch (side)
+        {
+        case BoundarySide::Left:   return index % 17u == 0;
+        case BoundarySide::Right:  return index % 17u == 16u;
+        case BoundarySide::Top:    return index < 17u;
+        case BoundarySide::Bottom: return index >= 272u && index < 289u;
+        }
+        return false;
+    }
+
+    std::size_t BoundaryCoordinate(std::uint16_t index, BoundarySide side)
+    {
+        return (side == BoundarySide::Left || side == BoundarySide::Right)
+            ? static_cast<std::size_t>(index / 17u)
+            : static_cast<std::size_t>(index % 17u);
+    }
+
+    bool ExtractBoundaryIntervals(
+        const std::vector<std::uint16_t>& triangles,
+        BoundarySide side, std::vector<BoundaryInterval>& result)
+    {
+        if (triangles.empty() || triangles.size() % 3u != 0)
+            return false;
+        std::vector<BoundaryInterval> intervals;
+        for (std::size_t t = 0; t < triangles.size(); t += 3u)
+        {
+            const std::uint16_t ids[3] = {
+                triangles[t], triangles[t + 1u], triangles[t + 2u]
+            };
+            for (unsigned e = 0; e < 3u; ++e)
+            {
+                const auto a = ids[e];
+                const auto b = ids[(e + 1u) % 3u];
+                if (a >= 289u || b >= 289u ||
+                    !IsBoundaryVertex(a, side) ||
+                    !IsBoundaryVertex(b, side))
+                    continue;
+                const std::size_t ta = BoundaryCoordinate(a, side);
+                const std::size_t tb = BoundaryCoordinate(b, side);
+                if (ta == tb)
+                    continue;
+                intervals.push_back({
+                    (std::min)(ta, tb), (std::max)(ta, tb)
+                });
+            }
+        }
+
+        // Each of the 16 elementary edge intervals must be covered once.
+        // This catches absent edges, doubles, and non-manifold border edges.
+        std::array<unsigned, 16> coverage{};
+        for (const auto& interval : intervals)
+        {
+            if (interval.first >= interval.last || interval.last > 16u)
+                return false;
+            for (auto step = interval.first; step < interval.last; ++step)
+                ++coverage[step];
+        }
+        for (const auto count : coverage)
+            if (count != 1u)
+                return false;
+        result.swap(intervals);
+        return true;
+    }
+
+    bool EvaluateBoundaryPosition(
+        const std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount>& patch,
+        BoundarySide side,
+        const std::vector<BoundaryInterval>& intervals,
+        std::size_t coordinate,
+        std::array<double, 3>& output)
+    {
+        for (const auto& interval : intervals)
+        {
+            if (coordinate < interval.first || coordinate > interval.last)
+                continue;
+            const auto& a = patch[BoundaryVertex(side, interval.first)];
+            const auto& b = patch[BoundaryVertex(side, interval.last)];
+            const double portion =
+                double(coordinate - interval.first) /
+                double(interval.last - interval.first);
+            std::array<double, 3> candidate{};
+            for (unsigned axis = 0; axis < 3u; ++axis)
+            {
+                candidate[axis] = double(a.position[axis]) * (1.0 - portion) +
+                                  double(b.position[axis]) * portion;
+                if (!std::isfinite(candidate[axis]))
+                    return false;
+            }
+            output = candidate;
+            return true;
+        }
+        return false;
+    }
+
+    bool DetectNeighborSides(
+        const std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount>& a,
+        const std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount>& b,
+        BoundarySide& sideA, BoundarySide& sideB)
+    {
+        const double dx = double(b[0].position[0]) - a[0].position[0];
+        const double dy = double(b[0].position[1]) - a[0].position[1];
+        const auto matches = [](double x, double expected) {
+            return std::isfinite(x) && std::abs(x - expected) <= 0.05;
+        };
+        if (matches(dx, 3200.) && matches(dy, 0.))
+        {
+            sideA = BoundarySide::Right;
+            sideB = BoundarySide::Left;
+            return true;
+        }
+        if (matches(dx, -3200.) && matches(dy, 0.))
+        {
+            sideA = BoundarySide::Left;
+            sideB = BoundarySide::Right;
+            return true;
+        }
+        if (matches(dx, 0.) && matches(dy, -3200.))
+        {
+            sideA = BoundarySide::Bottom;
+            sideB = BoundarySide::Top;
+            return true;
+        }
+        if (matches(dx, 0.) && matches(dy, 3200.))
+        {
+            sideA = BoundarySide::Top;
+            sideB = BoundarySide::Bottom;
+            return true;
+        }
+        return false;
+    }
+
+    bool AnalyzeBoundaryPair(
+        const std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount>& patchA,
+        const std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount>& patchB,
+        BoundarySide sideA, BoundarySide sideB,
+        const std::vector<std::uint16_t>& trianglesA,
+        const std::vector<std::uint16_t>& trianglesB,
+        double& maxGap, unsigned& mismatches,
+        std::size_t& edgesA, std::size_t& edgesB)
+    {
+        std::vector<BoundaryInterval> intervalsA, intervalsB;
+        if (!ExtractBoundaryIntervals(trianglesA, sideA, intervalsA) ||
+            !ExtractBoundaryIntervals(trianglesB, sideB, intervalsB))
+            return false;
+        maxGap = 0.0;
+        mismatches = 0;
+        for (std::size_t step = 0; step <= 16; ++step)
+        {
+            std::array<double, 3> a{}, b{};
+            if (!EvaluateBoundaryPosition(patchA, sideA, intervalsA, step, a) ||
+                !EvaluateBoundaryPosition(patchB, sideB, intervalsB, step, b))
+                return false;
+            const double gap = std::hypot(
+                std::hypot(a[0] - b[0], a[1] - b[1]), a[2] - b[2]);
+            if (!std::isfinite(gap))
+                return false;
+            maxGap = (std::max)(maxGap, gap);
+            if (gap > 0.05)
+                ++mismatches;
+        }
+        edgesA = intervalsA.size();
+        edgesB = intervalsB.size();
+        return true;
+    }
+
+    bool RunLODSeamSelfTest()
+    {
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> a{}, b{};
+        for (std::size_t i = 0; i < a.size(); ++i)
+        {
+            const float row = float(i / 17u);
+            const float col = float(i % 17u);
+            a[i].position[0] = 200.0f * col;
+            a[i].position[1] = -200.0f * row;
+            a[i].position[2] = row * 10.0f;
+            b[i].position[0] = 3200.0f + 200.0f * col;
+            b[i].position[1] = a[i].position[1];
+            b[i].position[2] = a[i].position[2];
+            a[i].normal[2] = b[i].normal[2] = 1.0f;
+        }
+        BoundarySide sideA{}, sideB{};
+        if (!Check("LOD seam neighbor relation",
+                   DetectNeighborSides(a, b, sideA, sideB)))
+            return false;
+
+        // A single full-width triangle pair has a straight long edge.
+        // A's 16 segments align exactly with B's coarse straight edge
+        // when all heights lie on the same line.
+        std::vector<std::uint16_t> fine, coarse{
+            0u, 16u, 272u, 16u, 288u, 272u
+        };
+        for (std::uint16_t row = 0; row < 16u; ++row)
+            for (std::uint16_t col = 0; col < 16u; ++col)
+            {
+                const std::uint16_t v = row * 17u + col;
+                fine.insert(fine.end(), {
+                    v, std::uint16_t(v + 1u), std::uint16_t(v + 17u),
+                    std::uint16_t(v + 1u), std::uint16_t(v + 18u),
+                    std::uint16_t(v + 17u)
+                });
+            }
+        double gap = 0.0; unsigned mismatch = 0;
+        std::size_t ea = 0, eb = 0;
+        if (!Check("LOD seam flat/planar mixed density",
+                   AnalyzeBoundaryPair(a, b, sideA, sideB,
+                                       fine, coarse, gap, mismatch, ea, eb) &&
+                   mismatch == 0 && gap < 1.0e-5 &&
+                   ea == 16u && eb == 1u))
+            return false;
+
+        // Perturb ONLY an interior shared-border height equally on A/B.
+        // The original border stays perfectly equal, but the coarse B
+        // triangle skips that intermediate vertex, creating a genuine gap.
+        a[8u * 17u + 16u].position[2] += 30.0f;
+        b[8u * 17u].position[2] += 30.0f;
+        if (!Check("LOD seam T-junction height gap detected",
+                   AnalyzeBoundaryPair(a, b, sideA, sideB,
+                                       fine, coarse, gap, mismatch, ea, eb) &&
+                   mismatch > 0 && gap >= 29.9))
+            return false;
+
+        // A missing boundary edge cannot be mistaken for a valid seam.
+        const std::vector<std::uint16_t> invalid{0, 1, 17};
+        return Check("LOD seam missing boundary coverage rejected",
+                     !AnalyzeBoundaryPair(a, b, sideA, sideB,
+                                          fine, invalid, gap, mismatch,
+                                          ea, eb));
+    }
+
+    bool AuditLODSeams(const char* lodPath, const char* firstPath,
+                       const char* secondPath)
+    {
+        LegacyIndexSnapshot snapshot;
+        if (!DX11LegacyIndexSnapshot::LoadFile(lodPath, snapshot))
+        {
+            std::cerr << "[FAIL] Invalid LOD snapshot.\n";
+            return false;
+        }
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> a{}, b{};
+        if (!LoadPatchFile(firstPath, a) || !LoadPatchFile(secondPath, b) ||
+            !CompareAdjacentPatches(a, b, false))
+        {
+            std::cerr << "[FAIL] Missing/corrupt pair or original 17-vertex borders differ.\n";
+            return false;
+        }
+        BoundarySide sideA{}, sideB{};
+        if (!DetectNeighborSides(a, b, sideA, sideB))
+        {
+            std::cerr << "[FAIL] Original patch origins not adjacent.\n";
+            return false;
+        }
+        std::array<std::vector<std::uint16_t>, 3> triangles{};
+        for (std::size_t lod = 0; lod < snapshot.lod.size(); ++lod)
+        {
+            const auto& original = snapshot.lod[lod];
+            const auto topology = lod == 0
+                ? LegacyTerrainPrimitive::TriangleStrip
+                : LegacyTerrainPrimitive::TriangleList;
+            if (!DX11LegacyTerrainIndices::ToTriangleList(
+                    original.data(), original.size(), a.size(),
+                    topology, triangles[lod]))
+                return false;
+        }
+
+        unsigned nonmatchingPairs = 0;
+        for (std::size_t ai = 0; ai < 3u; ++ai)
+            for (std::size_t bi = 0; bi < 3u; ++bi)
+            {
+                double maxGap = 0.0;
+                unsigned mismatches = 0;
+                std::size_t edgesA = 0, edgesB = 0;
+                if (!AnalyzeBoundaryPair(a, b, sideA, sideB,
+                                         triangles[ai], triangles[bi],
+                                         maxGap, mismatches, edgesA, edgesB))
+                {
+                    std::cout << "[FAIL] LOD" << ai << "/LOD" << bi
+                              << " incomplete/overlapping boundary coverage.\n";
+                    return false;
+                }
+                std::cout << "A:LOD" << ai << " / B:LOD" << bi
+                          << " | edge segments=" << edgesA << "/" << edgesB
+                          << " | max geometric gap=" << maxGap
+                          << " | mismatch samples=" << mismatches
+                          << " | " << (mismatches ? "[WARN]" : "[OK]") << '\n';
+                if (mismatches)
+                    ++nonmatchingPairs;
+            }
+        if (nonmatchingPairs)
+            std::cout << "[WARN] " << nonmatchingPairs
+                      << "/9 LOD pairs have potential boundary cracks; "
+                         "no source data was modified.\n";
+        else
+            std::cout << "[OK] All nine LOD boundary combinations agree.\n";
+
+        // Return success for valid, completed DIAGNOSTICS even when there
+        // are cracks; printed WARNs are blockers to renderer integration.
+        std::cout << "[OK] Read-only LOD border audit completed; no files written.\n";
+        return true;
+    }
+
     bool AuditGeometry(const char* lodPath, const char* patchPath)
     {
         LegacyIndexSnapshot lod;
@@ -501,7 +828,8 @@ namespace
                 untouched == std::vector<std::uint8_t>{42, 84}))
             return false;
 
-        if (!RunPatchSelfTest() || !RunAdjacentSelfTest())
+        if (!RunPatchSelfTest() || !RunAdjacentSelfTest() ||
+            !RunLODSeamSelfTest())
             return false;
         std::cout << "[OK] Index + patch vertex snapshot and border seam self-tests complete; no game files written.\n";
         return true;
@@ -512,6 +840,11 @@ int main(int argc, char** argv)
 {
     if (argc == 1)
         return RunSelfTest() ? 0 : 1;
+
+    if (argc == 5 && std::string(argv[1]) == "--audit-lod-seams")
+    {
+        return AuditLODSeams(argv[2], argv[3], argv[4]) ? 0 : 8;
+    }
 
     if (argc == 4 && std::string(argv[1]) == "--audit-adjacent")
     {
@@ -535,7 +868,7 @@ int main(int argc, char** argv)
 
     if (argc != 3 || std::string(argv[1]) != "--verify")
     {
-        std::cerr << "Usage: DX11LODSnapshotProbe.exe [--verify capture.bin | --verify-patch patch.bin | --audit-geometry lod.bin patch.bin | --audit-adjacent patchA.bin patchB.bin]\n";
+        std::cerr << "Usage: DX11LODSnapshotProbe.exe [--verify capture.bin | --verify-patch patch.bin | --audit-geometry lod.bin patch.bin | --audit-adjacent patchA.bin patchB.bin | --audit-lod-seams lod.bin patchA.bin patchB.bin]\n";
         return 2;
     }
 
