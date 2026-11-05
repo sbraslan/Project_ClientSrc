@@ -1223,6 +1223,109 @@ and `Terrain.h` and `Src/GameLib/AreaTerrain.cpp`:
 5. A passing test establishes original CPU math and data-format
    adapter only; it is not yet real-time map streaming or gameplay.
 
+## Gate 2g — Windows raw terrain CPU PASS; EterPack read-only probe STAGED (2026-11-06)
+
+User confirmed:
+- `git pull --ff-only origin migration/dx11-exclusive-bootstrap-v1`
+  fast-forwarded from `94181cdf` to `1fc9e43b`.
+- `DX11RawTerrainProbe.vcxproj Release|x64` Rebuild succeeded.
+- CPU fixture reported [OK] for original 34322-byte decode,
+  X/-Y/heightscale and 17x17 layout, exact 17 border positions
+  and normals, invalid-scale/coordinates bounds, and no file writes.
+  `[OK] RAW TERRAIN TEST PASSED`.
+- The read-only recursive loose `height.raw` search beneath
+  the user's `Project_Client` returned **no matches**.
+  This is expected if the installed client keeps map heights
+  exclusively inside EterPack archives; it is NOT evidence that
+  the game lacks height data.
+
+Original code inspection:
+- `UserInterface.cpp::Main` initializes static `CLZO` and
+  `CEterPackManager`, then calls `PackInitialize("pack")`
+  before `CPythonApplication`.
+- `PackInitialize` has two compile-time registration modes:
+  static `vecIndex` under `ENABLE_NO_INDEX_FILE`, or
+  root `pack/Index` file; both register actual read-only
+  `CEterPack` instances.
+- `CEterPackManager::Get(CMappedFile&, path, &data)` selects
+  pack or loose file based on existing configured search mode;
+  `CMappedFile::Size()` is available to validate output bytes.
+- `CTerrainImpl::LoadHeightMap` uses this exact EterPack
+  method to read raw bytes, so this is the correct virtual
+  filesystem API, not an invented binary archive decoder.
+- Normal `GameLib::LoadTerrain` also does D3D9 splat/texture
+  allocation, so **never call** its full loader from exclusive
+  DX11-only bootstrap.
+
+**New files STAGED, NOT YET Windows compiled or run**:
+- `Src/UserInterface/DX11MapPackInspect.h/.cpp`: read-only
+  EterPack inspector; optionally reports atlasinfo.txt virtual
+  map entries and reads an explicitly selected original
+  `.../000000/height.raw` via CEterPackManager; verifies exact
+  34322 bytes, decodes using the already passed pure CPU height
+  library, derives exact same map's `Setting.txt`,
+  parses `heightscale`, builds original 17x17 right-neighbor
+  pair, logs min/max Z and exact 17 shared edge, **never writes
+  captured/pack files or constructs a D3D9/11 device**.
+- `UserInterface.cpp::WinMain` has an early, opt-in
+  `--dx11-pack-inspect` branch that first checks exact
+  process environment `METIN2_DX11_MAP_PACK_INSPECT=1`,
+  then creates static CLZO and CEterPackManager, invokes
+  the existing game's PackInitialize("pack"), and finally
+  performs read-only inspection, BEFORE Python or GPU startup.
+- `UserInterface.vcxproj` compiles the special inspector and
+  CPU decoder only in `Release|x64` with BOTH
+  `EnableDX11MainWindowBootstrap=true` and
+  `EnableDX11MapPackProbe=true`. The previously passed
+  exclusive DX11 main window/real captured terrain flags and
+  default DX9 compilation are unchanged.
+
+**Next Windows smoke test**:
+1. Pull the new isolated-branch commit; build
+   `UserInterface.vcxproj Release|x64` with
+   `EnableDX11MainWindowBootstrap=true` AND
+   `EnableDX11MapPackProbe=true`, but
+   `EnableDX11ExclusiveTerrain=false`,
+   `EnableDX11InGameProbe=false` and all capture flags false.
+   Stop on compile/link errors, fix only probe code, preserve
+   default DX9 original and the already-working DX11 terrain exe.
+2. Verify original `metin2release.exe` against previous
+   hash-verified DX9 backup. Copy compiled binary with a
+   DISTINCT versioned filename including its SHA-256.
+3. In elevated PowerShell, launch that special EXE with
+   `Arguments="--dx11-pack-inspect"`,
+   `WorkingDirectory=Project_Client`,
+   `UseShellExecute=false` and child
+   `METIN2_DX11_MAP_PACK_INSPECT=1`.
+   Without a specific map path it lists up to 16 candidate
+   map names from read-only `atlasinfo.txt` candidates,
+   or clearly logs that atlas is not directly accessible;
+   this exploratory run should return exit 0.
+4. If atlas/map names establish exact virtual path, run again
+   with the optional child environment
+   `METIN2_DX11_MAP_HEIGHT_PATH` set to the real
+   `.../000000/height.raw` resource path (never invent
+   an installed map path). Original CEterPackManager::Get
+   locates the raw map in the registered pack index. The
+   corresponding map Setting.txt MUST exist and contain
+   parseable heightscale; otherwise fail closed with a
+   nonzero diagnostic exit code.
+5. When `[DX11 MAP PACK] ORIGINAL PACK terrain CPU gate PASS`
+   appears, extend the exclusive main DX11 window with
+   a new guarded live-pack-source *terrain CPU bridge*.
+   First compare positions/normals with previously validated
+   captured A/B snapshots; only then render map tiles.
+   This remains NOT playable Metin2 or automatic live
+   GameLib map streaming.
+
+**Important uncertainty:** The user has NOT yet provided
+the `pack/Index` contents, `atlasinfo.txt`, specific
+game-map virtual root or actual heightscale. The initial
+probe must DISCOVER rather than invent that path.
+Pack initialization may still fail if an external pack
+format/runtime dependency is missing; do not bypass
+encryption or try to rewrite archives.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
