@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#if defined(M2_DX11_MAIN_WINDOW_BOOTSTRAP) && defined(_WIN64)
+#include "DX11MainWindowBootstrap.h"
+#endif
 #include "PythonApplication.h"
 #include "ProcessScanner.h"
 #include "PythonExceptionSender.h"
@@ -1052,6 +1055,23 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 {
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_CRT_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
+#if defined(M2_DX11_MAIN_WINDOW_BOOTSTRAP) && defined(_WIN64)
+    // DX11-only FIRST FRAME: both the special argument and exact process
+    // environment value are required. This branch returns BEFORE any
+    // Python, CEF, GameLib or DX9 graphics-device setup.
+    if (lpCmdLine && strcmp(lpCmdLine, "--dx11-exclusive-bootstrap") == 0)
+    {
+        if (!m2::render::IsDX11ExclusiveBootstrapRequested())
+        {
+            OpenLogFile(true);
+            TraceError("[DX11 EXCLUSIVE] explicit bootstrap argument refused: "
+                       "METIN2_DX11_EXCLUSIVE_BOOT must equal 1");
+            return 12;
+        }
+        return m2::render::RunDX11ExclusiveBootstrap(hInstance, nCmdShow);
+    }
 #endif
 
 	ApplicationStringTable_Initialize(hInstance);
