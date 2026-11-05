@@ -1,6 +1,6 @@
 # Real Metin2 LOD capture — guarded diagnostic, not a DX11 gameplay renderer
 
-Status: **SnapshotProbe, EterLib, default/off and opt-in GameLib, and opt-in UserInterface x64 link passed user Windows tests. Real LOD capture/runtime remains PENDING.**
+Status (2026-11-05): **Opt-in runtime 3-LOD capture VERIFIED**. Real snapshot passed standalone decode and topology conversion (exit code 0). In-game DX11 rendering is NOT implemented or verified.
 
 ## Proven source location
 
@@ -74,7 +74,7 @@ After testing the special build, restore default compiled objects:
 if ($LASTEXITCODE -ne 0) { throw "Default GameLib rebuild failed" }
 ```
 
-## Gate B — controlled real-client capture (DO NOT perform yet)
+## Gate B — controlled real-client capture (COMPLETED for first real 3-LOD sample)
 
 Only after Gate A and explicit game-link/runtime checks:
 
@@ -174,9 +174,39 @@ built EXE under a new distinct name. Verify SHA256 matching and leave
 the original `Project_Client/metin2release.exe` untouched.
 No game/renderer changes are enabled in ordinary builds.
 
+## Gate 1i — real in-game 3-LOD snapshot verified (2026-11-05)
+
+- User's new x64 opt-in EXE reached the original CPU index hook in game
+  at **2026-11-05 18:32:51**, PID 17708:
+  `envLength=1 | enabled=1 | LOD0=574 LOD1=648 LOD2=552`.
+- Log confirmed `[DX11 LOD CAPTURE] created dx11_terrain_lod_capture.bin
+  (3576 bytes, LOD0=574 LOD1=648 LOD2=552)`.
+- First attempt to run verifier returned the generic invalid/inaccessible
+  error. The user confirmed the file exists at
+  `Project_Client/dx11_terrain_lod_capture.bin`, length **3576 bytes**.
+  Re-running the verifier from `Project_Client` with an explicit
+  working directory **PASSED**:
+  `LOD0: 574 source indices, 512 converted triangles (STRIP)`;
+  `LOD1: 648 source indices, 216 converted triangles (LIST)`;
+  `LOD2: 552 source indices, 184 converted triangles (LIST)`.
+  The verifier printed `[OK] Capture file validated` and
+  `VERIFIER EXIT CODE: 0`.
+- Combined converted triangle count: **912**. This is an index/topology
+  validation only; no live DX11 GameLib renderer exists yet. The
+  isolated DX11 terrain probe continues to use its own preview data;
+  it does not yet load this snapshot into a GPU mesh.
+- Production runtime `Project_Client/metin2release.exe` was not
+  overwritten; previous hash checks confirmed it was unchanged. Preserve
+  the capture file and avoid sharing/committing it without inspection.
+- **Next**: optional standalone DX11 TerrainProbe path loading the real
+  snapshot, preserving its current synthetic/default mode, verifying
+  matching 17x17 vertex grid, strip parity, winding, LOD edge seams and
+  wireframe before in-game renderer integration. No JTX patches yet.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
-migration, no proof that Granny/SpeedTree are DX11-ready, and no confirmed
-real capture file. This is only a diagnostic path for obtaining real terrain
+migration, and no proof that Granny/SpeedTree are DX11-ready. The **real
+LOD capture file is now verified**; its geometry has not yet been visualized
+in the standalone DX11 terrain probe. This is only a diagnostic path for obtaining real terrain
 topology without altering the original DX9 drawing operations.
