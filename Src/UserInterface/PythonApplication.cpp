@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#if defined(M2_DX11_INGAME_PROBE) && defined(_WIN64)
+#include "DX11InGameProbe.h"
+#endif
 #include "../EterLib/Camera.h"
 #include "../EterLib/AttributeInstance.h"
 #include "../GameLib/AreaTerrain.h"
@@ -553,6 +556,12 @@ bool CPythonApplication::Process()
 			}
 		}
 	}
+
+#if defined(M2_DX11_INGAME_PROBE) && defined(_WIN64)
+    // After the normal DX9 frame, tick an entirely separate optional
+    // D3D11 diagnostic HWND. Never replace or modify the game's DX9 Present.
+    m2::render::DX11InGameProbeTick();
+#endif
 
 	int rest = s_uiNextFrameTime - ELTimer_GetMSec();
 
@@ -1207,6 +1216,10 @@ void CPythonApplication::FlashApplication()	//@fixme403
 
 void CPythonApplication::Destroy()
 {
+#if defined(M2_DX11_INGAME_PROBE) && defined(_WIN64)
+    // Destroy the independent D3D11 window BEFORE any original DX9 teardown.
+    m2::render::DX11InGameProbeShutdown();
+#endif
 #ifdef CEF_BROWSER
 	CefWebBrowser_Destroy();
 #else
