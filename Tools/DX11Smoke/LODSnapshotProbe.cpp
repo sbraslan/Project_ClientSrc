@@ -146,6 +146,152 @@ namespace
         return Check("Real terrain patch file validated", true);
     }
 
+    // Source vertex order is 17 columns across increasing DX9 X, then
+    // 17 rows of decreasing DX9 Y. Compare actual shared border vertices,
+    // rather than assuming consecutive capture calls are neighbors.
+    bool CompareAdjacentPatches(
+        const std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount>& a,
+        const std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount>& b,
+        bool report)
+    {
+        constexpr std::size_t side = 17;
+        constexpr float expectedPatchSize = 3200.0f;
+        constexpr double coordinateTolerance = 0.05;
+        constexpr double normalWarningTolerance = 0.15;
+        const double dx = double(b[0].position[0]) - a[0].position[0];
+        const double dy = double(b[0].position[1]) - a[0].position[1];
+
+        const auto near = [](double lhs, double rhs) -> bool
+        {
+            return std::abs(lhs - rhs) <= 0.05;
+        };
+        // Direction: 0 right, 1 left, 2 down (negative Y), 3 up.
+        int direction = -1;
+        if (near(dx, expectedPatchSize) && near(dy, 0.0))
+            direction = 0;
+        else if (near(dx, -expectedPatchSize) && near(dy, 0.0))
+            direction = 1;
+        else if (near(dx, 0.0) && near(dy, -expectedPatchSize))
+            direction = 2;
+        else if (near(dx, 0.0) && near(dy, expectedPatchSize))
+            direction = 3;
+
+        if (direction < 0)
+        {
+            if (report)
+                std::cout << "[FAIL] Patch origins are not horizontally adjacent"
+                          << ": deltaX=" << dx << " deltaY=" << dy << '\n';
+            return false;
+        }
+
+        const char* directions[] = {"right", "left", "down(-Y)", "up(+Y)"};
+        double maxGap = 0.0;
+        double maxNormalGap = 0.0;
+        unsigned mismatched = 0;
+        for (std::size_t i = 0; i < side; ++i)
+        {
+            std::size_t ia = 0;
+            std::size_t ib = 0;
+            if (direction == 0)
+            {
+                ia = i * side + (side - 1);
+                ib = i * side;
+            }
+            else if (direction == 1)
+            {
+                ia = i * side;
+                ib = i * side + (side - 1);
+            }
+            else if (direction == 2)
+            {
+                ia = (side - 1) * side + i;
+                ib = i;
+            }
+            else
+            {
+                ia = i;
+                ib = (side - 1) * side + i;
+            }
+            double gapSquared = 0.0;
+            double normalSquared = 0.0;
+            for (unsigned axis = 0; axis < 3; ++axis)
+            {
+                const double diff = double(a[ia].position[axis]) -
+                                    b[ib].position[axis];
+                gapSquared += diff * diff;
+                const double ndiff = double(a[ia].normal[axis]) -
+                                     b[ib].normal[axis];
+                normalSquared += ndiff * ndiff;
+            }
+            const double gap = std::sqrt(gapSquared);
+            maxGap = (std::max)(maxGap, gap);
+            maxNormalGap = (std::max)(maxNormalGap, std::sqrt(normalSquared));
+            if (!std::isfinite(gap) || gap > coordinateTolerance)
+                ++mismatched;
+        }
+
+        if (report)
+        {
+            std::cout << "Adjacent patch relation=" << directions[direction]
+                      << ", tested boundary vertices=" << side
+                      << ", max position gap=" << maxGap
+                      << ", mismatched points=" << mismatched
+                      << ", max normal delta=" << maxNormalGap << '\n';
+            if (maxNormalGap > normalWarningTolerance)
+                std::cout << "[WARN] Boundary normals differ; inspect shading continuity.\n";
+            std::cout << (mismatched ? "[FAIL]" : "[OK]")
+                      << " Real patch border position agreement\n";
+        }
+        return mismatched == 0;
+    }
+
+    bool RunAdjacentSelfTest()
+    {
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> first{};
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> second{};
+        for (std::size_t i = 0; i < first.size(); ++i)
+        {
+            const float col = static_cast<float>(i % 17u);
+            const float row = static_cast<float>(i / 17u);
+            first[i].position[0] = col * 200.0f;
+            first[i].position[1] = -row * 200.0f;
+            first[i].position[2] = col + row;
+            first[i].normal[2] = 1.0f;
+            second[i].position[0] = 3200.0f + col * 200.0f;
+            second[i].position[1] = -row * 200.0f;
+            second[i].position[2] = 16.0f + col + row;
+            second[i].normal[2] = 1.0f;
+        }
+        if (!Check("Adjacent patch valid right edge",
+                   CompareAdjacentPatches(first, second, false)))
+            return false;
+        second[0].position[2] += 1.0f;
+        if (!Check("Adjacent patch seam height mismatch rejected",
+                   !CompareAdjacentPatches(first, second, false)))
+            return false;
+        second[0].position[2] -= 1.0f;
+        second[0].position[0] += 100.0f;
+        if (!Check("Nonadjacent patch origins rejected",
+                   !CompareAdjacentPatches(first, second, false)))
+            return false;
+        return true;
+    }
+
+    bool AuditAdjacent(const char* firstPath, const char* secondPath)
+    {
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> first{};
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> second{};
+        if (!LoadPatchFile(firstPath, first) || !LoadPatchFile(secondPath, second))
+        {
+            std::cerr << "[FAIL] Adjacent patch source(s) invalid or inaccessible.\n";
+            return false;
+        }
+        const bool valid = CompareAdjacentPatches(first, second, true);
+        if (valid)
+            std::cout << "[OK] Read-only adjacent patch audit complete. No files written.\n";
+        return valid;
+    }
+
     bool AuditGeometry(const char* lodPath, const char* patchPath)
     {
         LegacyIndexSnapshot lod;
@@ -341,9 +487,9 @@ namespace
                 untouched == std::vector<std::uint8_t>{42, 84}))
             return false;
 
-        if (!RunPatchSelfTest())
+        if (!RunPatchSelfTest() || !RunAdjacentSelfTest())
             return false;
-        std::cout << "[OK] Index + patch vertex snapshot codec self-tests complete; no game files written.\n";
+        std::cout << "[OK] Index + patch vertex snapshot and border seam self-tests complete; no game files written.\n";
         return true;
     }
 }
@@ -352,6 +498,11 @@ int main(int argc, char** argv)
 {
     if (argc == 1)
         return RunSelfTest() ? 0 : 1;
+
+    if (argc == 4 && std::string(argv[1]) == "--audit-adjacent")
+    {
+        return AuditAdjacent(argv[2], argv[3]) ? 0 : 7;
+    }
 
     if (argc == 4 && std::string(argv[1]) == "--audit-geometry")
     {
@@ -370,7 +521,7 @@ int main(int argc, char** argv)
 
     if (argc != 3 || std::string(argv[1]) != "--verify")
     {
-        std::cerr << "Usage: DX11LODSnapshotProbe.exe [--verify capture.bin | --verify-patch patch.bin | --audit-geometry lod.bin patch.bin]\n";
+        std::cerr << "Usage: DX11LODSnapshotProbe.exe [--verify capture.bin | --verify-patch patch.bin | --audit-geometry lod.bin patch.bin | --audit-adjacent patchA.bin patchB.bin]\n";
         return 2;
     }
 
