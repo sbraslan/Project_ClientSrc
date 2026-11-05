@@ -553,6 +553,38 @@ rendering.
 - No GameLib / UserInterface / DX9 runtime file was modified by
   this culling test.
 
+## Gate 1p — LOD0 controlled CW/CCW culling screenshots (2026-11-05)
+
+**Four user screenshots from the isolated D3D11 TerrainProbe:**
+- `REAL PATCH VERTICES | CAPTURED LOD0: 512 tris | Wireframe | C:OFF`:
+  all triangles visible, unchanged topology.
+- `REAL PATCH VERTICES | CAPTURED LOD0: 512 tris | Solid | C:OFF`:
+  synthetic grass material covers the full steep source patch.
+- `REAL PATCH VERTICES | CAPTURED LOD0: 512 tris | Solid |
+  C:BACK/FRONT_CW`: the intended cliff face remains visibly
+  filled, close to culling-off appearance.
+- `REAL PATCH VERTICES | CAPTURED LOD0: 512 tris | Solid |
+  C:BACK/FRONT_CCW`: nearly the entire original face
+  disappears, leaving only thin boundary fragments.
+
+**Conclusion scoped to this camera/basis/LOD0 sample:**
+`D3D11_CULL_BACK` with `FrontCounterClockwise = FALSE`
+(front clockwise) matches the visible real patch orientation
+in the current independent DX11 viewer. This was explicitly
+tested, not inferred solely from the original game's
+`D3DCULL_CW` (the latter is its *culled* winding, whereas
+DX11's front-face flag determines *retained* facing).
+Do NOT mechanically copy `D3DCULL_CW` into DX11,
+or assume the result generalizes to reflected camera matrices,
+other objects, neighboring patches, or production game raster
+state. The current standalone probe still defaults to no culling
+until further gates are satisfied.
+
+**Remaining tests:** check `C:BACK/FRONT_CW` on REAL LOD1 and
+REAL LOD2 solid modes and inspect patch seams across actual
+adjacent source terrain pieces. No GameLib, UserInterface,
+or original DX9 renderer changes were made here.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
