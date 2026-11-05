@@ -585,6 +585,63 @@ REAL LOD2 solid modes and inspect patch seams across actual
 adjacent source terrain pieces. No GameLib, UserInterface,
 or original DX9 renderer changes were made here.
 
+## Gate 1q — LOD0/1/2 CW culling passed; guarded adjacent-pair capture staged (2026-11-05)
+
+**User screenshot evidence:** Four additional isolated D3D11 TerrainProbe
+views show `REAL PATCH VERTICES`, captured LOD0/1/2, solid mode.
+C:OFF on LOD0 leaves its 512 triangles fully visible. With
+`C:BACK/FRONT_CW`, LOD0 (512 tris), LOD1 (216 tris), and LOD2
+(184 tris) each retain their intended visible cliff face. For this
+standalone viewer's current camera and original Z-up to viewer Y-up
+rotation, `D3D11_CULL_BACK` with `FrontCounterClockwise=FALSE`
+is now visually supported for all three LODs. This is NOT evidence
+of a complete production DX11 game renderer or of adjacent patch
+seam integrity. DX9 uses its separate `D3DCULL_CW` default state.
+
+**Next stage implemented, Windows build/runtime PENDING:**
+- New standalone read-only CLI `DX11LODSnapshotProbe.exe
+  --audit-adjacent patchA.bin patchB.bin` loads two existing
+  `M2PVERT1` snapshots, rejects non-neighboring origins, and
+  compares all 17 boundary position samples (including height).
+  Reports maximum border gap, mismatch count, and maximum normal
+  deviation; warns on discontinuous normals. A mismatch returns a
+  nonzero exit code. Synthetic fixtures cover right, left, down(-Y),
+  up(+Y), bad seam height and non-neighboring origins.
+- Separate opt-in diagnostic only:
+  `GameLib/TerrainPatch.cpp` under
+  `M2_DX11_ADJACENT_CAPTURE && _WIN64 && !WORLD_EDITOR`.
+  The flag is enabled **only** via MSBuild
+  `/p:EnableDX11AdjacentCapture=true` for
+  `Release|x64` and must also receive exactly
+  `METIN2_DX11_ADJACENT_CAPTURE_ONCE=1` in the elevated
+  client's environment. Default DX9 builds do not include the hook.
+- The adjacent sampler uses actual DX9 world-space original vertex
+  origins (17x17 source, X increases, Y decreases). It maintains a
+  bounded cache of at most 256 unique source patches, chooses the
+  first pair separated by exactly one 3200-unit patch width on a
+  single horizontal axis, and saves `dx11_terrain_adjacent_A.bin`
+  and `dx11_terrain_adjacent_B.bin` using non-overwriting
+  `CREATE_NEW`. No changes to DX9 VB uploads, index snapshots,
+  camera, renderer, or texture state.
+- The two saved patch files each use the separately validated
+  6956-byte original vertex snapshot codec, with original world
+  positions/normals preserved and existing single-patch and
+  LOD capture files left untouched. A prior pair is never overwritten.
+  The log records each source origin and delta. If no neighbor is
+  encountered in the bounded search, no file is created.
+- **Windows preflight order:** CPU-only snapshot probe build /
+  self-test FIRST; only after that passes, opt-in GameLib and
+  UserInterface compile/link with original production DX9
+  EXE and snapshot backups verified. Never launch a regular
+  `Project_Client/metin2release.exe` replacement for diagnostics.
+  Do not claim real adjacent capture/edge continuity until actual
+  Windows audit reports exit code 0.
+- Technical caveat: source-space adjacency alone establishes
+  geometric neighborhood; game map identity, runtime environment,
+  normals, and texture border splats are separate concerns.
+  The audit reports discontinuities rather than silently stitching
+  or modifying the terrain.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
