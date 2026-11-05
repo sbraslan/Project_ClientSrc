@@ -112,6 +112,7 @@ namespace
 #include <atomic>
 #include <cmath>
 #include <mutex>
+#include <utility>
 #include <vector>
 
 namespace
