@@ -773,6 +773,57 @@ T-junction gap; and incomplete edge coverage must be rejected.
 No game/render files or capture snapshots are modified.
 Windows rebuild/selftests + numeric results are PENDING.
 
+## Gate 1u — all 9 original mixed-LOD shared-border paths verified (2026-11-05)
+
+The user rebuilt the independent `Tools/DX11Smoke/DX11LODSnapshotProbe.vcxproj`
+in Release|x64, with no compiler errors reported. The full suite
+passed, including new planar fine/coarse border equivalence,
+synthetic T-junction gap detection and missing-boundary rejection.
+User `TEST EXIT CODE: 0`.
+
+The read-only real-snapshot `--audit-lod-seams` run on
+`dx11_terrain_lod_capture.bin`,
+`dx11_terrain_adjacent_A.bin`, and
+`dx11_terrain_adjacent_B.bin` produced **nine [OK] results**:
+A:LOD0/1/2 crossed with B:LOD0/1/2 all have
+`edge segments=16/16`, `max geometric gap=0`,
+`mismatch samples=0`. The user saw
+`[OK] All nine LOD boundary combinations agree.`,
+`[OK] Read-only LOD border audit completed; no files written.`,
+and `AUDIT EXIT CODE: 0`. No file changes occurred during the audit.
+
+This validates **actual captured source topology, edge coverage,
+piecewise-linear position agreement at all 17 original boundary
+locations and mixed LOD combinations for this right-neighbor pair**.
+In particular, LOD1 and LOD2 retain sixteen boundary segments
+in the selected source-side topology, even though the interior
+uses fewer triangles. This avoids the synthetic coarse-edge
+T-junction scenario tested by the unit fixture.
+
+**Scope:** one spatially adjacent source pair A=(0,0),
+B=(3200,0), one captured global LOD topology sample.
+Not yet validated for all world/map positions, all four neighbor
+directions on real data, all camera angles, texture seams,
+depth precision or the integrated DX11 game renderer. Do not
+claim all possible runtime crack sources are eliminated.
+
+**Next phase — read-only texture/splat architecture audit:**
+- `Src/GameLib/MapOutdoorRenderHTP.cpp`:
+  `CMapOutdoor::__HardwareTransformPatch_RenderPatchSplat` binds
+  patch vertex stream and computes separate splat alpha and
+  tiled color transforms; uses D3D9 texture stages and blend states.
+- `Src/GameLib/AreaTerrain.cpp`:
+  `CTerrain::RAW_CountTiles` aggregates tile usage per patch;
+  `CTerrain::RAW_GenerateSplat` builds per-layer alpha maps
+  from `m_abyTileMap`, uploading via `AddTexture32`.
+- `Src/GameLib/MapOutdoorRenderSTP.cpp`:
+  separate software transform/splat path also exists.
+- Before building any DX11 texture path, inventory exact CPU
+  texture-set/layer IDs, alpha dimensions, UV matrix conventions,
+  color/alpha stage state, sRGB/blend semantics and patch origin.
+  Keep DX9 source untouched and start with synthetic isolated
+  shader/texture fixtures. No texture migration is verified.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
