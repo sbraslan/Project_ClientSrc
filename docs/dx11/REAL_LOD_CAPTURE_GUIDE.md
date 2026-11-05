@@ -309,6 +309,56 @@ reported yet; do not mark this gate completed.** The next viewer
 step should translate original game Z-up coordinates to DX11
 Y-up after capture validation, using a separate tested adapter.
 
+## Gate E — REAL 289 vertices + captured 3-LOD standalone DX11 view (COMMITTED; Windows build pending)
+
+The user independently validated the captured vertex file with
+`DX11LODSnapshotProbe.exe --verify-patch`:
+`vertices=289 minZ=24249 maxZ=28585 height range=4336`, exit 0.
+The real 3-LOD indices were already checked separately. The captures
+are **read-only evidence** and must be retained; do not recapture.
+
+The standalone `DX11TerrainProbe` now supports **two input files**:
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_ClientSrc'
+git pull --ff-only origin modernization/dx11-renderer
+& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' '.\Tools\DX11Smoke\DX11TerrainProbe.vcxproj' /t:Rebuild /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+& '.\Tools\DX11Smoke\bin\x64\Release\DX11TerrainProbe.exe' --lod-snapshot 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client\dx11_terrain_lod_capture.bin' --patch-snapshot 'C:\Users\skill\OneDrive\Masaüstü\Project_Seferihisar\Project_Client\dx11_terrain_patch_capture.bin'
+```
+
+- Explicit **both files** means real captured vertex coordinates
+  combined with original captured LOD topology, shown in initial
+  wireframe LOD0 view. `1/2/3` cycle LODs, `W` toggles
+  wireframe/solid, `V` switches real and synthetic heights for
+  exact index-topology comparison, `R` toggles the original
+  LOD mode and `P` selects synthetic 17x17.
+- No arguments: original full synthetic mode. LOD-only file:
+  previous verified original indices on **synthetic** 17x17 heights.
+  Patch-only file: invalid; the real patch snapshot must be
+  paired with a valid LOD snapshot. Missing/corrupt input
+  returns a dialog and nonzero process status, never silently
+  draws a different mesh.
+- The game stores **Z as height**. The standalone DX11
+  preview uses **Y as height**. The CPU adapter maps
+  original `(x,y,z)->(x,z,-y)` for both positions and normals,
+  recenters the sample patch, applies **uniform** resizing
+  and chooses a fitting camera (no height exaggeration).
+  A rotation math fixture rejects invalid normals and
+  compares original equal-grid step lengths.
+- Patches were captured independently: the LOD file is a
+  globally initialized index sequence while the vertex
+  snapshot was the **first generated terrain patch**. The
+  preview is a *single captured patch + valid shared LOD
+  structure*, not yet a full-world material/splat/render
+  migration or a test of stitching adjacent patches.
+
+**Test gate:** Confirm Release x64 compile/link exit 0.
+Provide captured vertex LOD0/1/2 wireframe screenshots,
+LOD0 solid and V toggle (synthetic comparison). Verify
+snapshot SHA256 values remain unchanged and process closes
+with exit code 0. If build fails, stop and inspect error;
+DO NOT copy a probe into the production game directory.
+
 ## Not yet done
 
 There is **no live DX11 GameLib renderer**, no terrain texture splatting
