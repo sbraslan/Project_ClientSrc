@@ -42,9 +42,12 @@ namespace
     m2::render::DX11MeshBuffers g_patchMesh;
     std::array<m2::render::DX11MeshBuffers, 3> g_realLODMeshes;
     std::array<m2::render::DX11MeshBuffers, 3> g_realPatchLODMeshes;
+    std::array<std::array<m2::render::DX11MeshBuffers, 3>, 2> g_adjacentLODMeshes;
     m2::render::LegacyIndexSnapshot g_realSnapshot;
     std::array<m2::render::LegacyPatchVertex,
                m2::render::DX11LegacyPatchSnapshot::kVertexCount> g_realPatchSnapshot{};
+    std::array<std::array<m2::render::LegacyPatchVertex,
+               m2::render::DX11LegacyPatchSnapshot::kVertexCount>, 2> g_adjacentSnapshots{};
     m2::render::DX11Texture g_grass;
     m2::render::DX11ShaderPipeline g_pipeline;
     ComPtr<ID3D11Buffer> g_sceneConstants;
@@ -109,6 +112,10 @@ namespace
     bool g_realLODPreview = false;
     bool g_realPatchLoaded = false;
     bool g_realPatchPreview = false;
+    bool g_adjacentLoaded = false;
+    bool g_adjacentPreview = false;
+    std::size_t g_adjacentBLOD = 0;
+    float g_adjacentViewDistance = 21.0f;
     // C toggles: 0 = no culling, 1 = backface cull/front CW,
     // 2 = backface cull/front CCW. Never silently change default.
     unsigned g_cullingMode = 0;
@@ -360,6 +367,159 @@ namespace
         fixture[0].normal[2] = 0.0f;
         return !BuildCapturedPatchPreview(fixture, vertices, distance) &&
                vertices.size() == fixture.size();
+    }
+
+    // Fully independent, fail-closed TWO-PATCH preview. Both patches
+    // share one physical origin and one UNIFORM scale. This is essential:
+    // normalizing them independently would hide actual border cracks.
+    bool BuildAdjacentPatchPreviews(
+        const std::array<std::array<m2::render::LegacyPatchVertex,
+                         m2::render::DX11LegacyPatchSnapshot::kVertexCount>, 2>& source,
+        std::array<std::vector<m2::render::TerrainVertex>, 2>& output,
+        float& viewDistance)
+    {
+        constexpr std::size_t side = 17u;
+        constexpr double span = 3200.0;
+        constexpr double tolerance = 0.05;
+        const double deltaX =
+            double(source[1][0].position[0]) - source[0][0].position[0];
+        const double deltaY =
+            double(source[1][0].position[1]) - source[0][0].position[1];
+        const auto near = [](double a, double b) {
+            return std::isfinite(a) && std::isfinite(b) &&
+                   std::abs(a - b) <= 0.05;
+        };
+        int direction = -1;
+        if (near(deltaX, span) && near(deltaY, 0.0)) direction = 0;
+        else if (near(deltaX, -span) && near(deltaY, 0.0)) direction = 1;
+        else if (near(deltaX, 0.0) && near(deltaY, -span)) direction = 2;
+        else if (near(deltaX, 0.0) && near(deltaY, span)) direction = 3;
+        if (direction < 0)
+            return false;
+
+        // Check the complete 17-point border BEFORE creating any mesh.
+        // Normals are recorded but not forced equal: discontinuities should
+        // remain observable instead of being silently smoothed.
+        for (std::size_t i = 0; i < side; ++i)
+        {
+            std::size_t ia = 0, ib = 0;
+            if (direction == 0) { ia = i * side + 16u; ib = i * side; }
+            else if (direction == 1) { ia = i * side; ib = i * side + 16u; }
+            else if (direction == 2) { ia = 16u * side + i; ib = i; }
+            else { ia = i; ib = 16u * side + i; }
+            for (unsigned axis = 0; axis < 3u; ++axis)
+            {
+                if (!near(source[0][ia].position[axis],
+                          source[1][ib].position[axis]))
+                    return false;
+            }
+        }
+
+        double minimum[3]{source[0][0].position[0],
+                          source[0][0].position[1],
+                          source[0][0].position[2]};
+        double maximum[3]{minimum[0], minimum[1], minimum[2]};
+        for (const auto& patch : source)
+            for (const auto& vertex : patch)
+            {
+                double normalSquared = 0.0;
+                for (unsigned axis = 0; axis < 3u; ++axis)
+                {
+                    const double p = vertex.position[axis];
+                    const double n = vertex.normal[axis];
+                    if (!std::isfinite(p) || !std::isfinite(n))
+                        return false;
+                    minimum[axis] = (std::min)(minimum[axis], p);
+                    maximum[axis] = (std::max)(maximum[axis], p);
+                    normalSquared += n * n;
+                }
+                if (!std::isfinite(normalSquared) || normalSquared <= 1.0e-8)
+                    return false;
+            }
+
+        const double horizontalSpan = (std::max)(
+            maximum[0] - minimum[0], maximum[1] - minimum[1]);
+        if (!std::isfinite(horizontalSpan) || horizontalSpan <= 0.0)
+            return false;
+        const double scale = 19.2 / horizontalSpan;
+        const double centerX = (maximum[0] + minimum[0]) * 0.5;
+        const double centerY = (maximum[1] + minimum[1]) * 0.5;
+        const double centerZ = (maximum[2] + minimum[2]) * 0.5;
+
+        std::array<std::vector<m2::render::TerrainVertex>, 2> candidate;
+        double radiusSquaredMax = 0.0;
+        for (std::size_t patchNum = 0; patchNum < source.size(); ++patchNum)
+        {
+            candidate[patchNum].resize(source[patchNum].size());
+            for (std::size_t i = 0; i < source[patchNum].size(); ++i)
+            {
+                const auto& original = source[patchNum][i];
+                auto& v = candidate[patchNum][i];
+                const double x = (double(original.position[0]) - centerX) * scale;
+                const double y = (double(original.position[2]) - centerZ) * scale;
+                const double z = (centerY - double(original.position[1])) * scale;
+                if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z))
+                    return false;
+                v.position[0] = static_cast<float>(x);
+                v.position[1] = static_cast<float>(y);
+                v.position[2] = static_cast<float>(z);
+                v.normal[0] = original.normal[0];
+                v.normal[1] = original.normal[2];
+                v.normal[2] = -original.normal[1];
+                v.uv[0] = static_cast<float>(i % side) * (2.0f / 16.0f);
+                v.uv[1] = static_cast<float>(i / side) * (2.0f / 16.0f);
+                radiusSquaredMax = (std::max)(
+                    radiusSquaredMax, x * x + y * y + z * z);
+            }
+        }
+
+        const double suggested = (std::max)(21.0, std::sqrt(radiusSquaredMax) * 3.3);
+        if (!std::isfinite(suggested) || suggested > 100000.0)
+            return false;
+        output.swap(candidate);
+        viewDistance = static_cast<float>(suggested);
+        return true;
+    }
+
+    bool ValidateAdjacentPatchPreview()
+    {
+        std::array<std::array<m2::render::LegacyPatchVertex,
+                   m2::render::DX11LegacyPatchSnapshot::kVertexCount>, 2> sample{};
+        for (std::size_t patch = 0; patch < sample.size(); ++patch)
+            for (std::size_t i = 0; i < sample[patch].size(); ++i)
+            {
+                const float x = 3200.0f * static_cast<float>(patch) +
+                                200.0f * static_cast<float>(i % 17u);
+                const float y = -200.0f * static_cast<float>(i / 17u);
+                sample[patch][i].position[0] = x;
+                sample[patch][i].position[1] = y;
+                sample[patch][i].position[2] = x * 0.5f + y * 0.125f;
+                sample[patch][i].normal[2] = 1.0f;
+            }
+        std::array<std::vector<m2::render::TerrainVertex>, 2> output;
+        float viewDistance = 0.0f;
+        if (!BuildAdjacentPatchPreviews(sample, output, viewDistance) ||
+            output[0].size() != 289u || output[1].size() != 289u ||
+            viewDistance < 21.0f)
+            return false;
+
+        // 17 shared positions must be equal after the SAME transform.
+        for (std::size_t i = 0; i < 17u; ++i)
+        {
+            const auto& a = output[0][i * 17u + 16u].position;
+            const auto& b = output[1][i * 17u].position;
+            for (unsigned axis = 0; axis < 3u; ++axis)
+                if (std::abs(a[axis] - b[axis]) > 1.0e-5f)
+                    return false;
+        }
+
+        const float before = output[0][0].position[0];
+        const float distanceBefore = viewDistance;
+        sample[1][0].position[2] += 1.0f; // malformed border
+        return !BuildAdjacentPatchPreviews(sample, output, viewDistance) &&
+               output[0].size() == 289u &&
+               output[0][0].position[0] == before &&
+               viewDistance == distanceBefore;
     }
 
     m2::render::HeightField CreateTestHeights()
