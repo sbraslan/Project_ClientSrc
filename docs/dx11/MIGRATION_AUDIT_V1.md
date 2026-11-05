@@ -301,9 +301,23 @@ Status: EARLY DX11 PROBES VERIFIED BY USER / GAME INTEGRATION UNVERIFIED
   trace at the hook, even if runtime flag is absent. This separates
   no map initialization from missing environment flag and reports
   LOD 0/1/2 source counts. No diagnostic log in normal DX9 builds.
-- **Windows rebuild and live result PENDING**. The new source
-  diagnostic is not yet confirmed in the user's compiled EXE.
-  Do not mark real LOD capture validated until a real file passes
+- **User Windows rebuild/link PASSED** for Release x64 opt-in,
+  confirmed the new diagnostic marker inside the linked EXE, SHA256
+  `78B024AE1483228B...`.
+- **First instrumented in-game probe** (2026-11-05 01:11:57,
+  PID 9944) reached the live `SetIndexBuffer` capture hook:
+  `envLength=0 | enabled=0 | LOD0=574 LOD1=648 LOD2=552`.
+  These are genuine runtime terrain index **counts**,
+  not captured data or the probe's synthetic fixture values.
+  `BOOTTRACE: AFTER SendEnterGamePacket` followed at 01:12:04;
+  client exit code was 0, original DX9 EXE hash unchanged.
+- No snapshot file: the opt-in runtime environment variable was missing
+  or empty **when the hook ran**, causing an intentional early return.
+  The underlying reason it was absent is not yet proven. Next test
+  directly injects process environment via
+  `.NET ProcessStartInfo(UseShellExecute=false).EnvironmentVariables`,
+  without modifying the original game EXE or C++ source.
+- Do not mark real LOD capture validated until a real file passes
   `DX11LODSnapshotProbe.exe --verify`.
 
 ## Scope and source of truth
