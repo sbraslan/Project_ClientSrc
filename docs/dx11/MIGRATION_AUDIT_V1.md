@@ -396,6 +396,14 @@ User supplied six screenshots after the Gate 1j Windows build/test:
   explicit original DX9 Z-up to preview Y-up axis conversion and
   camera recentering, rather than swapping raw axes silently.
 
+## Gate 1k real patch live run — 2026-11-05 22:26
+
+- User reported successful Release x64 opt-in GameLib rebuild + full UserInterface link, separate hash-checked diagnostic EXE. The normal DX9 runtime EXE was not replaced.
+- An elevated PowerShell process created the client with `ProcessStartInfo.UseShellExecute=false`, `WorkingDirectory=Project_Client`, and `EnvironmentVariables['METIN2_DX11_PATCH_CAPTURE_ONCE']='1'`.
+- Syserr `PID=11484` at `22:26:15`: `[DX11 PATCH DIAG] hook reached | envLength=1 | enabled=1`; next line `[DX11 PATCH CAPTURE] created dx11_terrain_patch_capture.bin (6956 bytes, vertices=289)`. Process exit code 0.
+- **Next gate pending:** standalone `DX11LODSnapshotProbe.exe --verify-patch dx11_terrain_patch_capture.bin` must return exit code 0. File exists according to game log, but actual snapshot decode/checksum/finite normals and min/max height have NOT yet been tested.
+- Caution: the captured patch vertices come from the first `CTerrainPatch::BuildTerrainVertexBuffer` call, while the existing real LOD index snapshot is from `CMapOutdoor::SetIndexBuffer`. They share 17x17 indexing, but **this does not establish they were captured at the same spatial map patch**. The GPU preview must be labeled index topology + one sampled real patch; do not call it a full faithful game terrain render without provenance.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -564,8 +572,8 @@ User supplied six screenshots after the Gate 1j Windows build/test:
 - [x] Define fixed 289-position/normal float32 snapshot codec and checksum, no game shader changes.
 - [x] Extend existing CPU verifier with synthetic roundtrip and corruption tests.
 - [x] User Windows x64 Release standalone verifier rebuild and all self-tests (2026-11-05; build exit 0, test exit 0).
-- [ ] User Windows GameLib opt-in + UserInterface link and alternate-name test EXE.
-- [ ] Actual real vertex capture file generated with opt-in flag, 6956-byte format.
+- [x] User Windows GameLib opt-in + UserInterface link and alternate-name test EXE (2026-11-05).
+- [x] Actual real vertex capture file generated with opt-in flag, 6956-byte format (289 vertices; process PID 11484).
 - [ ] Independently verify captured positions/normals and full original DX9 game regressions.
 - [ ] Visually render real terrain vertex heights combined with the verified real LOD snapshot.
 
