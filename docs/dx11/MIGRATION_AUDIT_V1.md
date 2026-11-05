@@ -1078,6 +1078,92 @@ Do not claim completed terrain rendering before user supplies output.
 Even passing this gate does NOT mean live GameLib map streaming, Python,
 Granny characters, UI, materials or normal Metin2 gameplay is DX11.
 
+## Gate 2e — DX11 EXCLUSIVE real A/B terrain draw VERIFIED on Windows (2026-11-06)
+
+User-provided screenshot and `client_syserr.txt` from PID **19508**
+prove the exclusive D3D11 main-window mode loaded and drew the
+previously saved ORIGINAL adjacent terrain snapshots:
+- 00:33:27 `[DX11 EXCLUSIVE TERRAIN] real adjacent A/B READY;
+  triangles LOD0=512, LOD1=216, LOD2=184 per patch`.
+- 00:33:27 `[DX11 EXCLUSIVE] MAIN HWND D3D11 device and swapchain
+  READY; DX9 CreateDevice was never called`.
+- 00:33:28 normal 30 D3D11 main-window frames PASSED.
+- 00:33:28 `[DX11 EXCLUSIVE TERRAIN] 30 real A/B patch GPU
+  frames passed on exclusive DX11 main HWND`.
+- 00:33:50 `[DX11 EXCLUSIVE] shutdown: frames=3303 exit=0;
+  DX9 game never initialized in this mode`.
+- Screenshot: one top-level window titled
+  `Metin2 | DX11 EXCLUSIVE MAIN WINDOW | NO DX9 | NO GAMEPLAY`,
+  navy background, a continuous terrain surface comprising two
+  differently green-tinted adjacent raised original patches,
+  on-screen D3D11 overlay at about 144 FPS. Distinct green tints
+  intentionally indicate different patches; a color boundary is
+  not by itself a geometric crack. Runtime GPU completion,
+  all controls, resizing and all LOD visuals are NOT separately
+  verified by this single screenshot and log. Frame count / HUD
+  are not production benchmark measurements.
+
+**Status:** Gate 2d original captured terrain drawing on exclusive
+DX11 main HWND **PASS**. We should stop redoing the triangle
+proofs unless a genuine geometry regression is observed.
+
+**Critical remaining bridge (to LIVE terrain / playable game):**
+- `Src/GameLib/MapOutdoorLoad.cpp`:
+  `CMapOutdoor::LoadTerrain` builds a six-digit cell directory
+  from `wTerrainCoordX*1000+wTerrainCoordY`, reads
+  `AreaProperty.txt`, `height.raw`, `tile.raw`,
+  `attr.atr`, `water.wtr`, `shadowmap.dds/raw`,
+  `minimap.dds` and invokes `CalculateTerrainPatch`.
+  `LoadSetting` parses `heightscale`, `mapsize`,
+  `textureset` (and cellscale metadata).
+- `Src/PRTerrainLib/Terrain.h`: `CTerrainImpl` owns
+  `m_awRawHeightMap[HEIGHTMAP_RAW_YSIZE *
+  HEIGHTMAP_RAW_XSIZE]`, `m_abyTileMap`,
+  `GetHeightMapValue(sx,sy)` with a one-cell border offset;
+  `CELLSCALE = 200` and `PATCH_XSIZE=16`.
+- `Src/GameLib/AreaTerrain.cpp`:
+  `CTerrain::LoadHeightMap` calls `CTerrainImpl::LoadHeightMap`
+  then calculates normals; `RAW_LoadTileMap`
+  immediately calls `RAW_AllocateSplats`, which in turn
+  builds D3D9-specific alpha textures.
+- `Src/GameLib/TerrainPatch.cpp`:
+  `CTerrainPatch::BuildTerrainVertexBuffer` receives the
+  CPU source `HardwareTransformPatch_SSourceVertex`
+  but dispatches to software-transform storage or D3D9
+  vertex-buffer upload. THIS is the natural rendering seam
+  for a future CPU-terrain interface.
+- `Src/GameLib/MapOutdoorRenderHTP.cpp`:
+  `__HardwareTransformPatch_RenderPatchSplat`
+  binds D3D9 VB and layered alpha/color textures.
+  Directly calling current `CMapOutdoor::LoadTerrain` in the
+  separate DX11-only WinMain (which intentionally does NOT
+  initialize D3D9) is **not safe**: loading paths may allocate
+  D3D9-dependent textures/vertex buffers.
+
+**Next implementation strategy, NOT YET DONE:**
+1. Introduce a D3D-neutral bounded terrain-data interface
+   covering tile coordinate, raw height grid, height scale,
+   normal and tile/splat identifiers, without any D3D9 handle.
+2. Verify actual source RAW binary file layouts against
+   `PRTerrainLib` reader before writing a portable adapter;
+   do not guess dimensions from screenshot or test snapshots.
+   Decide whether resources are packed via `CEterPackManager`
+   or already available as files. Require real map path evidence.
+3. Use a standalone CPU-only loader/test (and optional synthetic
+   fixtures) to transform map *height.raw* to 17x17 patch
+   vertices and known original LOD index topology.
+   Validate bounds, seams, negative/source-height conventions,
+   and snapshot checksums. Do not save over old captures.
+4. Integrate the validated adapter with the exclusive
+   D3D11 main window using new explicit flags.
+   Keep the existing captured two-patch mode as regression
+   fixture. Then port real `tile.raw` layers and
+   texture sets/alpha masks to D3D11 shaders.
+5. Only after terrain and materials work may the full
+   `CPythonApplication` / Python / network / Granny
+   lifecycle be safely decoupled from D3D9.
+   This gate is NOT live streaming and NOT playable Metin2.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
