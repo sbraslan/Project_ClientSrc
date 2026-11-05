@@ -448,6 +448,38 @@ User supplied six screenshots after the Gate 1j Windows build/test:
   rebuild the isolated `DX11TerrainProbe.vcxproj`. Existing LOD and
   patch capture files remain untouched.
 
+## Gate 1m — real patch DX11 visuals and geometric QA (2026-11-05)
+
+**User screenshot evidence (7 views):**
+- Three screenshots show `REAL PATCH VERTICES | CAPTURED LOD0/1/2`
+  and the exact expected triangle counts (512 / 216 / 184),
+  alongside a live `D3D11` overlay in the independent TerrainProbe.
+- Another screenshot shows `CAPTURED INDEX LOD2 | SYNTHETIC HEIGHTS`,
+  verifying that the V comparison path remains selectable.
+- The previous full synthetic terrain and 17x17 synthetic patch both
+  remain visibly functional in wireframe. The synthetic 17x17 patch
+  also renders in solid. Standalone overlay reports roughly 144 FPS;
+  not comparable with actual full Metin2 gameplay.
+- The **real patch has a very tall, narrow cliff-like silhouette**
+  across all three LODs. This is not automatically an error: original
+  captured Z ranges from 24249 to 28585 (range 4336), which may be
+  comparable to or much greater than horizontal patch size.
+  Screenshots alone cannot determine whether the slope and winding
+  are authentic; full game DX11 terrain and adjacent seams are NOT
+  confirmed. The preview's (X,Y,Z)->(X,Z,-Y) rotation is intentional.
+- An opt-in **read-only CPU geometry audit** was added to
+  `Tools/DX11Smoke/LODSnapshotProbe.cpp`:
+  `--audit-geometry lod.bin patch.bin`. It validates both independently
+  checksummed sources and reports X/Y/Z spans, height/horizontal ratio,
+  mean Z-up normal, grid-neighbor maximum/steep-edge slopes, and
+  projected positive/negative/degenerate winding counts per LOD.
+  This tool has **NOT YET BEEN COMPILED OR RUN ON WINDOWS** after
+  the new audit feature; output metrics are pending.
+- User should compile only the isolated
+  `DX11LODSnapshotProbe.vcxproj`, preserve both snapshot files,
+  and run the geometry audit from the game working directory.
+  The game EXE and DX9 runtime must remain unchanged.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
@@ -628,8 +660,8 @@ User supplied six screenshots after the Gate 1j Windows build/test:
 - [x] Add rotated, recentered original Z-up to viewer Y-up CPU adapter and synthetic math regressions.
 - [x] Compose captured original patch vertices with all 3 verified original index topology streams in isolated immutable DX11 meshes.
 - [x] Retain unmodified no-argument synthetic, synthetic-patch and previous LOD-only modes.
-- [ ] User Windows Release x64 standalone DX11TerrainProbe compilation and link successful.
-- [ ] User screenshot: LOD0/1/2 real patch vertex views; compare V synthetic/actual and W wireframe/solid.
+- [x] User Windows Release x64 standalone DX11TerrainProbe compiled/ran: 7 screenshots show the expected D3D11 title and rendered terrain; no exact build-log exit code or process-exit code supplied in the screenshot turn.
+- [x] User screenshots: real patch LOD0 (512 tris), LOD1 (216), LOD2 (184), V-toggle synthetic LOD2, synthetic full terrain, and synthetic 17x17 patch wireframe/solid. Real-patch SOLID mode not yet shown.
 - [ ] Verify capture files unchanged (hash), clean DX11 test exit and original working DX9 runtime EXE unchanged.
 - [ ] Verify original game patch neighborhood seams / winding and splat layers separately.
 
