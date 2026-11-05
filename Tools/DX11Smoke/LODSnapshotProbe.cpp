@@ -4,12 +4,15 @@
 #include "../../Src/EterLib/Renderer/DX11LegacyTerrainIndices.h"
 #include "../../Src/EterLib/Renderer/DX11LegacyPatchSnapshot.h"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <utility>
 #include <string>
 #include <vector>
 
@@ -105,8 +108,12 @@ namespace
         return true;
     }
 
-    bool VerifyPatchFile(const char* path)
+    bool LoadPatchFile(
+        const char* path,
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount>& patch)
     {
+        // Read a fixed-size, checksummed file into temporary storage.
+        // The user's original capture is never modified.
         std::ifstream input(path, std::ios::binary | std::ios::ate);
         if (!input || input.tellg() !=
                       static_cast<std::streamoff>(DX11LegacyPatchSnapshot::kFileBytes))
@@ -116,24 +123,172 @@ namespace
         if (!input.read(reinterpret_cast<char*>(bytes.data()),
                         static_cast<std::streamsize>(bytes.size())))
             return false;
+        return DX11LegacyPatchSnapshot::Decode(bytes.data(), bytes.size(), patch);
+    }
+
+    bool VerifyPatchFile(const char* path)
+    {
         std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> patch{};
-        if (!DX11LegacyPatchSnapshot::Decode(bytes.data(), bytes.size(), patch))
+        if (!LoadPatchFile(path, patch))
             return false;
 
         float minZ = (std::numeric_limits<float>::max)();
         float maxZ = (std::numeric_limits<float>::lowest)();
         for (const auto& vertex : patch)
         {
-            if (vertex.position[2] < minZ)
-                minZ = vertex.position[2];
-            if (vertex.position[2] > maxZ)
-                maxZ = vertex.position[2];
+            minZ = (std::min)(minZ, vertex.position[2]);
+            maxZ = (std::max)(maxZ, vertex.position[2]);
         }
         std::cout << "Real terrain patch: vertices=" << patch.size()
                   << ", minZ=" << minZ << ", maxZ=" << maxZ
                   << ", height range=" << (maxZ - minZ)
                   << ", x/y/z original DX9 axes\n";
         return Check("Real terrain patch file validated", true);
+    }
+
+    bool AuditGeometry(const char* lodPath, const char* patchPath)
+    {
+        LegacyIndexSnapshot lod;
+        if (!DX11LegacyIndexSnapshot::LoadFile(lodPath, lod))
+        {
+            std::cerr << "[FAIL] LOD source invalid or inaccessible.\n";
+            return false;
+        }
+
+        std::array<LegacyPatchVertex, DX11LegacyPatchSnapshot::kVertexCount> patch{};
+        if (!LoadPatchFile(patchPath, patch))
+        {
+            std::cerr << "[FAIL] Patch vertex source invalid or inaccessible.\n";
+            return false;
+        }
+
+        double minXYZ[3]{patch[0].position[0],
+                         patch[0].position[1],
+                         patch[0].position[2]};
+        double maxXYZ[3]{minXYZ[0], minXYZ[1], minXYZ[2]};
+        double normalUpTotal = 0.0;
+        for (const auto& vertex : patch)
+        {
+            for (unsigned axis = 0; axis < 3; ++axis)
+            {
+                minXYZ[axis] = (std::min)(
+                    minXYZ[axis], static_cast<double>(vertex.position[axis]));
+                maxXYZ[axis] = (std::max)(
+                    maxXYZ[axis], static_cast<double>(vertex.position[axis]));
+            }
+            const double nx = vertex.normal[0];
+            const double ny = vertex.normal[1];
+            const double nz = vertex.normal[2];
+            normalUpTotal += nz / std::sqrt(nx * nx + ny * ny + nz * nz);
+        }
+
+        const double widthX = maxXYZ[0] - minXYZ[0];
+        const double widthY = maxXYZ[1] - minXYZ[1];
+        const double height = maxXYZ[2] - minXYZ[2];
+        const double horizontalSize = (std::max)(widthX, widthY);
+        if (!(widthX > 0.0 && widthY > 0.0 && std::isfinite(height)))
+        {
+            std::cerr << "[FAIL] Captured patch has invalid horizontal span.\n";
+            return false;
+        }
+        std::cout << "Original DX9 patch extent: X=" << widthX
+                  << ", Y=" << widthY << ", Z(height)=" << height
+                  << ", Z/max(X,Y)=" << height / horizontalSize << '\n';
+        std::cout << "Mean normalized original Z-up normal component="
+                  << normalUpTotal / patch.size() << '\n';
+
+        constexpr std::size_t side = 17u;
+        std::size_t edges = 0;
+        std::size_t steep60 = 0;
+        std::size_t steep75 = 0;
+        double maxSlopeDegrees = 0.0;
+        constexpr double radiansToDegrees = 57.29577951308232;
+        const auto visitEdge = [&](std::size_t a, std::size_t b) -> bool
+        {
+            const auto& lhs = patch[a];
+            const auto& rhs = patch[b];
+            const double dx = double(rhs.position[0]) - lhs.position[0];
+            const double dy = double(rhs.position[1]) - lhs.position[1];
+            const double dz = double(rhs.position[2]) - lhs.position[2];
+            const double planar = std::hypot(dx, dy);
+            if (!std::isfinite(planar) || planar <= 0.0 ||
+                !std::isfinite(dz))
+                return false;
+            const double slope = std::atan(std::abs(dz) / planar) *
+                                 radiansToDegrees;
+            if (!std::isfinite(slope))
+                return false;
+            ++edges;
+            if (slope >= 60.0)
+                ++steep60;
+            if (slope >= 75.0)
+                ++steep75;
+            maxSlopeDegrees = (std::max)(maxSlopeDegrees, slope);
+            return true;
+        };
+        for (std::size_t row = 0; row < side; ++row)
+        {
+            for (std::size_t col = 0; col < side; ++col)
+            {
+                const std::size_t here = row * side + col;
+                if (col + 1 < side && !visitEdge(here, here + 1))
+                    return false;
+                if (row + 1 < side && !visitEdge(here, here + side))
+                    return false;
+            }
+        }
+        std::cout << "Grid-neighbor slopes: edges=" << edges
+                  << ", maximum degrees=" << maxSlopeDegrees
+                  << ", >=60 degrees=" << steep60
+                  << ", >=75 degrees=" << steep75 << '\n';
+
+        for (std::size_t level = 0; level < lod.lod.size(); ++level)
+        {
+            std::vector<std::uint16_t> triangles;
+            const auto topology = level == 0
+                ? LegacyTerrainPrimitive::TriangleStrip
+                : LegacyTerrainPrimitive::TriangleList;
+            const auto& raw = lod.lod[level];
+            if (!DX11LegacyTerrainIndices::ToTriangleList(
+                    raw.data(), raw.size(), patch.size(), topology, triangles))
+                return false;
+
+            std::size_t windingPositive = 0;
+            std::size_t windingNegative = 0;
+            std::size_t projectedDegenerate = 0;
+            for (std::size_t i = 0; i < triangles.size(); i += 3)
+            {
+                const auto& a = patch[triangles[i]].position;
+                const auto& b = patch[triangles[i + 1]].position;
+                const auto& c = patch[triangles[i + 2]].position;
+                const double abX = double(b[0]) - a[0];
+                const double abY = double(b[1]) - a[1];
+                const double acX = double(c[0]) - a[0];
+                const double acY = double(c[1]) - a[1];
+                const double area2 = abX * acY - abY * acX;
+                if (std::abs(area2) <= 1.0e-8)
+                    ++projectedDegenerate;
+                else if (area2 > 0)
+                    ++windingPositive;
+                else
+                    ++windingNegative;
+            }
+            std::cout << "LOD" << level
+                      << ": convertedTriangles=" << triangles.size() / 3u
+                      << ", projectedWindingPositive=" << windingPositive
+                      << ", projectedWindingNegative=" << windingNegative
+                      << ", projectedDegenerate=" << projectedDegenerate
+                      << '\n';
+            if (windingPositive && windingNegative)
+                std::cout << "[WARN] Mixed projected winding in LOD"
+                          << level << "; review source edge stitching.\n";
+            if (projectedDegenerate)
+                std::cout << "[WARN] Degenerate projected triangles in LOD"
+                          << level << ".\n";
+        }
+        std::cout << "[OK] Read-only captured geometry audit complete. "
+                     "No runtime files were written.\n";
+        return true;
     }
 
     bool RunSelfTest()
@@ -198,6 +353,11 @@ int main(int argc, char** argv)
     if (argc == 1)
         return RunSelfTest() ? 0 : 1;
 
+    if (argc == 4 && std::string(argv[1]) == "--audit-geometry")
+    {
+        return AuditGeometry(argv[2], argv[3]) ? 0 : 6;
+    }
+
     if (argc == 3 && std::string(argv[1]) == "--verify-patch")
     {
         if (!VerifyPatchFile(argv[2]))
@@ -210,7 +370,7 @@ int main(int argc, char** argv)
 
     if (argc != 3 || std::string(argv[1]) != "--verify")
     {
-        std::cerr << "Usage: DX11LODSnapshotProbe.exe [--verify capture.bin | --verify-patch patch.bin]\n";
+        std::cerr << "Usage: DX11LODSnapshotProbe.exe [--verify capture.bin | --verify-patch patch.bin | --audit-geometry lod.bin patch.bin]\n";
         return 2;
     }
 
