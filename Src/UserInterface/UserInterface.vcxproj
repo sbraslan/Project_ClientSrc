@@ -488,7 +488,8 @@
       <Culture>0x0412</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>python315.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(EnableDX11InGameProbe)'!='true'">python315.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(EnableDX11InGameProbe)'=='true'">python315.lib;d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -580,7 +581,16 @@
     <ClCompile Include="PythonTextTailModule.cpp" />
     <ClCompile Include="PythonPackModule.cpp" />
     <ClCompile Include="ProcessScanner.cpp" />
-    <ClCompile Include="PythonApplication.cpp" />
+    <ClCompile Include="PythonApplication.cpp">
+      <!-- x64-only opt-in hook; original default PCH and DX9 remain unchanged. -->
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11InGameProbe)'=='true'">M2_DX11_INGAME_PROBE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11InGameProbe)'=='true'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="DX11InGameProbe.cpp">
+      <!-- Source is excluded from normal DX9 Release and every other build. -->
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11InGameProbe)'!='true'">true</ExcludedFromBuild>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="PythonApplicationCamera.cpp" />
     <ClCompile Include="PythonApplicationCursor.cpp" />
     <ClCompile Include="PythonApplicationEvent.cpp" />
@@ -676,6 +686,7 @@
     <ClInclude Include="PythonTextTail.h" />
     <ClInclude Include="ProcessScanner.h" />
     <ClInclude Include="PythonApplication.h" />
+    <ClInclude Include="DX11InGameProbe.h" />
     <ClInclude Include="PythonIME.h" />
     <ClInclude Include="PythonSystem.h" />
     <ClInclude Include="GuildMarkDownloader.h" />
