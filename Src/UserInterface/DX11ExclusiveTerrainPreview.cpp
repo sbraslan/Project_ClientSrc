@@ -445,7 +445,7 @@ namespace m2::render
                 // GPU cache knows nothing about filenames or GameLib.
                 // It only binds this key's LOD VB/IB and draws.
                 hr = genericCache_.Draw(
-                    ctx, FixtureKey(patch), lod);
+                    ctx, FixtureKey(static_cast<unsigned>(patch)), lod);
                 if (FAILED(hr))
                     return hr;
                 continue;
