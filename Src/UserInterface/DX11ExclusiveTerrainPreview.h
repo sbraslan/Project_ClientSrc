@@ -5,6 +5,9 @@
 // or alters the normal DX9 client. Scene/materials remain diagnostic-only.
 #include "../EterLib/Renderer/DX11RenderDevice.h"
 #include "../EterLib/Renderer/DX11RenderResources.h"
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+#include "../EterLib/Renderer/DX11TerrainPatchCache.h"
+#endif
 
 #include <array>
 #include <cstddef>
@@ -33,16 +36,40 @@ namespace m2::render
         unsigned MainLOD() const noexcept { return lodA_; }
         UINT TriangleCount(unsigned patch, unsigned lod) const noexcept
         {
-            return patch < 2u && lod < 3u
-                ? meshes_[patch][lod].indexCount / 3u : 0u;
+            if (patch >= 2u || lod >= 3u)
+                return 0u;
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+            if (genericEnabled_)
+                return genericCache_.TriangleCount(FixtureKey(patch), lod);
+#endif
+            return meshes_[patch][lod].indexCount / 3u;
         }
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+        bool GenericPipelineEnabled() const noexcept { return genericEnabled_; }
+        std::size_t GenericResidentCount() const noexcept
+        {
+            return genericCache_.Size();
+        }
+#endif
 
     private:
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+        static TerrainPatchKey FixtureKey(unsigned patch) noexcept
+        {
+            // Only the fixture assigns these keys. Production map
+            // streamers supply their own tile/patch coordinates.
+            return TerrainPatchKey{0u, 0u, patch, 0u};
+        }
+#endif
         HRESULT InitializeResources(DX11RenderDevice& renderer);
         HRESULT CreateDepth(ID3D11Device* device,
                             unsigned width, unsigned height) noexcept;
 
         std::array<std::array<DX11MeshBuffers, 3>, 2> meshes_{};
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+        DX11TerrainPatchCache genericCache_{};
+        bool genericEnabled_ = false;
+#endif
         DX11ShaderPipeline shader_{};
         Microsoft::WRL::ComPtr<ID3D11Buffer> sceneBuffer_;
         Microsoft::WRL::ComPtr<ID3D11Texture2D> depth_;
