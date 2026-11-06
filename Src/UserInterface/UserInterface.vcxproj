@@ -655,12 +655,19 @@
     <ClCompile Include="DX11MainWindowBootstrap.cpp">
       <!-- Build nothing in the default DX9 client, or outside x64 Release. -->
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11MainWindowBootstrap)'!='true'">true</ExcludedFromBuild>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true' and '$(EnableDX11ExclusiveTerrain)'=='true'">M2_DX11_EXCLUSIVE_TERRAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true' and '$(EnableDX11ExclusiveTerrain)'=='true' and '$(EnableDX11GenericTerrain)'!='true'">M2_DX11_EXCLUSIVE_TERRAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true' and '$(EnableDX11ExclusiveTerrain)'=='true' and '$(EnableDX11GenericTerrain)'=='true'">M2_DX11_EXCLUSIVE_TERRAIN;M2_DX11_GENERIC_TERRAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="DX11ExclusiveTerrainPreview.cpp">
       <!-- No live DX9 changes; compile only with BOTH exclusive+terrain flags. -->
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11MainWindowBootstrap)'!='true' or '$(EnableDX11ExclusiveTerrain)'!='true'">true</ExcludedFromBuild>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(EnableDX11MainWindowBootstrap)'=='true' and '$(EnableDX11ExclusiveTerrain)'=='true' and '$(EnableDX11GenericTerrain)'=='true'">M2_DX11_GENERIC_TERRAIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\EterLib\Renderer\DX11TerrainPatchCache.cpp">
+      <!-- Generic keyed GPU upload/cache only in explicit experimental build. -->
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Release|x64' or '$(EnableDX11MainWindowBootstrap)'!='true' or '$(EnableDX11ExclusiveTerrain)'!='true' or '$(EnableDX11GenericTerrain)'!='true'">true</ExcludedFromBuild>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="DX11MapPackInspect.cpp">
@@ -716,6 +723,8 @@
     <ClInclude Include="DX11InGameProbe.h" />
     <ClInclude Include="DX11MainWindowBootstrap.h" />
     <ClInclude Include="DX11ExclusiveTerrainPreview.h" />
+    <ClInclude Include="..\EterLib\Renderer\DX11TerrainPatchData.h" />
+    <ClInclude Include="..\EterLib\Renderer\DX11TerrainPatchCache.h" />
     <ClInclude Include="DX11MapPackInspect.h" />
     <ClInclude Include="PythonIME.h" />
     <ClInclude Include="PythonSystem.h" />
