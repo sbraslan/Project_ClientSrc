@@ -1368,6 +1368,109 @@ The original map folder rule is now verified from:
   a new archive format. On exit 26/27 validate the
   original Setting.txt source/heightscale grammar.
 
+## Gate 2i — map-independent DX11 patch GPU pipeline (SOURCE STAGED; Windows tests pending)
+
+**Why this replaces map-by-map probes:** User wants a DX11 renderer
+that automatically supports existing and future Metin2 maps.
+Passing exclusive D3D11 and actual two-patch snapshot tests was
+enough to validate geometry; future maps must NOT need hardcoded
+new file names, terrain conversion code, or special shader branches.
+
+**Existing verified inputs (Windows):**
+- Exclusive main DX11 HWND, zero D3D9 CreateDevice and 3677
+  D3D11 clear frames, exit 0, PID 12964.
+- Original adjacent A+B snapshot geometry on EXCLUSIVE DX11
+  main HWND: 512/216/184 triangles per patch, 3303 frames,
+  exit 0, PID 19508, screenshot and logs verified.
+- CPU height.raw format + 17-border vertex/normal fixture, standalone
+  x64 Windows test passed.
+- Read-only original EterPack atlasinfo.txt (5676 bytes) accessed
+  without any D3D9 or D3D11 device, PID 11256; map entries found.
+- No live Metin2 map resource rendering, pack-to-GPU streaming,
+  texture materials, UI, Granny models or gameplay yet.
+
+**Source changes now staged on branch
+migration/dx11-exclusive-bootstrap-v1**:
+1. `Src/EterLib/Renderer/DX11TerrainPatchData.h` — purely
+   CPU-facing `TerrainPatchKey(tileX,tileY,patchX,patchY)`
+   and `TerrainPatchGeometryView` with 3 separate LOD triangle-list
+   index arrays, vertex pointer and bounds. A strict validation
+   helper rejects invalid vertex counts, indices, incomplete
+   triangle streams and NaN/Inf position/normal/UV. This header
+   uses NO D3D9/D3D11/Windows/pack/game resource APIs.
+2. `Src/EterLib/Renderer/DX11TerrainPatchCache.h/.cpp` —
+   reusable backend that accepts any validated patch key, uploads
+   3 LOD levels through the previously verified immutable D3D11
+   mesh factory, replaces the GPU patch transactionally (old
+   remains valid if upload fails), removes unloaded patches,
+   supports arbitrary resident patch lookup, reports triangle count,
+   and calls `DrawIndexed` for a requested LOD. Bounded
+   resident patch count 4096 pending live map streaming decisions.
+   It owns **no** filenames, hardcoded world map names, DX9
+   resources or gameplay state.
+3. Existing saved capture renderer
+   `Src/UserInterface/DX11ExclusiveTerrainPreview.h/.cpp`
+   now has a separate opt-in adapter: it feeds the 2 known
+   verified fixture patches to this generic `Upsert` API,
+   then calls `Draw` for each. Old proven captured-mesh
+   drawing is unchanged unless BOTH compile and process
+   generic flags are enabled. Fixture labels (patch A/B) live
+   ONLY in the adapter, not in the generic GPU cache.
+4. `DX11MainWindowBootstrap.cpp` logs the generic cache
+   active state, resident patch count and 30 D3D11 frames.
+5. `UserInterface.vcxproj` compiles the generic cache only if
+   Release|x64 AND
+   `EnableDX11MainWindowBootstrap=true`,
+   `EnableDX11ExclusiveTerrain=true`,
+   `EnableDX11GenericTerrain=true`. Existing default DX9,
+   clear-only DX11 and captured terrain builds are unchanged.
+6. `Tools/DX11Smoke/RawTerrainHeightProbe.cpp` now adds
+   CPU-only geometry contract tests: valid three-LOD submission,
+   out-of-range index, non-triangle list, nonfinite UV,
+   and coordinate-key uniqueness. It still needs Windows run.
+
+**How to run after successful build (DO NOT claim run yet):**
+- Pull this branch; separately `Build` the CPU
+  `DX11RawTerrainProbe.vcxproj Release|x64`, run and check new
+  `[OK] Generic map-independent patch upload contract` line.
+- Build the main `UserInterface.vcxproj Release|x64` with
+  `EnableDX11MainWindowBootstrap=true`,
+  `EnableDX11ExclusiveTerrain=true`,
+  `EnableDX11GenericTerrain=true`,
+  `EnableDX11MapPackProbe=false`,
+  `EnableDX11InGameProbe=false`, all old capture flags false.
+  Use `/m:1` and `BuildInParallel=false`: prior test
+  exposed C1060 compiler heap limits on /m multibuild.
+- Verify original DX9 exe SHA-256 unchanged; copy the
+  special binary to a distinct SHA-named
+  `metin2release_dx11_generic_<hash>.exe` file.
+- Run it from `Project_Client` with
+  `--dx11-exclusive-bootstrap` and exact environment flags
+  `METIN2_DX11_EXCLUSIVE_BOOT=1`,
+  `METIN2_DX11_EXCLUSIVE_TERRAIN=1`,
+  `METIN2_DX11_GENERIC_TERRAIN=1`.
+  Three existing captured .bin fixture files must still
+  be present; these are **only test inputs**.
+- Expected new logs:
+  `[DX11 TERRAIN CACHE] GENERIC GPU PATCH PIPELINE READY;
+  resident=2, LOD0=512 triangles per patch; no DX9 device`
+  then `[DX11 TERRAIN CACHE] 30 frames through map-agnostic
+  three-LOD GPU cache PASSED`, and normal exit 0.
+- Verify wireframe W, LOD keys 1/2/3, M mixed LOD, resizing,
+  and old fixture surface is not changed by new cache.
+  Failed builds/logs require fixes **only on this isolated
+  branch**, not editing the working DX9 game executable.
+
+**What this DOES NOT yet do**: It is not live map loading;
+the generic GPU consumer is ready, but future upstream
+`CTerrain`/EterPack producer must submit CPU vertices,
+index LODs, material layers, and unloading events without
+allocating D3D9 textures/VBs. The main WinMain path still
+bypasses Python/gameplay in this special test mode. This
+is deliberate until D3D9 device ownership dependencies
+are retired in stages. No individual map source needs a
+special DX11 code path when this adapter is complete.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
