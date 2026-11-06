@@ -198,6 +198,17 @@ namespace m2::render
                            state.terrain.TriangleCount(0u, 0u),
                            state.terrain.TriangleCount(0u, 1u),
                            state.terrain.TriangleCount(0u, 2u));
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+                if (state.terrain.GenericPipelineEnabled())
+                {
+                    TraceError("[DX11 TERRAIN CACHE] GENERIC GPU PATCH "
+                               "PIPELINE READY; resident=%llu, LOD0=%u "
+                               "triangles per patch; no DX9 device",
+                               static_cast<unsigned long long>(
+                                   state.terrain.GenericResidentCount()),
+                               state.terrain.TriangleCount(0u, 0u));
+                }
+#endif
             }
         }
 #endif
@@ -277,6 +288,12 @@ namespace m2::render
                     if (state.terrainEnabled)
                         TraceError("[DX11 EXCLUSIVE TERRAIN] 30 real A/B patch "
                                    "GPU frames passed on exclusive DX11 main HWND");
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+                    if (state.terrainEnabled &&
+                        state.terrain.GenericPipelineEnabled())
+                        TraceError("[DX11 TERRAIN CACHE] 30 frames through "
+                                   "map-agnostic three-LOD GPU cache PASSED");
+#endif
 #endif
                 }
             }
