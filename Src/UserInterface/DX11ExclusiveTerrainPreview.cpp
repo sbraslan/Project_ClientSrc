@@ -198,27 +198,59 @@ namespace m2::render
         if (!BuildMeshVertices(patches, vertices, cameraDistance_))
             return HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
 
+        // Fixture adapter: the original two-patch snapshot is only one
+        // producer of the GENERIC CPU geometry contract. A future live
+        // map loader can submit any tile/patch key through the same cache.
+        // Keep the previously verified legacy GPU path as default.
         for (std::size_t patch = 0; patch < 2u; ++patch)
-            for (std::size_t lod = 0; lod < 3u; ++lod)
+        {
+            std::array<std::vector<std::uint16_t>, 3> triangles{};
+            for (std::size_t lod = 0; lod < triangles.size(); ++lod)
             {
                 const auto primitive = lod == 0u
                     ? LegacyTerrainPrimitive::TriangleStrip
                     : LegacyTerrainPrimitive::TriangleList;
                 const auto& raw = lodSnapshot.lod[lod];
-                std::vector<std::uint16_t> triangles;
                 if (!DX11LegacyTerrainIndices::ToTriangleList(
                         raw.data(), raw.size(), vertices[patch].size(),
-                        primitive, triangles))
+                        primitive, triangles[lod]))
                     return HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
+            }
+
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+            if (genericEnabled_)
+            {
+                TerrainPatchGeometryView submitted{};
+                submitted.vertices = vertices[patch].data();
+                submitted.vertexCount =
+                    static_cast<std::uint32_t>(vertices[patch].size());
+                for (std::size_t lod = 0u; lod < triangles.size(); ++lod)
+                {
+                    submitted.lodIndices[lod] = triangles[lod].data();
+                    submitted.lodIndexCounts[lod] =
+                        static_cast<std::uint32_t>(triangles[lod].size());
+                }
+                const HRESULT hr = genericCache_.Upsert(
+                    device, FixtureKey(static_cast<unsigned>(patch)),
+                    submitted);
+                if (FAILED(hr))
+                    return hr;
+                continue;
+            }
+#endif
+            for (std::size_t lod = 0; lod < triangles.size(); ++lod)
+            {
                 const HRESULT hr = DX11RenderResources::CreateImmutableMesh(
                     device, vertices[patch].data(),
                     static_cast<UINT>(sizeof(TerrainVertex)),
                     static_cast<UINT>(vertices[patch].size()),
-                    triangles.data(), static_cast<UINT>(triangles.size()),
+                    triangles[lod].data(),
+                    static_cast<UINT>(triangles[lod].size()),
                     meshes_[patch][lod]);
                 if (FAILED(hr))
                     return hr;
             }
+        }
 
         constexpr D3D11_INPUT_ELEMENT_DESC layout[] = {
             {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -298,6 +330,17 @@ namespace m2::render
         Shutdown();
         try
         {
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+            // Exact per-process runtime flag in addition to compile-time
+            // opt-in. Without it, the previous captured DX11 renderer
+            // is identical to the already passed baseline.
+            char enabledFlag[2]{};
+            const DWORD enabledLength = ::GetEnvironmentVariableA(
+                "METIN2_DX11_GENERIC_TERRAIN", enabledFlag,
+                static_cast<DWORD>(sizeof(enabledFlag)));
+            genericEnabled_ = enabledLength == 1u &&
+                              enabledFlag[0] == '1';
+#endif
             HRESULT hr = InitializeResources(renderer);
             if (SUCCEEDED(hr))
                 hr = CreateDepth(renderer.NativeDevice(), width, height);
@@ -395,7 +438,20 @@ namespace m2::render
             std::memcpy(mapped.pData, &scene, sizeof(scene));
             ctx->Unmap(sceneBuffer_.Get(), 0);
 
-            const auto& mesh = meshes_[patch][patch == 0u ? lodA_ : lodB_];
+            const unsigned lod = patch == 0u ? lodA_ : lodB_;
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+            if (genericEnabled_)
+            {
+                // GPU cache knows nothing about filenames or GameLib.
+                // It only binds this key's LOD VB/IB and draws.
+                hr = genericCache_.Draw(
+                    ctx, FixtureKey(patch), lod);
+                if (FAILED(hr))
+                    return hr;
+                continue;
+            }
+#endif
+            const auto& mesh = meshes_[patch][lod];
             ID3D11Buffer* vb = mesh.vertices.Get();
             const UINT offset = 0u;
             ctx->IASetVertexBuffers(0, 1, &vb, &mesh.stride, &offset);
@@ -408,6 +464,10 @@ namespace m2::render
     void DX11ExclusiveTerrainPreview::Shutdown() noexcept
     {
         ready_ = false;
+#if defined(M2_DX11_GENERIC_TERRAIN) && defined(_WIN64)
+        genericCache_.Clear();
+        genericEnabled_ = false;
+#endif
         depthView_.Reset();
         depth_.Reset();
         depthState_.Reset();
