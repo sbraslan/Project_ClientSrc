@@ -1326,6 +1326,48 @@ Pack initialization may still fail if an external pack
 format/runtime dependency is missing; do not bypass
 encryption or try to rewrite archives.
 
+## Gate 2h — first REAL original EterPack atlas discovery PASSED (2026-11-06)
+
+User reports `DX11 MAP PACK` run PID=11256:
+- Original pack manager initialized without D3D9 or D3D11 device.
+- `atlasinfo.txt` loaded through original CEterPackManager:
+  5676 bytes.
+- First 16 atlas entries discovered and logged; examples:
+  `gm_guild_build`, `map_a2`, `metin2_map_a1` (entry
+  14), `metin2_map_a3` (entry 15).
+- `map path not specified; discovery only` is expected
+  when `METIN2_DX11_MAP_HEIGHT_PATH` is absent; it is
+  not a read error.
+- User has NOT yet tested a real `height.raw` resource.
+
+The original map folder rule is now verified from:
+- `CMapManager::LoadMap`: `rkMap.SetName(c_rstrMapName)`
+  where c_rstrMapName is the atlas map name.
+- `CMapBase::GetMapDataDirectory`:
+  `IsCopiedMap() ? m_strParentMapName : m_strName`.
+  Maps with `ParentMapName` must read the parent map
+  directory rather than the atlas map folder.
+- `CMapOutdoor::LoadTerrain`: constructs
+  `GetMapDataDirectory() + "/%06u/height.raw"` using
+  tile ID `terrainX*1000+terrainY`. `Setting.txt` is
+  located in the same virtual map root.
+- Therefore **first source-grounded *candidate*** to test:
+  `metin2_map_a1/000000/height.raw` (atlas map
+  `metin2_map_a1`, tile (0,0)).
+  This path has NOT yet been confirmed to exist in this
+  user's packs. An absent tile 000000 is possible; do not
+  claim it exists until CEterPackManager::Get confirms it.
+- Existing opt-in `DX11MapPackInspect` already accepts
+  this candidate through environment
+  `METIN2_DX11_MAP_HEIGHT_PATH`. No new source code
+  or additional DX9 modifications are required for
+  this next validation. On success inspect logs for
+  `ORIGINAL PACK terrain CPU gate PASS`.
+  On exit 23 raw file not found, inspect actual map
+  `MapProperty.txt` / tile IDs rather than guessing
+  a new archive format. On exit 26/27 validate the
+  original Setting.txt source/heightscale grammar.
+
 ## Scope and source of truth
 
 - Production/legacy client source: `sbraslan/Project_ClientSrc`, starting branch `migration/client-x64`.
