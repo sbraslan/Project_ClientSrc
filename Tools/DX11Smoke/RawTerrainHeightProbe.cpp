@@ -2,6 +2,7 @@
 // Does not start D3D9/D3D11 or require any game resources.
 // Invoke without arguments to exercise synthetic edge/bounds fixtures.
 #include "../../Src/EterLib/Renderer/DX11RawTerrainHeight.h"
+#include "../../Src/EterLib/Renderer/DX11TerrainPatchData.h"
 
 #include <array>
 #include <cmath>
@@ -12,6 +13,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace
@@ -125,6 +127,67 @@ namespace
         return DX11RawTerrainHeight::Decode(bytes.data(), bytes.size(), tile);
     }
 
+    bool GenericPatchContractTest()
+    {
+        using namespace m2::render;
+        // No snapshots and no map names: arbitrary geometry producer.
+        std::array<TerrainVertex, 3> vertices{};
+        vertices[0].position[0] = 0.0f;
+        vertices[1].position[0] = 1.0f;
+        vertices[2].position[2] = 1.0f;
+        for (auto& vertex : vertices)
+            vertex.normal[1] = 1.0f;
+        std::array<std::uint16_t, 3> triangle{0u, 1u, 2u};
+
+        TerrainPatchGeometryView view{};
+        view.vertices = vertices.data();
+        view.vertexCount = static_cast<std::uint32_t>(vertices.size());
+        for (unsigned lod = 0u; lod != 3u; ++lod)
+        {
+            view.lodIndices[lod] = triangle.data();
+            view.lodIndexCounts[lod] =
+                static_cast<std::uint32_t>(triangle.size());
+        }
+        if (!ValidateTerrainPatchGeometry(view))
+        {
+            std::cout << "[FAIL] generic patch valid geometry refused\n";
+            return false;
+        }
+        triangle[2] = 3u;
+        if (ValidateTerrainPatchGeometry(view))
+        {
+            std::cout << "[FAIL] generic patch invalid index accepted\n";
+            return false;
+        }
+        triangle[2] = 2u;
+        view.lodIndexCounts[1] = 2u;
+        if (ValidateTerrainPatchGeometry(view))
+        {
+            std::cout << "[FAIL] generic patch non-triangle LOD accepted\n";
+            return false;
+        }
+        view.lodIndexCounts[1] = 3u;
+        vertices[2].uv[0] = std::numeric_limits<float>::quiet_NaN();
+        if (ValidateTerrainPatchGeometry(view))
+        {
+            std::cout << "[FAIL] generic patch nonfinite UV accepted\n";
+            return false;
+        }
+        vertices[2].uv[0] = 0.0f;
+        std::unordered_set<TerrainPatchKey, TerrainPatchKeyHash> keys;
+        keys.insert(TerrainPatchKey{1u, 2u, 0u, 0u});
+        keys.insert(TerrainPatchKey{1u, 2u, 1u, 0u});
+        keys.insert(TerrainPatchKey{1u, 2u, 0u, 0u});
+        if (keys.size() != 2u || !ValidateTerrainPatchGeometry(view))
+        {
+            std::cout << "[FAIL] generic patch key uniqueness\n";
+            return false;
+        }
+        std::cout << "[OK] Generic map-independent patch upload "
+                     "contract, three LODs, bounds and key identity\n";
+        return true;
+    }
+
     bool ParseScale(const wchar_t* input, float& output)
     {
         if (!input || !*input)
@@ -141,7 +204,7 @@ namespace
 
 int wmain(int argc, wchar_t** argv)
 {
-    if (!SyntheticTest())
+    if (!GenericPatchContractTest() || !SyntheticTest())
         return 1;
     if (argc == 1)
     {
